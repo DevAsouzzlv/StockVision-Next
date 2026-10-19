@@ -304,7 +304,11 @@ exports.getProfile = async (req, res) => {
             return res.status(404).json({ message: 'Usuário não localizado.' });
         }
 
-        return res.status(200).json(user);
+        const userObj = user.toObject();
+        return res.status(200).json({
+            ...userObj,
+            user: userObj
+        });
     } catch (error) {
         return res.status(500).json({ message: 'Erro ao carregar perfil.', error: error.message });
     }

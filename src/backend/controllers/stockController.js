@@ -381,3 +381,5 @@ exports.importInvoiceXml = async (req, res) => {
         return res.status(500).json({ message: 'Erro crítico ao realizar o parse estrutural da NF-e.', error: error.message });
     }
 };
+
+exports.calculateVisualStatus = calculateVisualStatus;
