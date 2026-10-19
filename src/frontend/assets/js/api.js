@@ -152,6 +152,24 @@ const AuthAPI = {
 };
 
 /**
+ * 📊 MÓDULO DO DASHBOARD EXECUTIVO & ANALYTICS
+ */
+const DashboardAPI = {
+    getAnalytics: async () => {
+        try {
+            const token = TokenManager.getToken();
+            const response = await fetch(`${BASE_URL}/dashboard/analytics`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Erro ao carregar indicadores analíticos.');
+            return data;
+        } catch (error) { throw error; }
+    }
+};
+
+/**
  * 📦 MÓDULO DE OPERAÇÃO DE ESTOQUE, HISTÓRICO, ESG, PREVISÃO DE IA E XML
  */
 const StockAPI = {

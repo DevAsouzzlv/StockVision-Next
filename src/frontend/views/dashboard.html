@@ -1,171 +1,379 @@
-<!doctype html>
-<html lang="pt-BR" data-bs-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StockVision - Painel Principal</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
-        <link rel="shortcut icon" href="../assets/icons/icon-stockVision.png" type="image/png">
-    <link rel="stylesheet" href="../assets/css/dashboard-bs.css" />
-    <link rel="stylesheet" href="../assets/css/modern.css" />
-  </head>
-  <body>
-    <div class="app-shell d-flex flex-column flex-md-row">
-      <aside class="sidebar-panel offcanvas-md offcanvas-start d-flex flex-column p-3 p-md-4" id="sidebarMenu" tabindex="-1">
-        <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
-          <h5 class="fw-bold text-primary mb-0">StockVision</h5>
-          <button type="button" class="btn btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
-        </div>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockVision - Dashboard Executivo</title>
+    <link rel="stylesheet" href="../assets/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="shortcut icon" href="../assets/icons/icon-stockVision.png" type="image/png">
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/authGuard.js"></script>
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
 
-        <div class="sidebar-brand p-3 mb-4 text-center">
-          <h2 class="fw-bold fs-4 mb-1 text-primary">StockVision</h2>
-          <p class="text-muted small mb-0">Mapeamento de armazéns com experiência inteligente</p>
-        </div>
-
-        <ul class="sidebar-nav nav nav-pills flex-column gap-1 mb-auto">
-          <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="bi bi-bar-chart-fill me-2"></i> Dashboard</a></li>
-          <li class="nav-item"><a href="stock.html" class="nav-link"><i class="bi bi-box-seam me-2"></i> Estoque</a></li>
-          <li class="nav-item"><a href="demand.html" class="nav-link"><i class="bi bi-graph-up-arrow me-2"></i> Previsão de Demanda</a></li>
-          <li class="nav-item"><a href="partners.html" class="nav-link"><i class="bi bi-people-fill me-2"></i> Pedidos & Fornecedores</a></li>
-          <li class="nav-item"><a href="reverse.html" class="nav-link"><i class="bi bi-arrow-repeat me-2"></i> Logística Reversa</a></li>
-          <li class="nav-item"><a href="esg.html" class="nav-link"><i class="bi bi-tree-fill me-2"></i> Sustentabilidade (ESG)</a></li>
-          <li class="nav-item"><a href="auditoria.html" class="nav-link"><i class="bi bi-clipboard-check-fill me-2"></i> Auditoria de Estoque</a></li>
-        </ul>
-
-        <a href="#" onclick="handleUserLogout()" class="btn btn-outline-danger mt-3">
-          <i class="bi bi-box-arrow-right me-2"></i> Logout
-        </a>
-      </aside>
-
-      <main class="flex-grow-1 p-3 p-md-4">
-        <header class="topbar rounded-4 p-3 p-md-4 mb-4 d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-outline-secondary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
-              <i class="bi bi-list"></i>
-            </button>
-            <div>
-              <h4 class="mb-0 fw-bold" id="user-name-display">Carregando perfil...</h4>
-              <p class="mb-0 text-muted small" id="user-company-display">Identificando organização...</p>
+    <!-- Sidebar de Navegação Lateral -->
+    <aside class="w-full md:w-64 bg-white dark:bg-slate-800/95 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700/80 p-5 flex flex-col justify-between shrink-0 shadow-sm">
+        <div>
+            <!-- Brand / Logo -->
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <img src="../assets/icons/icon-stockVision.png" alt="StockVision" class="w-10 h-10 object-contain drop-shadow">
+                <div>
+                    <span class="font-bold text-base tracking-tight text-slate-900 dark:text-white block">StockVision</span>
+                    <span class="text-[10px] uppercase font-semibold text-emerald-600 dark:text-emerald-400 tracking-wider">WMS & ESG 2.0</span>
+                </div>
             </div>
-          </div>
-          <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle" aria-label="Alternar tema">
-            <i class="bi bi-moon-stars-fill"></i>
-          </button>
+
+            <!-- Menu de Links -->
+            <nav class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800/60 shadow-sm transition">
+                    <i class="bi bi-grid-1x2 text-base"></i>
+                    <span>Dashboard Executivo</span>
+                </a>
+                <a href="stock.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-box-seam text-base"></i>
+                    <span>Estoque & Insumos</span>
+                </a>
+                <a href="demand.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-graph-up-arrow text-base"></i>
+                    <span>Previsão de Demanda</span>
+                </a>
+                <a href="partners.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-truck text-base"></i>
+                    <span>Fornecedores & NF-e</span>
+                </a>
+                <a href="reverse.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-arrow-repeat text-base"></i>
+                    <span>Logística Reversa</span>
+                </a>
+                <a href="esg.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-recycle text-base"></i>
+                    <span>Sustentabilidade ESG</span>
+                </a>
+                <a href="auditoria.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-clipboard-check text-base"></i>
+                    <span>Auditoria WMS</span>
+                </a>
+                <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-person-circle text-base"></i>
+                    <span>Meu Perfil & Ajustes</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Rodapé do Menu Lateral -->
+        <div class="pt-4 mt-6 border-t border-slate-200 dark:border-slate-700/60">
+            <button id="btn-sidebar-logout" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                <i class="bi bi-box-arrow-right text-base"></i>
+                <span>Encerrar Sessão</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+
+        <!-- Topbar com Saudação e Controles -->
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white" id="user-name-display">
+                    Painel Executivo WMS
+                </h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
+                    <span id="user-company-display" class="font-medium">Carregando centro logístico...</span>
+                    <span>•</span>
+                    <span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Dados em Tempo Real
+                    </span>
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="stock.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition shadow-sm">
+                    <i class="bi bi-box-seam text-primary-500"></i>
+                    <span>Gerenciar Estoque</span>
+                </a>
+                <button id="theme-toggle" class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition shadow-sm" title="Alternar Modo Claro/Escuro">
+                    <i class="bi bi-moon-stars-fill"></i>
+                </button>
+            </div>
         </header>
 
-        <section class="hero-card rounded-4 p-4 p-md-5 mb-4">
-          <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-            <div>
-              <p class="text-uppercase small fw-semibold mb-2">Visão executiva</p>
-              <h2 class="fw-bold mb-2">Seu armazém, com mais clareza e velocidade.</h2>
-              <p class="mb-0 text-white-50">Acompanhe receitas, estoques e riscos operacionais em um painel moderno e responsivo.</p>
+        <!-- Banner Executivo de Acompanhamento -->
+        <section class="bg-gradient-to-r from-primary-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-primary-200 block mb-1">Visão Analítica Integrada</span>
+                    <h2 class="text-lg md:text-xl font-extrabold tracking-tight">Centro de Inteligência Logística & ESG</h2>
+                    <p class="text-xs text-primary-100 max-w-xl mt-1">
+                        Monitore rentabilidade por SKU, giro de materiais, ruptura operacional e metas de sustentabilidade em um painel unificado.
+                    </p>
+                </div>
+                <div class="shrink-0 flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md text-white border border-white/20">
+                        <i class="bi bi-broadcast"></i> WMS Live Stream
+                    </span>
+                </div>
             </div>
-            <div class="text-lg-end">
-              <div class="badge bg-white text-primary px-3 py-2 rounded-pill fw-semibold">Operação em tempo real</div>
-            </div>
-          </div>
+            <!-- Decoração sutil de fundo -->
+            <div class="absolute -right-12 -bottom-12 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
         </section>
 
-        <section class="row g-3 mb-4">
-          <div class="col-12 col-md-6 col-xl-3">
-            <div class="card h-100 border-0 shadow-sm rounded-4">
-              <div class="card-body">
-                <h6 class="text-muted text-uppercase fw-bold small mb-2">Receita Geral Estimada</h6>
-                <h3 class="fw-bold mb-0">R$ 60.531,00</h3>
-              </div>
+        <!-- Grid de 4 KPIs Financeiros e Operacionais (100% Dinâmicos) -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Card 1: Receita Estimada -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between text-slate-400 mb-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider">Receita Geral Estimada</span>
+                    <i class="bi bi-graph-up-arrow text-primary-500 text-base"></i>
+                </div>
+                <div>
+                    <h3 id="kpi-revenue" class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">R$ 0,00</h3>
+                    <span class="text-[11px] text-slate-400 mt-0.5 block">Valor total a preço de venda</span>
+                </div>
             </div>
-          </div>
-          <div class="col-12 col-md-6 col-xl-3">
-            <div class="card h-100 border-0 shadow-sm rounded-4">
-              <div class="card-body">
-                <h6 class="text-muted text-uppercase fw-bold small mb-2">Custo de Aquisição Total</h6>
-                <h3 class="fw-bold mb-0">R$ 40.354,00</h3>
-              </div>
+
+            <!-- Card 2: Custo de Aquisição -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between text-slate-400 mb-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider">Custo de Aquisição Total</span>
+                    <i class="bi bi-receipt text-rose-500 text-base"></i>
+                </div>
+                <div>
+                    <h3 id="kpi-cost" class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">R$ 0,00</h3>
+                    <span class="text-[11px] text-slate-400 mt-0.5 block">Investimento imobilizado</span>
+                </div>
             </div>
-          </div>
-          <div class="col-12 col-md-6 col-xl-3">
-            <div class="card h-100 border-0 shadow-sm rounded-4 border-success border-4 border-top-0">
-              <div class="card-body">
-                <h6 class="text-muted text-uppercase fw-bold small mb-2">Lucro Líquido Operacional</h6>
-                <h3 class="fw-bold mb-0 text-success">R$ 20.177,00</h3>
-              </div>
+
+            <!-- Card 3: Lucro Líquido Projetado -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between text-slate-400 mb-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider">Lucro Operacional Projetado</span>
+                    <i class="bi bi-wallet2 text-emerald-500 text-base"></i>
+                </div>
+                <div>
+                    <h3 id="kpi-profit" class="text-xl md:text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">R$ 0,00</h3>
+                    <span id="kpi-profit-margin" class="text-[11px] font-semibold text-emerald-500 mt-0.5 block">Margem Bruta: 0%</span>
+                </div>
             </div>
-          </div>
-          <div class="col-12 col-md-6 col-xl-3">
-            <div class="card h-100 border-0 shadow-sm rounded-4 border-info border-4 border-top-0">
-              <div class="card-body">
-                <h6 class="text-muted text-uppercase fw-bold small mb-2">Volume Geral em Estoque</h6>
-                <h3 class="fw-bold mb-0 text-info">240 un</h3>
-              </div>
+
+            <!-- Card 4: Volume em Estoque -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between text-slate-400 mb-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider">Volume Geral Armazenado</span>
+                    <i class="bi bi-boxes text-cyan-500 text-base"></i>
+                </div>
+                <div>
+                    <h3 id="kpi-volume" class="text-xl md:text-2xl font-bold tracking-tight text-cyan-600 dark:text-cyan-400">0 un</h3>
+                    <span id="kpi-skus-count" class="text-[11px] text-slate-400 mt-0.5 block">0 SKUs cadastrados</span>
+                </div>
             </div>
-          </div>
         </section>
 
-        <section class="row g-3 mb-4">
-          <div class="col-12 col-lg-6">
-            <div class="card h-100 border-0 shadow-sm rounded-4">
-              <div class="card-header bg-transparent border-0 pt-4 pb-0">
-                <h5 class="fw-bold mb-0"><i class="bi bi-graph-up text-primary me-2"></i>Evolução das Receitas e Custos</h5>
-              </div>
-              <div class="card-body">
-                <canvas id="financialChart" style="min-height: 250px;"></canvas>
-              </div>
+        <!-- Seção de Gráficos (Evolução Financeira & Flutuação) -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <!-- Gráfico 1: Receitas e Custos -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="bi bi-graph-up text-primary-500"></i>
+                        <span>Evolução das Receitas e Custos</span>
+                    </h4>
+                    <span class="text-[11px] text-slate-400">Projeção Semestral</span>
+                </div>
+                <div class="relative flex-1 min-h-[260px]">
+                    <canvas id="financialChart"></canvas>
+                </div>
             </div>
-          </div>
-          <div class="col-12 col-lg-6">
-            <div class="card h-100 border-0 shadow-sm rounded-4">
-              <div class="card-header bg-transparent border-0 pt-4 pb-0">
-                <h5 class="fw-bold mb-0"><i class="bi bi-box-seam text-warning me-2"></i>Flutuação Mensal do Estoque</h5>
-              </div>
-              <div class="card-body">
-                <canvas id="stockChart" style="min-height: 250px;"></canvas>
-              </div>
+
+            <!-- Gráfico 2: Flutuação de Estoque -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="bi bi-box-seam text-cyan-500"></i>
+                        <span>Flutuação Mensal de Insumos</span>
+                    </h4>
+                    <span class="text-[11px] text-slate-400">Volumetria Total</span>
+                </div>
+                <div class="relative flex-1 min-h-[260px]">
+                    <canvas id="stockChart"></canvas>
+                </div>
             </div>
-          </div>
         </section>
 
-        <section class="card border-0 shadow-sm rounded-4">
-          <div class="card-header bg-transparent border-0 pt-4 pb-0">
-            <h5 class="fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Alertas Operacionais Críticos</h5>
-          </div>
-          <div class="card-body p-0 mt-3">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th class="ps-4">Produto</th>
-                    <th>SKU / Referência</th>
-                    <th>Qtd Atual</th>
-                    <th>Tipo de Alerta</th>
-                    <th class="pe-4">Status Visual</th>
-                  </tr>
-                </thead>
-                <tbody id="alerts-table-body">
-                  <tr><td colspan="5" class="text-center text-muted py-4">Sincronizando com os motores de cálculo logísticos...</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
+        <!-- Seção: Top 5 Produtos Mais Vendidos & Widget ESG -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
+            <!-- Top 5 Produtos Mais Vendidos (Giro de Vendas) -->
+            <div class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                                <i class="bi bi-award text-amber-500"></i>
+                                <span>Ranking de Giro: Produtos Mais Vendidos</span>
+                            </h4>
+                            <p class="text-[11px] text-slate-400">Top 5 insumos por volume histórico de vendas e receita gerada</p>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                            Alta Rotação
+                        </span>
+                    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+                    <!-- Lista de Produtos -->
+                    <div id="bestsellers-list" class="space-y-2.5">
+                        <div class="p-6 text-center text-xs text-slate-400">
+                            <div class="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin inline-block mr-2"></div>
+                            Calculando ranking de giro...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 mt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Baseado no histórico de saídas dos últimos 3 meses</span>
+                    <a href="demand.html" class="text-primary-600 dark:text-primary-400 font-semibold hover:underline inline-flex items-center gap-1">
+                        <span>Ver Previsão Preditiva</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card Executivo de Sustentabilidade & ESG -->
+            <div class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                                <i class="bi bi-recycle text-emerald-500"></i>
+                                <span>Painel Executivo ESG & Economia Circular</span>
+                            </h4>
+                            <p class="text-[11px] text-slate-400">Índices de destinação sustentável e desperdício logístico</p>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                            Eco WMS
+                        </span>
+                    </div>
+
+                    <!-- Métricas ESG em Grid -->
+                    <div class="grid grid-cols-2 gap-3 text-xs mb-4">
+                        <div class="p-3 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40">
+                            <span class="block text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase">Índice de Reciclagem</span>
+                            <span id="esg-recycling-rate" class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400 block mt-0.5">0.0%</span>
+                            <span class="text-[10px] text-slate-400">Materiais reaproveitados</span>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                            <span class="block text-[10px] font-bold text-slate-500 uppercase">Taxa de Desperdício</span>
+                            <span id="esg-waste-rate" class="text-lg font-extrabold text-slate-700 dark:text-slate-200 block mt-0.5">0.0%</span>
+                            <span class="text-[10px] text-slate-400">Perdas / Volume total</span>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40">
+                            <span class="block text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase">Risco de Vencimento</span>
+                            <span id="esg-near-exp" class="text-lg font-extrabold text-amber-600 dark:text-amber-400 block mt-0.5">0 itens</span>
+                            <span class="text-[10px] text-slate-400">Vencem em até 60 dias</span>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-cyan-50/60 dark:bg-cyan-950/30 border border-cyan-100 dark:border-cyan-900/40">
+                            <span class="block text-[10px] font-bold text-cyan-700 dark:text-cyan-300 uppercase">Insumos Recuperados</span>
+                            <span id="esg-recovered-qty" class="text-lg font-extrabold text-cyan-600 dark:text-cyan-400 block mt-0.5">0 un</span>
+                            <span class="text-[10px] text-slate-400">Reversão de descarte</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Governança ambiental corporativa</span>
+                    <a href="esg.html" class="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline inline-flex items-center gap-1">
+                        <span>Acessar Módulo ESG</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabela de Alertas Operacionais Críticos & Estoque Parado -->
+        <section class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-8">
+            <div class="p-4 md:p-5 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold">
+                        <i class="bi bi-exclamation-octagon text-base"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                            <span>Central de Alertas Operacionais & Baixo Giro</span>
+                            <span id="alerts-total-count" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
+                                0 Alertas
+                            </span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">Monitoramento contínuo de prejuízo, estoque parado (dead stock), excesso e ruptura</p>
+                    </div>
+                </div>
+
+                <!-- Filtros Rápidos -->
+                <div class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
+                    <button data-alert-filter="all" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-primary-50 dark:bg-primary-950/70 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800 transition">
+                        Todos
+                    </button>
+                    <button data-alert-filter="loss" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        Prejuízo
+                    </button>
+                    <button data-alert-filter="rupture_low" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        Ruptura / Baixo
+                    </button>
+                    <button data-alert-filter="excess" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        Excesso
+                    </button>
+                    <button data-alert-filter="dead" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        Estoque Parado
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            <th class="py-3 px-4">Material / Insumo</th>
+                            <th class="py-3 px-4">SKU</th>
+                            <th class="py-3 px-4">Saldo Físico</th>
+                            <th class="py-3 px-4">Tipo de Alerta</th>
+                            <th class="py-3 px-4">Diagnóstico Operacional</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alerts-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                        <tr>
+                            <td colspan="5" class="text-center py-8 text-slate-400 dark:text-slate-500">
+                                <div class="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin inline-block mr-2"></div>
+                                Sincronizando alertas com motor de inventário...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts e Bibliotecas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script>
-        function handleUserLogout() {
-            if (confirm("Deseja realmente encerrar a sessão corporativa?")) {
-                localStorage.clear();
-                window.location.href = "login.html";
-            }
-        }
-    </script>
-    <script src="../assets/js/theme.js"></script>
-    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/core/uiFeedback.js"></script>
     <script src="../assets/js/api.js"></script>
-    <script src="../assets/js/authGuard.js"></script>
-  </body>
+    <script src="../assets/js/views/dashboardView.js"></script>
+    <script>
+        // Logout via sidebar com modal uiFeedback
+        document.getElementById('btn-sidebar-logout')?.addEventListener('click', async () => {
+            const confirmed = await uiFeedback.confirm({
+                title: 'Encerrar Sessão Corporativa',
+                message: 'Deseja realmente sair do StockVision? Seus dados salvos permanecem seguros.',
+                confirmText: 'Sair Agora',
+                confirmClass: 'bg-rose-600 hover:bg-rose-700'
+            });
+            if (confirmed) {
+                localStorage.removeItem('sv_token');
+                localStorage.removeItem('sv_user');
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
 </html>
