@@ -23,3 +23,38 @@
 .dark ::-webkit-scrollbar-thumb {
   background: #475569;
 }
+
+/* --- REGRAS DA BARRA LATERAL FLUTUANTE (COLLAPSIBLE SIDEBAR) --- */
+#app-sidebar {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estado Recolhido (Mini-Sidebar) */
+#app-sidebar.is-collapsed {
+  width: 5rem !important; /* 80px */
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+#app-sidebar.is-collapsed .sidebar-text,
+#app-sidebar.is-collapsed .sidebar-header-brand,
+#app-sidebar.is-collapsed .sidebar-divider-text,
+#app-sidebar.is-collapsed .sidebar-user-details {
+  display: none !important;
+}
+
+#app-sidebar.is-collapsed .sidebar-nav-item,
+#app-sidebar.is-collapsed .sidebar-user-card,
+#app-sidebar.is-collapsed .sidebar-logout-btn {
+  justify-content: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+#app-sidebar.is-collapsed .sidebar-tooltip {
+  display: block;
+}
+
+#app-sidebar:not(.is-collapsed) .sidebar-tooltip {
+  display: none !important;
+}
