@@ -106,17 +106,22 @@
 
         <!-- Topbar com Saudação e Controles -->
         <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div>
-                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white" id="user-name-display">
-                    Painel Executivo WMS
-                </h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
-                    <span id="user-company-display" class="font-medium">Carregando centro logístico...</span>
-                    <span>•</span>
-                    <span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Dados em Tempo Real
-                    </span>
-                </p>
+            <div class="flex items-center gap-3">
+                <button id="btn-mobile-menu" class="btn-mobile-menu md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shadow-sm border border-slate-200 dark:border-slate-700" aria-label="Abrir Menu">
+                    <i class="bi bi-list text-xl"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white" id="user-name-display">
+                        Painel Executivo WMS
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
+                        <span id="user-company-display" class="font-medium">Carregando centro logístico...</span>
+                        <span>•</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Dados em Tempo Real
+                        </span>
+                    </p>
+                </div>
             </div>
 
             <div class="flex items-center gap-2">

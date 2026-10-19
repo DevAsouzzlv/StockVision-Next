@@ -155,6 +155,55 @@
         logoutElements.forEach(el => {
             el.onclick = handleLogoutAction;
         });
+
+        // 5. Suporte Completo a Mobile Drawer & Backdrop
+        let backdrop = document.getElementById('sidebar-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'sidebar-backdrop';
+            backdrop.className = 'fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300 md:hidden';
+            document.body.appendChild(backdrop);
+        }
+
+        const openMobileSidebar = () => {
+            if (sidebarEl) {
+                sidebarEl.classList.add('mobile-open');
+                backdrop.classList.remove('hidden');
+            }
+        };
+
+        const closeMobileSidebar = () => {
+            if (sidebarEl) {
+                sidebarEl.classList.remove('mobile-open');
+                backdrop.classList.add('hidden');
+            }
+        };
+
+        backdrop.onclick = closeMobileSidebar;
+
+        // Botões de menu mobile nos headers
+        document.querySelectorAll('#btn-mobile-menu, .btn-mobile-menu').forEach(btn => {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (sidebarEl && sidebarEl.classList.contains('mobile-open')) {
+                    closeMobileSidebar();
+                } else {
+                    openMobileSidebar();
+                }
+            };
+        });
+
+        // Fechar menu mobile ao clicar em itens de navegação
+        if (sidebarEl) {
+            sidebarEl.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 768) {
+                        closeMobileSidebar();
+                    }
+                });
+            });
+        }
     };
 
     // Inicializa quando o DOM estiver pronto

@@ -22,107 +22,199 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
 
+    const cardsContainer = document.getElementById('inventory-cards-container');
+    const filteredCountBadge = document.getElementById('filtered-items-count');
+    let quickLossFilterActive = false;
+
     // =========================================================================
-    // 1. CARREGAMENTO E RENDERIZAÇÃO DA TABELA COM ALERTAS DE PREJUÍZO
+    // 1. ATUALIZAÇÃO DOS CARDS DE CRITICIDADE (ALERTAS EM TEMPO REAL)
+    // =========================================================================
+    const updateCriticalityKPIs = (products) => {
+        const ruptureEl = document.getElementById('stat-rupture-count');
+        const lossEl = document.getElementById('stat-loss-count');
+        const lowEl = document.getElementById('stat-low-count');
+        const normalEl = document.getElementById('stat-normal-count');
+
+        if (!ruptureEl) return;
+
+        let ruptureCount = 0;
+        let lossCount = 0;
+        let lowCount = 0;
+        let normalCount = 0;
+
+        products.forEach(p => {
+            if (p.statusVisual?.isLossAlert) lossCount++;
+            if (p.statusVisual?.statusTag === 'Ruptura' || (p.quantityInStock || 0) <= 0) ruptureCount++;
+            else if (p.statusVisual?.statusTag === 'Estoque Baixo') lowCount++;
+            else if (p.statusVisual?.statusTag === 'Normal') normalCount++;
+        });
+
+        ruptureEl.innerText = ruptureCount;
+        lossEl.innerText = lossCount;
+        lowEl.innerText = lowCount;
+        normalEl.innerText = normalCount;
+    };
+
+    // =========================================================================
+    // 2. RENDERIZAÇÃO DA TABELA E DOS CARDS MÓVEIS COM SINALIZAÇÃO DESTACADA
     // =========================================================================
     const renderTableRows = (products) => {
-        if (!inventoryTableBody) return;
-        inventoryTableBody.innerHTML = '';
+        if (filteredCountBadge) {
+            filteredCountBadge.innerText = `${products ? products.length : 0} materiais`;
+        }
+
+        if (inventoryTableBody) inventoryTableBody.innerHTML = '';
+        if (cardsContainer) cardsContainer.innerHTML = '';
 
         if (!products || products.length === 0) {
-            inventoryTableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center py-8 text-slate-400 dark:text-slate-500 text-xs">
-                        <i class="bi bi-inbox text-3xl block mb-2"></i>
-                        Nenhum insumo ou material localizado para os filtros selecionados.
-                    </td>
-                </tr>
+            const emptyHtml = `
+                <div class="p-8 text-center text-slate-400 dark:text-slate-500 text-xs">
+                    <i class="bi bi-inbox text-3xl block mb-2"></i>
+                    Nenhum insumo ou material localizado para os filtros selecionados.
+                </div>
             `;
+            if (inventoryTableBody) {
+                inventoryTableBody.innerHTML = `<tr><td colspan="6">${emptyHtml}</td></tr>`;
+            }
+            if (cardsContainer) {
+                cardsContainer.innerHTML = emptyHtml;
+            }
             return;
         }
 
         products.forEach(p => {
-            const row = document.createElement('tr');
-            
-            // Destaque visual caso haja Alerta de Prejuízo (Venda abaixo ou igual ao custo)
             const isLoss = Boolean(p.statusVisual?.isLossAlert);
-            const rowBg = isLoss 
-                ? 'bg-rose-50/70 dark:bg-rose-950/30 hover:bg-rose-100/70 dark:hover:bg-rose-900/40 border-l-4 border-l-rose-500' 
-                : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 border-l-4 border-l-transparent';
-
-            row.className = `border-b border-slate-100 dark:border-slate-800 transition-colors text-xs ${rowBg}`;
+            const isRupture = p.statusVisual?.statusTag === 'Ruptura' || (p.quantityInStock || 0) <= 0;
+            const isLow = p.statusVisual?.statusTag === 'Estoque Baixo';
 
             const loc = p.location || {};
             const locationStr = loc.sector 
                 ? `${loc.sector} / ${loc.row || 'R0'} / ${loc.building || 'P0'}` 
                 : 'Doca / Recebimento';
 
-            // Badges em Tailwind
+            // Badges em Tailwind com destaque crítico em vermelho
             let statusBadge = '';
-            if (p.statusVisual?.statusTag === 'Ruptura') {
-                statusBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300 border border-red-200 dark:border-red-800"><i class="bi bi-x-circle"></i> Ruptura</span>';
-            } else if (p.statusVisual?.statusTag === 'Estoque Baixo') {
-                statusBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800"><i class="bi bi-exclamation-triangle"></i> Baixo</span>';
+            if (isRupture) {
+                statusBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-red-600 text-white shadow-sm critical-pulse"><i class="bi bi-x-circle-fill"></i> Ruptura Crítica</span>';
+            } else if (isLow) {
+                statusBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-700"><i class="bi bi-exclamation-triangle"></i> Estoque Baixo</span>';
             } else if (p.statusVisual?.statusTag === 'Excesso') {
                 statusBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300 border border-orange-200 dark:border-orange-800"><i class="bi bi-box-arrow-up"></i> Excesso</span>';
             } else {
                 statusBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"><i class="bi bi-check-circle"></i> Normal</span>';
             }
 
-            // Alerta de Prejuízo Pulsante
+            // Alerta de Prejuízo em Vermelho Vivo
             let financialLossBadge = '';
             if (isLoss) {
                 financialLossBadge = `
                     <div class="mt-1">
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-600 text-white animate-pulse shadow-sm" title="${p.statusVisual?.lossReason || 'Venda abaixo do custo'}">
-                            <i class="bi bi-exclamation-octagon-fill"></i> Prejuízo (${p.statusVisual?.unitMargin}%)
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-600 text-white critical-pulse shadow-sm" title="${p.statusVisual?.lossReason || 'Venda abaixo do custo'}">
+                            <i class="bi bi-exclamation-octagon-fill"></i> Prejuízo Estimado (${p.statusVisual?.unitMargin}%)
                         </span>
                     </div>
                 `;
             }
 
-            const unitProfitClass = (p.statusVisual?.unitProfit || 0) < 0 
-                ? 'text-rose-600 dark:text-rose-400 font-bold' 
-                : 'text-slate-500 dark:text-slate-400';
+            // 1. Linha da Tabela (Desktop/Tablet)
+            if (inventoryTableBody) {
+                const row = document.createElement('tr');
+                let rowBg = 'hover:bg-slate-50 dark:hover:bg-slate-800/60 border-l-4 border-l-transparent';
+                if (isLoss) {
+                    rowBg = 'bg-rose-50/70 dark:bg-rose-950/30 hover:bg-rose-100/70 dark:hover:bg-rose-900/40 border-l-4 border-l-rose-600';
+                } else if (isRupture) {
+                    rowBg = 'bg-red-50/50 dark:bg-red-950/20 hover:bg-red-100/50 dark:hover:bg-red-900/30 border-l-4 border-l-red-500';
+                }
 
-            row.innerHTML = `
-                <td class="py-3 px-4">
-                    <strong class="text-slate-900 dark:text-white block font-bold">${p.name}</strong>
-                    <span class="text-[11px] text-slate-400 font-mono">SKU: ${p.sku || 'N/A'}</span>
+                row.className = `border-b border-slate-100 dark:border-slate-800 transition-colors text-xs ${rowBg}`;
+                row.innerHTML = `
+                    <td class="py-3 px-4">
+                        <strong class="text-slate-900 dark:text-white block font-bold">${p.name}</strong>
+                        <span class="text-[11px] text-slate-400 font-mono">SKU: ${p.sku || 'N/A'}</span>
+                        ${financialLossBadge}
+                    </td>
+                    <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">
+                        <span class="inline-flex items-center gap-1"><i class="bi bi-geo-alt text-slate-400"></i> ${locationStr}</span>
+                    </td>
+                    <td class="py-3 px-4 font-bold ${isRupture ? 'text-red-600 dark:text-red-400 font-black' : 'text-slate-900 dark:text-white'}">
+                        ${(p.quantityInStock || 0).toLocaleString('pt-BR')} un
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="font-bold text-slate-900 dark:text-white block">${formatCurrency(p.sellingPrice)}</span>
+                        <span class="text-[10px] text-slate-400">Custo: ${formatCurrency(p.acquisitionCost)}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        ${statusBadge}
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="inline-flex items-center gap-1.5">
+                            <button type="button" onclick="viewProductDetails('${p._id}')" title="Ver Detalhes e Métricas"
+                                class="p-1.5 rounded-lg text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/60 transition">
+                                <i class="bi bi-eye text-base"></i>
+                            </button>
+                            <button type="button" onclick="openEditModal('${p._id}')" title="Editar Material"
+                                class="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                                <i class="bi bi-pencil-square text-base"></i>
+                            </button>
+                            <button type="button" onclick="deleteProduct('${p._id}', '${p.name.replace(/'/g, "\\'")}')" title="Excluir Material"
+                                class="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/60 transition">
+                                <i class="bi bi-trash text-base"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                inventoryTableBody.appendChild(row);
+            }
+
+            // 2. Card Visual para Mobile
+            if (cardsContainer) {
+                const card = document.createElement('div');
+                let cardBorder = 'border-slate-200 dark:border-slate-700';
+                if (isLoss) cardBorder = 'border-rose-400 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-950/20';
+                else if (isRupture) cardBorder = 'border-red-400 dark:border-red-800 bg-red-50/40 dark:bg-red-950/20';
+
+                card.className = `p-4 rounded-xl border ${cardBorder} shadow-sm space-y-2 text-xs transition`;
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <strong class="text-sm font-bold text-slate-900 dark:text-white block truncate">${p.name}</strong>
+                            <span class="text-[11px] text-slate-400 font-mono">SKU: ${p.sku || 'N/A'}</span>
+                        </div>
+                        <div class="shrink-0">${statusBadge}</div>
+                    </div>
                     ${financialLossBadge}
-                </td>
-                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">
-                    <span class="inline-flex items-center gap-1"><i class="bi bi-geo-alt text-slate-400"></i> ${locationStr}</span>
-                </td>
-                <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">
-                    ${(p.quantityInStock || 0).toLocaleString('pt-BR')} un
-                </td>
-                <td class="py-3 px-4">
-                    <span class="font-bold text-slate-900 dark:text-white block">${formatCurrency(p.sellingPrice)}</span>
-                    <span class="text-[10px] text-slate-400">Custo: ${formatCurrency(p.acquisitionCost)}</span>
-                </td>
-                <td class="py-3 px-4">
-                    ${statusBadge}
-                </td>
-                <td class="py-3 px-4 text-center">
-                    <div class="inline-flex items-center gap-1.5">
-                        <button type="button" onclick="viewProductDetails('${p._id}')" title="Ver Detalhes e Métricas"
-                            class="p-1.5 rounded-lg text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/60 transition">
-                            <i class="bi bi-eye text-base"></i>
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px]">
+                        <div>
+                            <span class="text-slate-400 block font-medium">Local WMS</span>
+                            <span class="font-bold text-slate-700 dark:text-slate-200"><i class="bi bi-geo-alt"></i> ${locationStr}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block font-medium">Saldo Atual</span>
+                            <span class="font-bold ${isRupture ? 'text-red-600 dark:text-red-400' : 'text-slate-800 dark:text-slate-100'}">${(p.quantityInStock || 0).toLocaleString('pt-BR')} un</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block font-medium">Preço Venda</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-100">${formatCurrency(p.sellingPrice)}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block font-medium">Custo Aquis.</span>
+                            <span class="text-slate-500">${formatCurrency(p.acquisitionCost)}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <button type="button" onclick="viewProductDetails('${p._id}')" class="px-3 py-1.5 rounded-lg text-primary-600 bg-primary-50 dark:bg-primary-950/60 font-semibold flex items-center gap-1">
+                            <i class="bi bi-eye"></i> Detalhes
                         </button>
-                        <button type="button" onclick="openEditModal('${p._id}')" title="Editar Material"
-                            class="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                            <i class="bi bi-pencil-square text-base"></i>
+                        <button type="button" onclick="openEditModal('${p._id}')" class="px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 font-semibold flex items-center gap-1">
+                            <i class="bi bi-pencil-square"></i> Editar
                         </button>
-                        <button type="button" onclick="deleteProduct('${p._id}', '${p.name.replace(/'/g, "\\'")}')" title="Excluir Material"
-                            class="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/60 transition">
-                            <i class="bi bi-trash text-base"></i>
+                        <button type="button" onclick="deleteProduct('${p._id}', '${p.name.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-lg text-rose-600 bg-rose-50 dark:bg-rose-950/60 font-semibold flex items-center gap-1">
+                            <i class="bi bi-trash"></i>
                         </button>
                     </div>
-                </td>
-            `;
-
-            inventoryTableBody.appendChild(row);
+                `;
+                cardsContainer.appendChild(card);
+            }
         });
     };
 
@@ -142,7 +234,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const filtered = localProductsCache.filter(p => {
             const matchesQuery = !query || `${p.name} ${p.sku || ''} ${p.barcode || ''}`.toLowerCase().includes(query);
             const matchesCat = !category || (p.category || '').toLowerCase() === category;
-            const matchesStatus = !status || (p.statusVisual?.statusTag || '') === status;
+            const matchesStatus = quickLossFilterActive 
+                ? Boolean(p.statusVisual?.isLossAlert)
+                : (!status || (p.statusVisual?.statusTag || '') === status);
             const matchesPrice = Number.isNaN(maxPrice) || (p.sellingPrice || 0) <= maxPrice;
             return matchesQuery && matchesCat && matchesStatus && matchesPrice;
         });
@@ -150,10 +244,31 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTableRows(filtered);
     };
 
+    // Conecta botões de filtro rápido nos cards de criticidade
+    document.querySelectorAll('.quick-filter-card').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filterType = btn.getAttribute('data-status-filter');
+            if (filterType === 'Prejuizo') {
+                quickLossFilterActive = true;
+                if (searchStatusInput) searchStatusInput.value = '';
+            } else {
+                quickLossFilterActive = false;
+                if (searchStatusInput) searchStatusInput.value = filterType;
+            }
+            applyFilters();
+        });
+    });
+
     [searchNameInput, searchCategoryInput, searchStatusInput, searchMaxPriceInput].forEach(el => {
         if (!el) return;
-        el.addEventListener('input', applyFilters);
-        el.addEventListener('change', applyFilters);
+        el.addEventListener('input', () => {
+            quickLossFilterActive = false;
+            applyFilters();
+        });
+        el.addEventListener('change', () => {
+            quickLossFilterActive = false;
+            applyFilters();
+        });
     });
 
     const loadInventory = async () => {
@@ -163,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const data = await StockAPI.getInventory();
             localProductsCache = Array.isArray(data) ? data : [];
+            updateCriticalityKPIs(localProductsCache);
             populateCategories(localProductsCache);
             applyFilters();
         } catch (error) {

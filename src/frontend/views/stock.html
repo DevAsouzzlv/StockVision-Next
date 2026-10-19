@@ -105,20 +105,26 @@
     <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
 
         <!-- Topbar com Cabeçalho e Ações -->
+        <!-- Topbar com Cabeçalho e Ações -->
         <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div>
-                <div class="flex items-center gap-2">
-                    <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                        <span>📦 Gestão de Estoque & WMS</span>
-                    </h1>
+            <div class="flex items-center gap-3">
+                <button id="btn-mobile-menu" class="btn-mobile-menu md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shadow-sm border border-slate-200 dark:border-slate-700" aria-label="Abrir Menu">
+                    <i class="bi bi-list text-xl"></i>
+                </button>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                            <span>📦 Gestão de Estoque & WMS</span>
+                        </h1>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
+                        <span id="company-name-display" class="font-medium">Carregando centro logístico...</span>
+                        <span>•</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sincronizado
+                        </span>
+                    </p>
                 </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
-                    <span id="company-name-display" class="font-medium">Carregando centro logístico...</span>
-                    <span>•</span>
-                    <span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sincronizado
-                    </span>
-                </p>
             </div>
 
             <!-- Botões Superiores -->
@@ -144,6 +150,61 @@
                 </button>
             </div>
         </header>
+
+        <!-- Painel de Criticidade e Alertas Críticos em Tempo Real (Fase 2) -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+            <!-- Card 1: Ruptura Crítica (Vermelho) -->
+            <button type="button" data-status-filter="Ruptura" class="quick-filter-card text-left p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-red-200 dark:border-red-900/60 shadow-sm hover:shadow-md hover:border-red-500 transition group">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-red-600 dark:text-red-400">Ruptura (Sem Saldo)</span>
+                    <span class="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 flex items-center justify-center font-bold text-xs"><i class="bi bi-x-circle-fill"></i></span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <h3 id="stat-rupture-count" class="text-xl sm:text-2xl font-black text-red-600 dark:text-red-400">0</h3>
+                    <span class="text-[11px] text-slate-400">SKUs zerados</span>
+                </div>
+                <span class="text-[10px] text-red-500 font-semibold block mt-1">Clique para filtrar</span>
+            </button>
+
+            <!-- Card 2: Risco de Prejuízo (Vermelho Vivo Pulsante) -->
+            <button type="button" data-status-filter="Prejuizo" class="quick-filter-card text-left p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-rose-300 dark:border-rose-900 shadow-sm hover:shadow-md hover:border-rose-600 transition group relative overflow-hidden">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-rose-600 dark:text-rose-400">Alerta de Prejuízo</span>
+                    <span class="w-7 h-7 rounded-lg bg-rose-600 text-white flex items-center justify-center font-bold text-xs critical-pulse"><i class="bi bi-exclamation-octagon-fill"></i></span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <h3 id="stat-loss-count" class="text-xl sm:text-2xl font-black text-rose-600 dark:text-rose-400">0</h3>
+                    <span class="text-[11px] text-slate-400">Preço ≤ Custo</span>
+                </div>
+                <span class="text-[10px] text-rose-500 font-semibold block mt-1">Margem negativa estimada</span>
+            </button>
+
+            <!-- Card 3: Estoque Baixo (Âmbar/Laranja) -->
+            <button type="button" data-status-filter="Estoque Baixo" class="quick-filter-card text-left p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-amber-200 dark:border-amber-800/80 shadow-sm hover:shadow-md hover:border-amber-500 transition group">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400">Estoque Baixo</span>
+                    <span class="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs"><i class="bi bi-exclamation-triangle-fill"></i></span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <h3 id="stat-low-count" class="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400">0</h3>
+                    <span class="text-[11px] text-slate-400">Abaixo do Mínimo</span>
+                </div>
+                <span class="text-[10px] text-amber-500 font-semibold block mt-1">Ressuprimento prioritário</span>
+            </button>
+
+            <!-- Card 4: Normal / Saudável (Verde) -->
+            <button type="button" data-status-filter="Normal" class="quick-filter-card text-left p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-emerald-200 dark:border-emerald-800/80 shadow-sm hover:shadow-md hover:border-emerald-500 transition group">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Em Conformidade</span>
+                    <span class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs"><i class="bi bi-check-circle-fill"></i></span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <h3 id="stat-normal-count" class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">0</h3>
+                    <span class="text-[11px] text-slate-400">Parâmetros ideais</span>
+                </div>
+                <span class="text-[10px] text-emerald-500 font-semibold block mt-1">Operação regular</span>
+            </button>
+        </section>
 
         <!-- Filtros e Busca Rápida -->
         <section class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm mb-6">
@@ -247,10 +308,23 @@
             </div>
         </div>
 
-        <!-- Tabela Principal de Insumos -->
-        <section class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <!-- Tabela Principal de Insumos & Cards Responsivos (Mobile) -->
+        <section class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6">
+            <!-- Barra de Status do Inventário e Dica de Rolagem Mobile -->
+            <div class="px-4 py-3 bg-slate-50/80 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-slate-800 dark:text-slate-200">Inventário de Materiais</span>
+                    <span id="filtered-items-count" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">0 itens</span>
+                </div>
+                <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                    <i class="bi bi-arrow-left-right text-xs"></i>
+                    <span>Tabela com rolagem horizontal fluida e visualização adaptativa</span>
+                </div>
+            </div>
+
+            <!-- Tabela com Rolagem Horizontal (Desktop & Tablets) -->
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
                         <tr class="bg-slate-100/75 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                             <th class="py-3 px-4">Material / SKU / Alertas</th>
@@ -272,6 +346,11 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Container de Cards para Telas Muito Pequenas (Mobile First) -->
+            <div id="inventory-cards-container" class="sm:hidden divide-y divide-slate-100 dark:divide-slate-800 p-3 space-y-3">
+                <!-- Populado dinamicamente via stockView.js -->
             </div>
         </section>
 
