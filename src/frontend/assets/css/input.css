@@ -24,39 +24,81 @@
   background: #475569;
 }
 
-/* --- REGRAS DA BARRA LATERAL FLUTUANTE (COLLAPSIBLE SIDEBAR) --- */
+/* --- REGRAS DA BARRA LATERAL FLUTUANTE (HOVER-TO-EXPAND & FIXA) --- */
 #app-sidebar {
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), padding 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Estado Recolhido (Mini-Sidebar) em Desktop */
+/* Estado Recolhido Padrão em Desktop (80px) com Abertura Automática por Hover */
 @media (min-width: 768px) {
-  #app-sidebar.is-collapsed {
-    width: 5rem !important; /* 80px */
+  #app-sidebar {
+    width: 5rem; /* 80px */
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    overflow-x: hidden;
+  }
+
+  /* Oculta textos e detalhes por padrão */
+  #app-sidebar .sidebar-text,
+  #app-sidebar .sidebar-brand-text,
+  #app-sidebar .sidebar-divider-text,
+  #app-sidebar .sidebar-user-details {
+    opacity: 0;
+    max-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    display: none;
+    transition: opacity 0.2s ease, max-width 0.25s ease;
+  }
+
+  #app-sidebar .sidebar-nav-item,
+  #app-sidebar .sidebar-user-card,
+  #app-sidebar .sidebar-logout-btn {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  #app-sidebar .sidebar-tooltip {
+    display: block;
+  }
+
+  /* AO APROXIMAR O MOUSE (HOVER): Expande automaticamente */
+  #app-sidebar:hover,
+  #app-sidebar.is-hover-expanded {
+    width: 16rem !important; /* 256px */
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.3) !important;
+    z-index: 50 !important;
+  }
+
+  #app-sidebar:hover .sidebar-text,
+  #app-sidebar.is-hover-expanded .sidebar-text,
+  #app-sidebar:hover .sidebar-brand-text,
+  #app-sidebar.is-hover-expanded .sidebar-brand-text,
+  #app-sidebar:hover .sidebar-divider-text,
+  #app-sidebar.is-hover-expanded .sidebar-divider-text,
+  #app-sidebar:hover .sidebar-user-details,
+  #app-sidebar.is-hover-expanded .sidebar-user-details {
+    opacity: 1;
+    max-width: 220px;
+    display: block !important;
+  }
+
+  #app-sidebar:hover .sidebar-nav-item,
+  #app-sidebar.is-hover-expanded .sidebar-nav-item,
+  #app-sidebar:hover .sidebar-user-card,
+  #app-sidebar.is-hover-expanded .sidebar-user-card,
+  #app-sidebar:hover .sidebar-logout-btn,
+  #app-sidebar.is-hover-expanded .sidebar-logout-btn {
+    justify-content: flex-start !important;
     padding-left: 0.75rem !important;
     padding-right: 0.75rem !important;
   }
 
-  #app-sidebar.is-collapsed .sidebar-text,
-  #app-sidebar.is-collapsed .sidebar-header-brand,
-  #app-sidebar.is-collapsed .sidebar-divider-text,
-  #app-sidebar.is-collapsed .sidebar-user-details {
-    display: none !important;
-  }
-
-  #app-sidebar.is-collapsed .sidebar-nav-item,
-  #app-sidebar.is-collapsed .sidebar-user-card,
-  #app-sidebar.is-collapsed .sidebar-logout-btn {
-    justify-content: center !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-
-  #app-sidebar.is-collapsed .sidebar-tooltip {
-    display: block;
-  }
-
-  #app-sidebar:not(.is-collapsed) .sidebar-tooltip {
+  #app-sidebar:hover .sidebar-tooltip,
+  #app-sidebar.is-hover-expanded .sidebar-tooltip {
     display: none !important;
   }
 }

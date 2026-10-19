@@ -10,84 +10,78 @@
     <script src="../assets/js/theme.js"></script>
     <script src="../assets/js/authGuard.js"></script>
 </head>
-<body class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
+<body class="h-screen overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
 
-    <!-- Sidebar Flutuante e Expansível/Recolhível -->
-    <aside id="app-sidebar" class="relative w-full md:w-64 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md md:my-3 md:ml-3 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-slate-950/40 p-4 flex flex-col justify-between shrink-0 z-30 transition-all duration-300">
-        <!-- Botão de Recolher/Expandir (Desktop) -->
-        <button id="btn-toggle-sidebar" class="hidden md:flex absolute -right-3.5 top-7 w-7 h-7 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white shadow-md transition z-40 hover:scale-105" title="Recolher / Expandir menu">
-            <i id="sidebar-toggle-icon" class="bi bi-chevron-left text-xs"></i>
-        </button>
-
-        <div>
-            <!-- Brand / Logo -->
-            <div class="sidebar-header-brand flex items-center gap-3 px-2 mb-4">
-                <img src="../assets/icons/icon-stockVision.png" alt="StockVision" class="w-9 h-9 object-contain drop-shadow shrink-0">
-                <div class="min-w-0">
-                    <span class="font-bold text-sm tracking-tight text-slate-900 dark:text-white block truncate">StockVision</span>
-                    <span class="text-[9px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider block truncate">WMS & ESG 2.0</span>
-                </div>
+    <!-- Sidebar Flutuante com Abertura por Aproximação do Mouse (Hover) e Posição Fixa -->
+    <aside id="app-sidebar" class="relative w-full md:w-20 hover:md:w-64 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md md:my-3 md:ml-3 md:h-[calc(100vh-1.5rem)] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-slate-950/40 p-3 flex flex-col shrink-0 z-40 transition-all duration-300 ease-in-out overflow-y-auto overflow-x-hidden">
+        <!-- Brand / Logo -->
+        <div class="sidebar-header-brand flex items-center gap-3 px-2 mb-3 shrink-0">
+            <img src="../assets/icons/icon-stockVision.png" alt="StockVision" class="w-9 h-9 object-contain drop-shadow shrink-0">
+            <div class="sidebar-brand-text min-w-0">
+                <span class="font-bold text-sm tracking-tight text-slate-900 dark:text-white block truncate">StockVision</span>
+                <span class="text-[9px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider block truncate">WMS & ESG 2.0</span>
             </div>
-
-            <!-- Card de Perfil do Usuário -->
-            <a href="profile.html" class="sidebar-user-card flex items-center gap-3 p-2 mb-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition border border-slate-100 dark:border-slate-800/80 group">
-                <div id="sidebar-user-avatar" class="w-9 h-9 rounded-full bg-gradient-to-tr from-primary-600 to-indigo-500 text-white font-extrabold flex items-center justify-center shrink-0 shadow-sm text-xs ring-2 ring-white dark:ring-slate-700">
-                    SV
-                </div>
-                <div class="sidebar-user-details min-w-0">
-                    <span id="sidebar-user-role" class="text-[9px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block truncate">GESTOR WMS</span>
-                    <strong id="sidebar-user-name" class="text-xs font-bold text-slate-900 dark:text-white block truncate">Usuário</strong>
-                </div>
-            </a>
-
-            <!-- Seção: Principal -->
-            <div class="px-2 mb-1.5"><span class="sidebar-divider-text text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 block">Principal</span></div>
-            <nav class="space-y-1">
-                <a href="dashboard.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
-                    <i class="bi bi-grid-1x2 text-base shrink-0"></i>
-                    <span class="sidebar-text truncate">Dashboard Executivo</span>
-                    <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Dashboard</span>
-                </a>
-                <a href="stock.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition">
-                    <i class="bi bi-box-seam text-base shrink-0 text-primary-600 dark:text-primary-400"></i>
-                    <span class="sidebar-text truncate">Estoque & Insumos</span>
-                    <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Estoque & Insumos</span>
-                </a>
-                <a href="demand.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
-                    <i class="bi bi-graph-up-arrow text-base shrink-0"></i>
-                    <span class="sidebar-text truncate">Previsão Demanda</span>
-                    <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Previsão Demanda</span>
-                </a>
-                <a href="partners.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
-                    <i class="bi bi-truck text-base shrink-0"></i>
-                    <span class="sidebar-text truncate">Fornecedores & NF-e</span>
-                    <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Fornecedores & NF-e</span>
-                </a>
-            </nav>
-
-            <!-- Seção: Operações & ESG -->
-            <div class="px-2 mt-4 mb-1.5"><span class="sidebar-divider-text text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 block">Operações & ESG</span></div>
-            <nav class="space-y-1">
-                <a href="reverse.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
-                    <i class="bi bi-arrow-repeat text-base shrink-0"></i>
-                    <span class="sidebar-text truncate">Logística Reversa</span>
-                    <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Logística Reversa</span>
-                </a>
-                <a href="esg.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
-                    <i class="bi bi-recycle text-base shrink-0"></i>
-                    <span class="sidebar-text truncate">Sustentabilidade ESG</span>
-                    <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Sustentabilidade ESG</span>
-                </a>
-                <a href="auditoria.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
-                    <i class="bi bi-clipboard-check text-base shrink-0"></i>
-                    <span class="sidebar-text truncate">Auditoria WMS</span>
-                    <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Auditoria WMS</span>
-                </a>
-            </nav>
         </div>
 
-        <!-- Seção: Configurações & Rodapé -->
-        <div class="pt-3 border-t border-slate-200/80 dark:border-slate-800/80 space-y-1">
+        <!-- Card de Perfil do Usuário -->
+        <a href="profile.html" class="sidebar-user-card flex items-center gap-3 p-2 mb-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition border border-slate-100 dark:border-slate-800/80 group shrink-0">
+            <div id="sidebar-user-avatar" class="w-9 h-9 rounded-full bg-gradient-to-tr from-primary-600 to-indigo-500 text-white font-extrabold flex items-center justify-center shrink-0 shadow-sm text-xs ring-2 ring-white dark:ring-slate-700">
+                SV
+            </div>
+            <div class="sidebar-user-details min-w-0">
+                <span id="sidebar-user-role" class="text-[9px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block truncate">GESTOR WMS</span>
+                <strong id="sidebar-user-name" class="text-xs font-bold text-slate-900 dark:text-white block truncate">Usuário</strong>
+            </div>
+        </a>
+
+        <!-- Seção: Principal -->
+        <div class="px-2 mb-1 shrink-0"><span class="sidebar-divider-text text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 block">Principal</span></div>
+        <nav class="space-y-1 shrink-0">
+            <a href="dashboard.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
+                <i class="bi bi-grid-1x2 text-base shrink-0"></i>
+                <span class="sidebar-text truncate">Dashboard Executivo</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Dashboard</span>
+            </a>
+            <a href="stock.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition">
+                <i class="bi bi-box-seam text-base shrink-0 text-primary-600 dark:text-primary-400"></i>
+                <span class="sidebar-text truncate">Estoque & Insumos</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Estoque & Insumos</span>
+            </a>
+            <a href="demand.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
+                <i class="bi bi-graph-up-arrow text-base shrink-0"></i>
+                <span class="sidebar-text truncate">Previsão Demanda</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Previsão Demanda</span>
+            </a>
+            <a href="partners.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
+                <i class="bi bi-truck text-base shrink-0"></i>
+                <span class="sidebar-text truncate">Fornecedores & NF-e</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Fornecedores & NF-e</span>
+            </a>
+        </nav>
+
+        <!-- Seção: Operações & ESG -->
+        <div class="px-2 mt-3 mb-1 shrink-0"><span class="sidebar-divider-text text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 block">Operações & ESG</span></div>
+        <nav class="space-y-1 shrink-0">
+            <a href="reverse.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
+                <i class="bi bi-arrow-repeat text-base shrink-0"></i>
+                <span class="sidebar-text truncate">Logística Reversa</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Logística Reversa</span>
+            </a>
+            <a href="esg.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
+                <i class="bi bi-recycle text-base shrink-0"></i>
+                <span class="sidebar-text truncate">Sustentabilidade ESG</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Sustentabilidade ESG</span>
+            </a>
+            <a href="auditoria.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
+                <i class="bi bi-clipboard-check text-base shrink-0"></i>
+                <span class="sidebar-text truncate">Auditoria WMS</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Auditoria WMS</span>
+            </a>
+        </nav>
+
+        <!-- Seção: Sistema & Acesso (Subida para cima, contínua com o menu) -->
+        <div class="px-2 mt-3 mb-1 shrink-0"><span class="sidebar-divider-text text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 block">Sistema</span></div>
+        <nav class="space-y-1 shrink-0">
             <a href="profile.html" class="sidebar-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition">
                 <i class="bi bi-gear text-base shrink-0"></i>
                 <span class="sidebar-text truncate">Configurações & Perfil</span>
@@ -98,11 +92,11 @@
                 <span class="sidebar-text truncate">Encerrar Sessão</span>
                 <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-semibold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">Sair</span>
             </button>
-        </div>
+        </nav>
     </aside>
 
-    <!-- Conteúdo Principal -->
-    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+    <!-- Conteúdo Principal com Scroll Independente -->
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full h-full overflow-y-auto">
 
         <!-- Topbar com Cabeçalho e Ações -->
         <!-- Topbar com Cabeçalho e Ações -->

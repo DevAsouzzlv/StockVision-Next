@@ -130,20 +130,28 @@
     const initSidebar = () => {
         const sidebarEl = document.getElementById('app-sidebar');
         if (sidebarEl) {
-            // 1. Aplica estado persistido
-            const isCollapsed = getStoredState();
-            applySidebarState(sidebarEl, isCollapsed);
+            // Suporte Desktop: Abertura e Fechamento Automático por Hover (Mouse)
+            let hoverTimeout = null;
 
-            // 2. Listener do botão de recolher/expandir
+            sidebarEl.addEventListener('mouseenter', () => {
+                if (window.innerWidth >= 768) {
+                    if (hoverTimeout) clearTimeout(hoverTimeout);
+                    sidebarEl.classList.add('is-hover-expanded');
+                }
+            });
+
+            sidebarEl.addEventListener('mouseleave', () => {
+                if (window.innerWidth >= 768) {
+                    hoverTimeout = setTimeout(() => {
+                        sidebarEl.classList.remove('is-hover-expanded');
+                    }, 120);
+                }
+            });
+
+            // Se houver botão de toggle no DOM, oculta no desktop pois a interação é no hover
             const toggleBtn = document.getElementById('btn-toggle-sidebar');
             if (toggleBtn) {
-                toggleBtn.onclick = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const nowCollapsed = !sidebarEl.classList.contains('is-collapsed');
-                    applySidebarState(sidebarEl, nowCollapsed);
-                    setStoredState(nowCollapsed);
-                };
+                toggleBtn.classList.add('hidden');
             }
         }
 

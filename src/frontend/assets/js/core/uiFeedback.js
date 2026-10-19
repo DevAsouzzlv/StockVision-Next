@@ -166,6 +166,7 @@ const ui = (() => {
     };
 })();
 
-// Exporta globalmente para compatibilidade
+// Exporta globalmente para compatibilidade universal
 window.ui = ui;
+window.uiFeedback = ui;
 window.handleUserLogout = ui.handleLogout;
