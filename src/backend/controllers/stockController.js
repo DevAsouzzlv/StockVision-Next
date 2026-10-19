@@ -1,20 +1,40 @@
 const Product = require('../models/Product');
 
 /**
- * 📊 MOTOR DE CÁLCULO LOGÍSTICO (FUNÇÃO AUXILIAR UNIVERSAL)
- * Centraliza as regras de negócio para garantir consistência absoluta entre telas.
+ * 📊 MOTOR DE CÁLCULO LOGÍSTICO & FINANCEIRO
+ * Centraliza as regras de criticidade física (WMS) e de saúde financeira (Alerta de Prejuízo).
  */
-const calculateVisualStatus = (quantity, min, max) => {
+const calculateVisualStatus = (quantity, min, max, cost = 0, price = 0) => {
+    // 1. Diagnóstico de Saúde Financeira (Alerta de Prejuízo)
+    const hasFinancialLoss = price > 0 && cost > 0 && price <= cost;
+    const unitMargin = price > 0 ? parseFloat((((price - cost) / price) * 100).toFixed(1)) : 0;
+    const unitProfit = parseFloat((price - cost).toFixed(2));
+
+    // 2. Diagnóstico de Capacidade Física no Armazém
+    let alertColor = 'green';
+    let statusTag = 'Normal';
+
     if (quantity <= 0) {
-        return { alertColor: 'red', statusTag: 'Ruptura' };
+        alertColor = 'red';
+        statusTag = 'Ruptura';
+    } else if (quantity < min) {
+        alertColor = 'red';
+        statusTag = 'Estoque Baixo';
+    } else if (quantity > max) {
+        alertColor = 'orange';
+        statusTag = 'Excesso';
     }
-    if (quantity < min) {
-        return { alertColor: 'red', statusTag: 'Estoque Baixo' }; // Vermelho para criticidade de compra
-    }
-    if (quantity > max) {
-        return { alertColor: 'orange', statusTag: 'Excesso' }; // Laranja para alertar sobrecapitalização
-    }
-    return { alertColor: 'green', statusTag: 'Normal' }; // Verde para operação segura
+
+    return {
+        alertColor,
+        statusTag,
+        isLossAlert: hasFinancialLoss,
+        lossReason: hasFinancialLoss 
+            ? `Prejuízo Operacional: Preço de venda (R$ ${price.toFixed(2)}) abaixo ou igual ao custo de aquisição (R$ ${cost.toFixed(2)}) [Margem: ${unitMargin}%]`
+            : null,
+        unitMargin,
+        unitProfit
+    };
 };
 
 /**
@@ -25,13 +45,15 @@ exports.listProducts = async (req, res) => {
         // Aplica o isolamento corporativo (Multitenancy)
         const products = await Product.find({ company: req.user.company });
         
-        // Mapeia os produtos injetando o status visual calibrado em tempo de execução
+        // Mapeia os produtos injetando o status visual e financeiro calibrado em tempo de execução
         const mappedProducts = products.map(p => {
             const prodObj = p.toObject();
             prodObj.statusVisual = calculateVisualStatus(
                 prodObj.quantityInStock,
                 prodObj.minimumStock,
-                prodObj.maximumStock
+                prodObj.maximumStock,
+                prodObj.acquisitionCost,
+                prodObj.sellingPrice
             );
             return prodObj;
         });
@@ -50,6 +72,20 @@ exports.createProduct = async (req, res) => {
     try {
         const { name, category, acquisitionCost, sellingPrice, quantityInStock, minimumStock, maximumStock, isIndeterminateExpiration, expirationDate, location, barcode } = req.body;
 
+        const costNum = parseFloat(acquisitionCost) || 0;
+        const priceNum = parseFloat(sellingPrice) || 0;
+        const minNum = parseInt(minimumStock, 10) || 0;
+        const maxNum = parseInt(maximumStock, 10) || 0;
+        const qtyNum = parseInt(quantityInStock, 10) || 0;
+
+        if (minNum > maxNum) {
+            return res.status(400).json({ message: 'Validação inválida: O estoque mínimo não pode ser superior ao estoque máximo.' });
+        }
+
+        if (costNum < 0 || priceNum < 0 || qtyNum < 0) {
+            return res.status(400).json({ message: 'Valores de custo, preço e estoque não podem ser negativos.' });
+        }
+
         // Geração de SKU incremental baseado em Timestamp para simulação de código de barras
         const generatedSku = `SKU-${Date.now()}`;
 
@@ -59,21 +95,82 @@ exports.createProduct = async (req, res) => {
             barcode: barcode || generatedSku,
             name,
             category,
-            acquisitionCost,
-            sellingPrice,
-            quantityInStock,
-            minimumStock,
-            maximumStock,
+            acquisitionCost: costNum,
+            sellingPrice: priceNum,
+            quantityInStock: qtyNum,
+            minimumStock: minNum,
+            maximumStock: maxNum,
             isIndeterminateExpiration,
             expirationDate: isIndeterminateExpiration ? null : expirationDate,
             location
         });
 
         await newProduct.save();
-        return res.status(201).json({ message: 'Insumo lançado e endereçado com sucesso no armazém!', product: newProduct });
+
+        const prodObj = newProduct.toObject();
+        prodObj.statusVisual = calculateVisualStatus(prodObj.quantityInStock, prodObj.minimumStock, prodObj.maximumStock, prodObj.acquisitionCost, prodObj.sellingPrice);
+
+        return res.status(201).json({ message: 'Insumo lançado e endereçado com sucesso no armazém!', product: prodObj });
     } catch (error) {
         console.error('[Controller Stock - Create Error]:', error.message);
         return res.status(400).json({ message: 'Falha ao processar lançamento.', error: error.message });
+    }
+};
+
+/**
+ * 🔄 ATUALIZAR PRODUTO (PUT -> /api/stock/:id)
+ * Valida consistência de mínimos, máximos e preços, protegendo multitenancy
+ */
+exports.updateProduct = async (req, res) => {
+    try {
+        const product = await Product.findOne({ _id: req.params.id, company: req.user.company });
+        if (!product) {
+            return res.status(404).json({ message: 'Material não localizado ou acesso não autorizado.' });
+        }
+
+        const updates = req.body;
+        const newMin = typeof updates.minimumStock !== 'undefined' ? parseInt(updates.minimumStock, 10) : product.minimumStock;
+        const newMax = typeof updates.maximumStock !== 'undefined' ? parseInt(updates.maximumStock, 10) : product.maximumStock;
+        const newCost = typeof updates.acquisitionCost !== 'undefined' ? parseFloat(updates.acquisitionCost) : product.acquisitionCost;
+        const newPrice = typeof updates.sellingPrice !== 'undefined' ? parseFloat(updates.sellingPrice) : product.sellingPrice;
+
+        if (newMin > newMax) {
+            return res.status(400).json({ message: 'Validação inválida: O estoque mínimo não pode ser superior ao estoque máximo.' });
+        }
+
+        if (newCost < 0 || newPrice < 0) {
+            return res.status(400).json({ message: 'Custo de aquisição e preço de venda não podem ser negativos.' });
+        }
+
+        Object.assign(product, updates);
+        await product.save();
+
+        const prodObj = product.toObject();
+        prodObj.statusVisual = calculateVisualStatus(prodObj.quantityInStock, prodObj.minimumStock, prodObj.maximumStock, prodObj.acquisitionCost, prodObj.sellingPrice);
+
+        return res.status(200).json({
+            message: 'Parâmetros logísticos consolidados com sucesso!',
+            product: prodObj
+        });
+    } catch (error) {
+        console.error('[Controller Stock - Update Error]:', error.message);
+        return res.status(400).json({ message: 'Erro ao atualizar material.', error: error.message });
+    }
+};
+
+/**
+ * 🗑️ REMOVER PRODUTO (DELETE -> /api/stock/:id)
+ */
+exports.deleteProduct = async (req, res) => {
+    try {
+        const deletedProduct = await Product.findOneAndDelete({ _id: req.params.id, company: req.user.company });
+        if (!deletedProduct) {
+            return res.status(404).json({ message: 'Produto não localizado para exclusão.' });
+        }
+        return res.status(200).json({ message: 'Material removido permanentemente do inventário!' });
+    } catch (error) {
+        console.error('[Controller Stock - Delete Error]:', error.message);
+        return res.status(500).json({ message: 'Erro interno ao remover material.', error: error.message });
     }
 };
 
@@ -284,7 +381,3 @@ exports.importInvoiceXml = async (req, res) => {
         return res.status(500).json({ message: 'Erro crítico ao realizar o parse estrutural da NF-e.', error: error.message });
     }
 };
-
-// --- STUBS ADICIONAIS DA GRADE CURRICULAR ---
-exports.processGeneralInventory = async (req, res) => { return res.status(501).json({ message: 'Rota pronta para Auditoria de Inventário Geral.' }); };
-exports.getRotativeInventorySheet = async (req, res) => { return res.status(501).json({ message: 'Rota pronta para Cronograma de Contagem Rotativa.' }); };

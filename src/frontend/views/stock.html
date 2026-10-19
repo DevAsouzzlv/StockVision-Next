@@ -1,271 +1,557 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-bs-theme="light">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StockVision - Lançamento e Endereçamento de Insumos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/modern.css">
+    <link rel="stylesheet" href="../assets/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="shortcut icon" href="../assets/icons/icon-stockVision.png" type="image/png">
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/authGuard.js"></script>
 </head>
-<body>
-    <div class="app-shell d-flex flex-column flex-md-row">
-        <aside class="sidebar-panel offcanvas-md offcanvas-start d-flex flex-column p-3 p-md-4" id="sidebarMenu" tabindex="-1">
-            <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold text-primary mb-0">StockVision</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
-            </div>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
 
-            <div class="sidebar-brand p-3 mb-4 text-center">
-                <h2 class="fw-bold fs-4 mb-1 text-primary">StockVision</h2>
-                <p class="text-muted small mb-0">Gestão logística com interface premium</p>
-            </div>
-
-            <ul class="sidebar-nav nav nav-pills flex-column gap-1 mb-auto">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-bar-chart-fill me-2"></i> Dashboard</a></li>
-                <li class="nav-item"><a href="stock.html" class="nav-link active"><i class="bi bi-box-seam me-2"></i> Estoque</a></li>
-                <li class="nav-item"><a href="demand.html" class="nav-link"><i class="bi bi-graph-up-arrow me-2"></i> Previsão de Demanda</a></li>
-                <li class="nav-item"><a href="partners.html" class="nav-link"><i class="bi bi-people-fill me-2"></i> Pedidos & Fornecedores</a></li>
-                <li class="nav-item"><a href="reverse.html" class="nav-link"><i class="bi bi-arrow-repeat me-2"></i> Logística Reversa</a></li>
-                <li class="nav-item"><a href="esg.html" class="nav-link"><i class="bi bi-tree-fill me-2"></i> Sustentabilidade (ESG)</a></li>
-                <li class="nav-item"><a href="auditoria.html" class="nav-link"><i class="bi bi-clipboard-check-fill me-2"></i> Auditoria de Estoque</a></li>
-            </ul>
-
-            <a href="#" onclick="handleUserLogout()" class="btn btn-outline-danger mt-3">
-                <i class="bi bi-box-arrow-right me-2"></i> Logout
-            </a>
-        </aside>
-
-        <main class="flex-grow-1 p-3 p-md-4">
-            <header class="topbar rounded-4 p-3 p-md-4 mb-4 d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-outline-secondary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <div>
-                        <h3 class="mb-0 fw-bold">📦 Lançamento e Endereçamento de Insumos</h3>
-                        <p class="mb-0 text-muted small" id="company-name-display">Almoxarifado Central: Carregando...</p>
-                    </div>
+    <!-- Sidebar de Navegação Lateral -->
+    <aside class="w-full md:w-64 bg-white dark:bg-slate-800/95 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700/80 p-5 flex flex-col justify-between shrink-0 shadow-sm">
+        <div>
+            <!-- Brand / Logo -->
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <img src="../assets/icons/icon-stockVision.png" alt="StockVision" class="w-10 h-10 object-contain drop-shadow">
+                <div>
+                    <span class="font-bold text-base tracking-tight text-slate-900 dark:text-white block">StockVision</span>
+                    <span class="text-[10px] uppercase font-semibold text-emerald-600 dark:text-emerald-400 tracking-wider">WMS & ESG 2.0</span>
                 </div>
-                <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle" aria-label="Alternar tema">
+            </div>
+
+            <!-- Menu de Links -->
+            <nav class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-grid-1x2 text-base"></i>
+                    <span>Dashboard Executivo</span>
+                </a>
+                <a href="stock.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800/60 shadow-sm transition">
+                    <i class="bi bi-box-seam text-base"></i>
+                    <span>Estoque & Insumos</span>
+                </a>
+                <a href="demand.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-graph-up-arrow text-base"></i>
+                    <span>Previsão de Demanda</span>
+                </a>
+                <a href="partners.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-truck text-base"></i>
+                    <span>Fornecedores & NF-e</span>
+                </a>
+                <a href="reverse.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-arrow-repeat text-base"></i>
+                    <span>Logística Reversa</span>
+                </a>
+                <a href="esg.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-recycle text-base"></i>
+                    <span>Sustentabilidade ESG</span>
+                </a>
+                <a href="auditoria.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-clipboard-check text-base"></i>
+                    <span>Auditoria WMS</span>
+                </a>
+                <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-person-circle text-base"></i>
+                    <span>Meu Perfil & Ajustes</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Rodapé do Menu Lateral -->
+        <div class="pt-4 mt-6 border-t border-slate-200 dark:border-slate-700/60">
+            <button id="btn-sidebar-logout" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                <i class="bi bi-box-arrow-right text-base"></i>
+                <span>Encerrar Sessão</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+
+        <!-- Topbar com Cabeçalho e Ações -->
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>📦 Gestão de Estoque & WMS</span>
+                    </h1>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
+                    <span id="company-name-display" class="font-medium">Carregando centro logístico...</span>
+                    <span>•</span>
+                    <span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sincronizado
+                    </span>
+                </p>
+            </div>
+
+            <!-- Botões Superiores -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <button id="open-barcode-btn" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition shadow-sm">
+                    <i class="bi bi-qr-code-scan text-primary-500"></i>
+                    <span>Scanner</span>
+                </button>
+                <button id="open-nfe-modal-btn" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition shadow-sm">
+                    <i class="bi bi-file-earmark-code text-indigo-500"></i>
+                    <span>Importar NF-e (XML)</span>
+                </button>
+                <button id="open-create-btn" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-primary-600 hover:bg-primary-700 text-white transition shadow-sm">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>Novo Insumo</span>
+                </button>
+                <button id="theme-toggle" class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition shadow-sm" title="Alternar Modo Claro/Escuro">
                     <i class="bi bi-moon-stars-fill"></i>
                 </button>
-            </header>
+            </div>
+        </header>
 
-            <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4">
-                <div class="row g-3 align-items-end">
-                    <div class="col-12 col-xl-8">
-                        <div class="row g-2">
-                            <div class="col-12 col-lg-4">
-                                <input type="text" id="search-name" class="form-control" placeholder="Pesquisar por material ou SKU...">
-                            </div>
-                            <div class="col-12 col-lg-3">
-                                <select id="search-category" class="form-select"></select>
-                            </div>
-                            <div class="col-12 col-lg-3">
-                                <select id="search-status" class="form-select">
-                                    <option value="">Status Operacional</option>
-                                    <option value="Normal">Normal</option>
-                                    <option value="Estoque Baixo">Estoque Baixo</option>
-                                    <option value="Ruptura">Ruptura</option>
-                                    <option value="Excesso">Excesso</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-lg-2">
-                                <input type="number" id="search-max-price" class="form-control" placeholder="Preço Máx.">
-                            </div>
+        <!-- Filtros e Busca Rápida -->
+        <section class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
+                <div class="lg:col-span-4">
+                    <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Buscar por Insumo ou SKU</label>
+                    <div class="relative">
+                        <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="search-name" placeholder="Ex: Cimento, Aço, SKU-001..." class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 transition">
+                    </div>
+                </div>
+
+                <div class="lg:col-span-3">
+                    <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Categoria</label>
+                    <select id="search-category" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 transition">
+                        <option value="">Todas as Categorias</option>
+                    </select>
+                </div>
+
+                <div class="lg:col-span-3">
+                    <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Status Operacional</label>
+                    <select id="search-status" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 transition">
+                        <option value="">Todos os Status</option>
+                        <option value="Normal">Normal</option>
+                        <option value="Estoque Baixo">Estoque Baixo</option>
+                        <option value="Ruptura">Ruptura (Sem Estoque)</option>
+                        <option value="Excesso">Excesso de Estoque</option>
+                    </select>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Preço Máximo (R$)</label>
+                    <input type="number" id="search-max-price" placeholder="Preço Máx." step="0.01" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 transition">
+                </div>
+            </div>
+        </section>
+
+        <!-- Drawer Acessível de Detalhes WMS / Métricas do Insumo -->
+        <div id="details-drawer" class="hidden bg-white dark:bg-slate-800 rounded-2xl border-2 border-primary-500/40 p-5 shadow-lg mb-6 transition-all duration-300">
+            <div class="flex items-start justify-between border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-primary-100 dark:bg-primary-950/80 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold">
+                        <i class="bi bi-box-seam text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 id="drawer-product-name" class="font-bold text-sm md:text-base text-slate-900 dark:text-white">Nome do Insumo</h3>
+                        <p class="text-[11px] text-slate-400">Detalhes WMS, parâmetros de giro e rentabilidade unitária</p>
+                    </div>
+                </div>
+                <button id="btn-close-drawer" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg transition" title="Fechar (ESC)">
+                    <i class="bi bi-x-lg text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Banner Alerta de Prejuízo (Condicional) -->
+            <div id="drawer-loss-warning" class="hidden mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 flex items-center gap-3 text-rose-700 dark:text-rose-300 text-xs">
+                <i class="bi bi-exclamation-octagon-fill text-lg text-rose-600"></i>
+                <div>
+                    <span class="font-bold block">Alerta Crítico: Produto em Prejuízo Operacional</span>
+                    <span id="drawer-loss-reason" class="text-[11px]">O preço de venda é inferior ou igual ao custo de aquisição.</span>
+                </div>
+            </div>
+
+            <!-- Grid de Informações Técnicas -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
+                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Endereço WMS</span>
+                    <p id="drawer-location" class="font-bold text-xs text-slate-800 dark:text-slate-100 mt-0.5">-</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
+                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Faturamento Potencial</span>
+                    <p id="drawer-turnover" class="font-bold text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">-</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
+                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Margem Unitária</span>
+                    <p id="drawer-margin" class="font-bold text-xs text-slate-800 dark:text-slate-100 mt-0.5">-</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
+                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Status Logístico</span>
+                    <div id="drawer-status-tag" class="mt-0.5">-</div>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
+                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Validade</span>
+                    <p id="drawer-expiration" class="font-medium text-xs text-slate-800 dark:text-slate-100 mt-0.5">-</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
+                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Estoque Mín / Máx</span>
+                    <p id="drawer-limits" class="font-medium text-xs text-slate-800 dark:text-slate-100 mt-0.5">-</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/60 text-xs">
+                <div>
+                    <span class="text-slate-400 font-semibold">Categoria Mercadológica:</span>
+                    <span id="drawer-category" class="font-medium text-slate-700 dark:text-slate-200 ml-1">-</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 font-semibold">Fornecedor Principal:</span>
+                    <span id="drawer-supplier" class="font-medium text-slate-700 dark:text-slate-200 ml-1">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela Principal de Insumos -->
+        <section class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100/75 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            <th class="py-3 px-4">Material / SKU / Alertas</th>
+                            <th class="py-3 px-4">Endereçamento WMS</th>
+                            <th class="py-3 px-4">Saldo Atual</th>
+                            <th class="py-3 px-4">Preço Venda</th>
+                            <th class="py-3 px-4">Criticidade</th>
+                            <th class="py-3 px-4 text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                        <tr>
+                            <td colspan="6" class="text-center py-8 text-slate-400 dark:text-slate-500">
+                                <div class="inline-flex items-center gap-2">
+                                    <div class="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+                                    <span>Sincronizando inventário NoSQL...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal: Cadastrar Novo Insumo -->
+    <div id="create-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 my-8">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
+                <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>📦 Cadastrar Novo Insumo Logístico</span>
+                </h3>
+                <button id="btn-close-create-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="bi bi-x-lg text-lg"></i>
+                </button>
+            </div>
+
+            <form id="product-form" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Nome do Insumo *</label>
+                        <input type="text" id="name" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Categoria Mercadológica *</label>
+                        <input type="text" id="category" placeholder="Ex: Bebidas, Matéria-prima" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Custo de Aquisição (R$) *</label>
+                        <input type="number" id="acquisitionCost" step="0.01" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Preço de Venda (R$) *</label>
+                        <input type="number" id="sellingPrice" step="0.01" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Código de Barras (EAN/UPC)</label>
+                        <input type="text" id="barcode" placeholder="Opcional - Digite ou leia" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Saldo Inicial Físico *</label>
+                        <input type="number" id="quantityInStock" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Estoque Mínimo *</label>
+                        <input type="number" id="minimumStock" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Estoque Máximo *</label>
+                        <input type="number" id="maximumStock" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                </div>
+
+                <div class="pt-2 text-xs">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="isIndeterminateExpiration" class="rounded text-primary-600 focus:ring-primary-500">
+                        <span class="text-slate-600 dark:text-slate-300">Este insumo não possui data de validade (Imperecível)</span>
+                    </label>
+                </div>
+
+                <div id="expiration-container" class="text-xs">
+                    <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Data de Vencimento</label>
+                    <input type="date" id="expirationDate" class="w-full sm:w-1/2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                </div>
+
+                <!-- Coordenadas WMS -->
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-700">
+                    <h4 class="font-bold text-xs text-slate-800 dark:text-slate-200 mb-2">📍 Coordenadas de Endereçamento WMS</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-0.5">Setor</label>
+                            <input type="text" id="sector" placeholder="A" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center font-mono text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-0.5">Rua</label>
+                            <input type="text" id="row" placeholder="01" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center font-mono text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-0.5">Prédio</label>
+                            <input type="text" id="building" placeholder="04" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center font-mono text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-0.5">Nível</label>
+                            <input type="text" id="floor" placeholder="02" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center font-mono text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-0.5">Vão</label>
+                            <input type="text" id="apartment" placeholder="B" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center font-mono text-xs">
                         </div>
                     </div>
-                    <div class="col-12 col-xl-4 text-xl-end">
-                        <button class="btn btn-outline-primary px-4 me-2" onclick="openBarcodeScannerModal()"><i class="bi bi-qr-code-scan me-2"></i>Ler Código de Barras</button>
-                        <button class="btn btn-primary px-4" onclick="openCreateModal()"><i class="bi bi-plus-circle me-2"></i>Novo Produto</button>
-                    </div>
                 </div>
-            </div>
 
-            <div id="details-drawer" class="card border-0 shadow-sm rounded-4 mt-4 mb-4" style="display:none;">
-                <div class="card-body">
-                    <h4 id="drawer-product-name" class="fw-bold mb-3">📊 Métricas Individuais</h4>
-                    <div class="row g-3">
-                        <div class="col-12 col-md-3"><small class="text-muted">Endereço Logístico</small><p id="drawer-location" class="fw-semibold mb-0"></p></div>
-                        <div class="col-12 col-md-3"><small class="text-muted">Faturamento Potencial</small><p id="drawer-turnover" class="fw-semibold mb-0 text-success"></p></div>
-                        <div class="col-12 col-md-3"><small class="text-muted">Status da Matriz</small><p id="drawer-status-tag" class="mb-0"></p></div>
-                        <div class="col-12 col-md-3"><small class="text-muted">Validade</small><p id="drawer-expiration" class="mb-0"></p></div>
-                    </div>
-                    <div class="row g-3 mt-1">
-                        <div class="col-12 col-md-4"><small class="text-muted">Categoria</small><p id="drawer-category" class="mb-0"></p></div>
-                        <div class="col-12 col-md-4"><small class="text-muted">Estoque Mín./Máx.</small><p id="drawer-limits" class="mb-0"></p></div>
-                        <div class="col-12 col-md-4"><small class="text-muted">Fornecedor</small><p id="drawer-supplier" class="mb-0"></p></div>
-                    </div>
+                <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" id="btn-cancel-create-modal" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-primary-600 hover:bg-primary-700 text-white transition shadow-sm">Salvar Registro</button>
                 </div>
-            </div>
-
-
-            <section class="card border-0 shadow-sm rounded-4">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-4">Material / SKU</th>
-                                    <th>Endereçamento WMS</th>
-                                    <th>Saldo Atual</th>
-                                    <th>Preço Venda</th>
-                                    <th>Criticidade</th>
-                                    <th class="text-center pe-4">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventory-table-body">
-                                <tr><td colspan="6" class="text-center text-muted py-4">Sincronizando livro de inventário NoSQL...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-            
-
-
-        </main>
+            </form>
+        </div>
     </div>
 
-    <div class="modal fade" id="create-modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content rounded-4">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">📦 Cadastrar Novo Insumo Logístico</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Modal: Editar Insumo -->
+    <div id="edit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 my-8">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
+                <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>✏️ Atualizar Parâmetros do Insumo</span>
+                </h3>
+                <button id="btn-close-edit-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="bi bi-x-lg text-lg"></i>
+                </button>
+            </div>
+
+            <form id="edit-product-form" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Nome do Insumo *</label>
+                        <input type="text" id="edit-name" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Categoria</label>
+                        <input type="text" id="edit-category" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Custo de Aquisição (R$)</label>
+                        <input type="number" id="edit-acquisitionCost" step="0.01" min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Preço de Venda (R$) *</label>
+                        <input type="number" id="edit-price" step="0.01" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Saldo Físico Atual *</label>
+                        <input type="number" id="edit-quantity" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Código de Barras</label>
+                        <input type="text" id="edit-barcode" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Estoque Mínimo</label>
+                        <input type="number" id="edit-minimumStock" min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Estoque Máximo</label>
+                        <input type="number" id="edit-maximumStock" min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="product-form">
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6"><label class="form-label">Nome do Produto / Material *</label><input type="text" id="name" class="form-control" required></div>
-                            <div class="col-12 col-md-6"><label class="form-label">Categoria Mercadológica *</label><input type="text" id="category" class="form-control" placeholder="Ex: Bebidas, Mercearia" required></div>
-                            <div class="col-12 col-md-6"><label class="form-label">Código de Barras (EAN/UPC)</label><input type="text" id="barcode" class="form-control" placeholder="Opcional - Digite ou leia"></div>
-                            <div class="col-12 col-md-6"><label class="form-label">Custo de Aquisição (R$) *</label><input type="number" id="acquisitionCost" class="form-control" step="0.01" required></div>
-                            <div class="col-12 col-md-6"><label class="form-label">Preço de Venda (R$) *</label><input type="number" id="sellingPrice" class="form-control" step="0.01" required></div>
-                            <div class="col-12 col-md-4"><label class="form-label">Qtd Inicial *</label><input type="number" id="quantityInStock" class="form-control" required></div>
-                            <div class="col-12 col-md-4"><label class="form-label">Estoque Mín *</label><input type="number" id="minimumStock" class="form-control" required></div>
-                            <div class="col-12 col-md-4"><label class="form-label">Estoque Máx *</label><input type="number" id="maximumStock" class="form-control" required></div>
-                            <div class="col-12">
-                                <div class="form-check"><input class="form-check-input" type="checkbox" id="isIndeterminateExpiration"><label class="form-check-label" for="isIndeterminateExpiration">Este material não possui data de validade (Inperecível)</label></div>
-                            </div>
-                            <div class="col-12" id="expiration-container"><label class="form-label">Data de Vencimento</label><input type="date" id="expirationDate" class="form-control"></div>
-                            <div class="col-12"><h6 class="fw-bold mt-3">📍 Coordenadas de Endereçamento WMS</h6></div>
-                            <div class="col-12 col-md-2"><label class="form-label">Setor</label><input type="text" id="sector" class="form-control" placeholder="A"></div>
-                            <div class="col-12 col-md-2"><label class="form-label">Rua</label><input type="text" id="row" class="form-control" placeholder="02"></div>
-                            <div class="col-12 col-md-2"><label class="form-label">Prédio</label><input type="text" id="building" class="form-control" placeholder="12"></div>
-                            <div class="col-12 col-md-2"><label class="form-label">Nível</label><input type="text" id="floor" class="form-control" placeholder="03"></div>
-                            <div class="col-12 col-md-2"><label class="form-label">Vão</label><input type="text" id="apartment" class="form-control" placeholder="B"></div>
+
+                <div class="pt-2 text-xs">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="edit-isIndeterminateExpiration" class="rounded text-primary-600">
+                        <span class="text-slate-600 dark:text-slate-300">Este insumo não possui data de validade</span>
+                    </label>
+                </div>
+
+                <div id="edit-expiration-container" class="text-xs">
+                    <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Data de Vencimento</label>
+                    <input type="date" id="edit-expirationDate" class="w-full sm:w-1/2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                </div>
+
+                <!-- Reendereçamento WMS -->
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-700">
+                    <h4 class="font-bold text-xs text-slate-800 dark:text-slate-200 mb-2">📍 Reendereçamento Logístico</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-0.5">Setor</label>
+                            <input type="text" id="edit-sector" placeholder="A" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center font-mono text-xs">
                         </div>
-                        <button type="submit" class="btn btn-primary mt-4 w-100">💾 Consolidar e Salvar no Banco</button>
-                    </form>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-0.5">Rua</label>
+                            <input type="text" id="edit-row" placeholder="01" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center font-mono text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-0.5">Prédio</label>
+                            <input type="text" id="edit-building" placeholder="04" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center font-mono text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-0.5">Nível</label>
+                            <input type="text" id="edit-floor" placeholder="02" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center font-mono text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-0.5">Vão</label>
+                            <input type="text" id="edit-apartment" placeholder="B" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center font-mono text-xs">
+                        </div>
+                    </div>
                 </div>
+
+                <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" id="btn-cancel-edit-modal" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-primary-600 hover:bg-primary-700 text-white transition shadow-sm">Atualizar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Leitor de Código de Barras -->
+    <div id="barcode-scanner-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
+                <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="bi bi-camera text-primary-500"></i>
+                    <span>Leitor de Código de Barras</span>
+                </h3>
+                <button id="btn-close-barcode-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="bi bi-x-lg text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Abas Câmera / Dispositivo Físico -->
+            <div class="flex border-b border-slate-200 dark:border-slate-700 mb-4">
+                <button id="camera-tab" class="px-4 py-2 text-xs font-bold border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 transition">
+                    <i class="bi bi-camera-video me-1"></i> Webcam / Câmera
+                </button>
+                <button id="device-tab" class="px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 transition">
+                    <i class="bi bi-usb-symbol me-1"></i> Scanner Físico (USB/BT)
+                </button>
+            </div>
+
+            <div id="camera-pane">
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Posicione o código de barras ou EAN no visor da câmera para leitura instantânea.</p>
+                <div id="interactive" class="w-full h-64 bg-black rounded-xl overflow-hidden relative">
+                    <video class="w-full h-full object-cover absolute top-0 left-0"></video>
+                    <canvas class="drawingBuffer absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
+                    <div class="absolute top-1/2 left-8 right-8 h-0.5 bg-red-500 -translate-y-1/2 shadow-[0_0_10px_red]"></div>
+                </div>
+                <div class="text-center mt-3">
+                    <span id="camera-status" class="inline-block px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                        Iniciando dispositivo de captura...
+                    </span>
+                </div>
+            </div>
+
+            <div id="device-pane" class="hidden space-y-3">
+                <p class="text-xs text-slate-500 dark:text-slate-400">Pressione o gatilho do leitor de código de barras físico. O código será transmitido automaticamente:</p>
+                <input type="text" id="scanner-device-input" placeholder="Aguardando bip do leitor..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center font-mono text-sm tracking-wider focus:ring-2 focus:ring-primary-500">
+            </div>
+
+            <div class="flex justify-end pt-4 mt-4 border-t border-slate-100 dark:border-slate-700">
+                <button id="btn-close-barcode-modal-footer" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition">
+                    Fechar
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="edit-modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-4">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">✏️ Atualizar Parâmetros de Insumo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Modal: Importar NF-e (XML Drag & Drop) -->
+    <div id="nfe-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 my-8">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
+                <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="bi bi-file-earmark-code text-indigo-500"></i>
+                    <span>Importar Insumos via NF-e (XML)</span>
+                </h3>
+                <button id="btn-close-nfe-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="bi bi-x-lg text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Dropzone XML -->
+            <div id="nfe-dropzone" class="border-2 border-dashed border-indigo-300 dark:border-indigo-700/80 rounded-2xl p-8 text-center bg-indigo-50/40 dark:bg-indigo-950/20 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition">
+                <i class="bi bi-cloud-arrow-up text-3xl text-indigo-600 dark:text-indigo-400 block mb-2"></i>
+                <p class="font-bold text-xs text-slate-800 dark:text-slate-200 mb-1">Arraste o arquivo XML da Nota Fiscal Eletrônica aqui</p>
+                <p class="text-[11px] text-slate-400">ou clique para selecionar no computador</p>
+                <input type="file" id="nfe-file-input" accept=".xml" class="hidden">
+            </div>
+
+            <!-- Pré-visualização de Itens parsed -->
+            <div id="nfe-preview-table-container" class="hidden mt-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Itens Localizados no XML:</span>
+                    <span id="nfe-items-count" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">0 itens</span>
                 </div>
-                <div class="modal-body">
-                    <form id="edit-product-form">
-                        <input type="hidden" id="edit-id">
-                        <div class="mb-3"><label class="form-label">Nome do Produto</label><input type="text" id="edit-name" class="form-control" required></div>
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6"><label class="form-label">Categoria</label><input type="text" id="edit-category" class="form-control"></div>
-                            <div class="col-12 col-md-6"><label class="form-label">Custo de Aquisição (R$)</label><input type="number" id="edit-acquisitionCost" class="form-control" step="0.01"></div>
-                            <div class="col-12 col-md-6"><label class="form-label">Saldo Físico Atual</label><input type="number" id="edit-quantity" class="form-control" required></div>
-                            <div class="col-12 col-md-6"><label class="form-label">Preço de Venda (R$)</label><input type="number" id="edit-price" class="form-control" step="0.01" required></div>
-                            <div class="col-12 col-md-6"><label class="form-label">Estoque Mínimo</label><input type="number" id="edit-minimumStock" class="form-control"></div>
-                            <div class="col-12 col-md-6"><label class="form-label">Estoque Máximo</label><input type="number" id="edit-maximumStock" class="form-control"></div>
-                            <div class="col-12 col-md-6"><label class="form-label">Fornecedor</label><input type="text" id="edit-supplier" class="form-control"></div>
-                            <div class="col-12 col-md-6"><label class="form-label">Código de Barras</label><input type="text" id="edit-barcode" class="form-control"></div>
-                        </div>
-                        <div class="mt-3">
-                            <div class="form-check"><input class="form-check-input" type="checkbox" id="edit-isIndeterminateExpiration"><label class="form-check-label" for="edit-isIndeterminateExpiration">Este material não possui data de validade</label></div>
-                        </div>
-                        <div class="mt-3" id="edit-expiration-container"><label class="form-label">Data de Vencimento</label><input type="date" id="edit-expirationDate" class="form-control"></div>
-                        <h6 class="fw-bold mt-4">📍 Reendereçamento Logístico</h6>
-                        <div class="row g-3 mt-1">
-                            <div class="col-12 col-md-2"><label class="form-label">Setor</label><input type="text" id="edit-sector" class="form-control"></div>
-                            <div class="col-12 col-md-2"><label class="form-label">Rua</label><input type="text" id="edit-row" class="form-control"></div>
-                            <div class="col-12 col-md-2"><label class="form-label">Prédio</label><input type="text" id="edit-building" class="form-control"></div>
-                            <div class="col-12 col-md-2"><label class="form-label">Nível</label><input type="text" id="edit-floor" class="form-control"></div>
-                            <div class="col-12 col-md-2"><label class="form-label">Vão</label><input type="text" id="edit-apartment" class="form-control"></div>
-                        </div>
-                        <button type="submit" class="btn btn-primary mt-4 w-100">⚡ Atualizar Registro NoSQL</button>
-                    </form>
+                <div class="max-h-48 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-slate-50 dark:bg-slate-900/60 text-[10px] uppercase font-bold text-slate-400">
+                            <tr>
+                                <th class="p-2">Material</th>
+                                <th class="p-2">Qtd</th>
+                                <th class="p-2">Custo Unit</th>
+                                <th class="p-2">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="nfe-preview-tbody" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                    </table>
                 </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-700">
+                <button type="button" id="btn-cancel-nfe-modal" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">Cancelar</button>
+                <button type="button" id="btn-confirm-nfe-import" disabled class="px-5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white transition shadow-sm">Importar Itens para Estoque</button>
             </div>
         </div>
     </div>
 
+    <!-- Scripts e Bibliotecas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    <script src="../assets/js/core/uiFeedback.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/views/stockView.js"></script>
     <script>
-        function handleUserLogout() {
-            if (confirm("Deseja realmente encerrar a sessão corporativa?")) {
+        // Logout handler via sidebar
+        document.getElementById('btn-sidebar-logout')?.addEventListener('click', async () => {
+            const confirmed = await uiFeedback.confirm({
+                title: 'Encerrar Sessão Corporativa',
+                message: 'Deseja realmente sair do StockVision? Suas alterações salvas permanecem seguras.',
+                confirmText: 'Sair Agora',
+                confirmClass: 'bg-rose-600 hover:bg-rose-700'
+            });
+            if (confirmed) {
                 localStorage.removeItem('sv_token');
                 localStorage.removeItem('sv_user');
-                window.location.href = "login.html";
+                window.location.href = 'login.html';
             }
-        }
+        });
     </script>
-    <div class="modal fade" id="barcode-scanner-modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-4">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">📷 Leitor de Código de Barras</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeBarcodeScannerModal()"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <ul class="nav nav-tabs px-3" id="scannerTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="camera-tab" data-bs-toggle="tab" data-bs-target="#camera-pane" type="button" role="tab" onclick="onScannerTabChange('camera')">🎥 Câmera / Webcam</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="device-tab" data-bs-toggle="tab" data-bs-target="#device-pane" type="button" role="tab" onclick="onScannerTabChange('device')">🔌 Scanner Físico (USB/BT)</button>
-                        </li>
-                    </ul>
-                    <div class="tab-content p-3">
-                        <div class="tab-pane fade show active" id="camera-pane" role="tabpanel">
-                            <p class="text-muted small">Posicione o código de barras na frente da câmera. Ele será detectado automaticamente.</p>
-                            <div id="interactive" style="width: 100%; height: 280px; position: relative; overflow: hidden; background: #000; border-radius: 8px;">
-                                <video style="width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0;"></video>
-                                <canvas class="drawingBuffer" style="position: absolute; top: 0; left: 0; pointer-events: none; width: 100%; height: 100%;"></canvas>
-                                <div style="position: absolute; top: 50%; left: 10%; right: 10%; height: 2px; background: red; opacity: 0.6; transform: translateY(-50%); box-shadow: 0 0 8px red;"></div>
-                            </div>
-                            <div class="text-center mt-3">
-                                <span class="badge bg-secondary-subtle text-secondary" id="camera-status">Carregando câmera...</span>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="device-pane" role="tabpanel">
-                            <p class="text-muted small">Se você possui um leitor de código de barras conectado (USB ou Bluetooth), focalize o campo abaixo e faça a leitura do código.</p>
-                            <div class="mb-3">
-                                <label class="form-label">Leitura de Entrada</label>
-                                <input type="text" id="scanner-device-input" class="form-control form-control-lg text-center" placeholder="Aguardando bip do leitor..." autofocus autocomplete="off">
-                            </div>
-                            <div class="text-center">
-                                <span class="badge bg-info-subtle text-info">O scanner físico geralmente envia o código seguido de um 'Enter'</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeBarcodeScannerModal()">Fechar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/authGuard.js"></script>
-    <script src="../assets/js/theme.js"></script>
-    <script src="../assets/js/api.js"></script>
-    <script src="../assets/js/main.js"></script>
 </body>
 </html>
