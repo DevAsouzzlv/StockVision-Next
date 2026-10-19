@@ -210,60 +210,129 @@
             </div>
         </section>
 
-        <!-- Seção de Gráficos (Evolução Financeira & Flutuação) -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            <!-- Gráfico 1: Receitas e Custos -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
+        <!-- Seção de Gráficos (Evolução Financeira, Giro por Categoria & Flutuação) -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
+            <!-- Gráfico 1: Receitas, Custos e Lucro Operacional -->
+            <div class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
                 <div class="flex items-center justify-between mb-4">
-                    <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                        <i class="bi bi-graph-up text-primary-500"></i>
-                        <span>Evolução das Receitas e Custos</span>
-                    </h4>
-                    <span class="text-[11px] text-slate-400">Projeção Semestral</span>
+                    <div>
+                        <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="bi bi-graph-up text-primary-500"></i>
+                            <span>Evolução Financeira: Receitas, Custos & Lucro</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">Projeção semestral de fluxo econômico</p>
+                    </div>
+                    <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <i class="bi bi-wallet2"></i> Lucro Consolidado
+                    </span>
                 </div>
                 <div class="relative flex-1 min-h-[260px]">
                     <canvas id="financialChart"></canvas>
                 </div>
             </div>
 
-            <!-- Gráfico 2: Flutuação de Estoque -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
+            <!-- Gráfico 2: Composição & Indicadores de Giro por Categoria -->
+            <div class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
                 <div class="flex items-center justify-between mb-4">
-                    <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                        <i class="bi bi-box-seam text-cyan-500"></i>
-                        <span>Flutuação Mensal de Insumos</span>
-                    </h4>
-                    <span class="text-[11px] text-slate-400">Volumetria Total</span>
+                    <div>
+                        <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="bi bi-pie-chart text-indigo-500"></i>
+                            <span>Giro & Estoque por Categoria</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">Distribuição do volume e rotatividade</p>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                        Categorias
+                    </span>
                 </div>
-                <div class="relative flex-1 min-h-[260px]">
+                <div class="relative flex-1 min-h-[260px] flex items-center justify-center">
+                    <canvas id="categoryTurnoverChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 3: Flutuação Mensal de Insumos -->
+            <div class="lg:col-span-12 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="bi bi-box-seam text-cyan-500"></i>
+                            <span>Flutuação Mensal do Nível de Estoque Físico</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">Curva de armazenamento e volumetria acumulada</p>
+                    </div>
+                    <span class="text-[11px] text-slate-400">Volumetria Total (un)</span>
+                </div>
+                <div class="relative flex-1 min-h-[220px]">
                     <canvas id="stockChart"></canvas>
                 </div>
             </div>
         </section>
 
-        <!-- Seção: Top 5 Produtos Mais Vendidos & Widget ESG -->
+        <!-- Banner de Alerta Crítico: Baixo Giro / Dead Stock & Capital Imobilizado -->
+        <section id="dead-stock-banner" class="bg-gradient-to-r from-slate-900 via-slate-800 to-rose-950 text-white rounded-2xl p-5 border border-rose-900/50 shadow-md mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-start sm:items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center shrink-0">
+                    <i class="bi bi-exclamation-triangle-fill text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-rose-400">Alerta de Baixo Giro & Dead Stock</span>
+                        <span id="dead-stock-count-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-900/80 text-rose-200 border border-rose-700">0 SKUs Parados</span>
+                    </div>
+                    <h3 class="text-sm md:text-base font-bold text-white mt-0.5">
+                        Capital Imobilizado em Estoque Sem Giro: <span id="dead-stock-capital" class="text-rose-400 font-extrabold">R$ 0,00</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-300 mt-0.5">
+                        Itens com zero saídas registradas nos últimos meses. Risco de obsolescência e custo de carregamento financeiro.
+                    </p>
+                </div>
+            </div>
+            <div class="shrink-0 flex items-center gap-2">
+                <button id="btn-filter-dead-stock" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-sm transition inline-flex items-center gap-1.5">
+                    <i class="bi bi-funnel"></i>
+                    <span>Ver Produtos Parados</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Seção: Produtos Mais Vendidos vs Ranking de Giro & Widget ESG -->
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
-            <!-- Top 5 Produtos Mais Vendidos (Giro de Vendas) -->
+            <!-- Coluna de Giro: Top Mais Vendidos & Ranking de Rotatividade com Abas -->
             <div class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                         <div>
                             <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
                                 <i class="bi bi-award text-amber-500"></i>
-                                <span>Ranking de Giro: Produtos Mais Vendidos</span>
+                                <span>Performance de Vendas & Ranking de Giro</span>
                             </h4>
-                            <p class="text-[11px] text-slate-400">Top 5 insumos por volume histórico de vendas e receita gerada</p>
+                            <p class="text-[11px] text-slate-400">Classificação de saída e taxa de rotatividade de materiais</p>
                         </div>
-                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-                            Alta Rotação
-                        </span>
+
+                        <!-- Abas de Alternância -->
+                        <div class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 text-[11px]">
+                            <button id="tab-btn-bestsellers" class="px-3 py-1 rounded-lg font-bold bg-white dark:bg-slate-800 text-primary-600 dark:text-primary-400 shadow-sm transition">
+                                Mais Vendidos
+                            </button>
+                            <button id="tab-btn-turnover" class="px-3 py-1 rounded-lg font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+                                Ranking de Giro
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Lista de Produtos -->
+                    <!-- Lista de Produtos: Mais Vendidos -->
                     <div id="bestsellers-list" class="space-y-2.5">
                         <div class="p-6 text-center text-xs text-slate-400">
                             <div class="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin inline-block mr-2"></div>
-                            Calculando ranking de giro...
+                            Calculando ranking de vendas...
+                        </div>
+                    </div>
+
+                    <!-- Lista de Produtos: Ranking de Giro (Oculto inicialmente) -->
+                    <div id="turnover-list" class="space-y-2.5 hidden">
+                        <div class="p-6 text-center text-xs text-slate-400">
+                            <div class="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin inline-block mr-2"></div>
+                            Calculando índice de rotatividade...
                         </div>
                     </div>
                 </div>

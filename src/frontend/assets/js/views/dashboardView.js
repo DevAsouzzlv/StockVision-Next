@@ -6,6 +6,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     let financialChartInstance = null;
+    let categoryChartInstance = null;
     let stockChartInstance = null;
     let cachedAnalytics = null;
     let activeFilter = 'all';
@@ -29,8 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
             cachedAnalytics = data;
 
             renderKpiCards(data.financials);
-            renderCharts(data.historyTimeline);
+            renderCharts(data.historyTimeline, data.categoryStats);
             renderBestSellers(data.bestSellers);
+            renderTurnoverRanking(data.turnoverRanking);
+            renderDeadStockBanner(data.lowTurnoverSummary);
             renderEsgWidget(data.esgSummary);
             renderAlerts(data.alerts);
 
@@ -81,21 +84,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // =========================================================================
-    // 3. GRÁFICOS CHART.JS (LINHA E BARRA COM SUPORTE A TEMA CLARO/ESCURO)
+    // 3. GRÁFICOS CHART.JS (FINANCEIRO, CATEGORIAS & VOLUMETRIA)
     // =========================================================================
-    const renderCharts = (timeline) => {
-        if (!timeline || typeof Chart === 'undefined') return;
+    const renderCharts = (timeline, categoryStats) => {
+        if (typeof Chart === 'undefined') return;
 
         const isDark = document.documentElement.classList.contains('dark');
         const textColor = isDark ? '#94a3b8' : '#64748b';
         const gridColor = isDark ? 'rgba(51, 65, 85, 0.4)' : 'rgba(226, 232, 240, 0.8)';
 
         if (financialChartInstance) financialChartInstance.destroy();
+        if (categoryChartInstance) categoryChartInstance.destroy();
         if (stockChartInstance) stockChartInstance.destroy();
 
-        // 3.1. Gráfico de Evolução Financeira (Linhas)
+        // 3.1. Gráfico de Evolução Financeira: Receitas, Custos e Lucro
         const ctxFinancial = document.getElementById('financialChart');
-        if (ctxFinancial) {
+        if (ctxFinancial && timeline) {
             financialChartInstance = new Chart(ctxFinancial, {
                 type: 'line',
                 data: {
@@ -121,6 +125,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             tension: 0.35,
                             fill: true,
                             pointBackgroundColor: '#f43f5e',
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'Lucro Operacional (R$)',
+                            data: timeline.profit || timeline.revenue.map((r, i) => r - timeline.costs[i]),
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                            borderWidth: 2,
+                            borderDash: [4, 4],
+                            tension: 0.35,
+                            fill: true,
+                            pointBackgroundColor: '#10b981',
                             pointRadius: 3
                         }
                     ]
@@ -153,9 +169,49 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // 3.2. Gráfico de Flutuação de Estoque (Barras)
+        // 3.2. Gráfico de Rosca: Composição & Indicadores de Giro por Categoria
+        const ctxCategory = document.getElementById('categoryTurnoverChart');
+        if (ctxCategory && categoryStats && categoryStats.length > 0) {
+            const labels = categoryStats.map(c => c.category);
+            const dataValues = categoryStats.map(c => c.totalStock);
+            const palette = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+
+            categoryChartInstance = new Chart(ctxCategory, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: palette.slice(0, labels.length),
+                        borderWidth: isDark ? 2 : 1,
+                        borderColor: isDark ? '#1e293b' : '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: textColor, boxWidth: 10, font: { size: 10, weight: '600' } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    const stat = categoryStats[ctx.dataIndex];
+                                    return ` ${ctx.label}: ${ctx.parsed} un (Giro: ${stat?.turnoverRate || '0.00'}x)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '68%'
+                }
+            });
+        }
+
+        // 3.3. Gráfico de Flutuação de Estoque (Barras)
         const ctxStock = document.getElementById('stockChart');
-        if (ctxStock) {
+        if (ctxStock && timeline) {
             stockChartInstance = new Chart(ctxStock, {
                 type: 'bar',
                 data: {
@@ -189,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // =========================================================================
-    // 4. RENDERIZAÇÃO: TOP 5 PRODUTOS MAIS VENDIDOS (RANKING DE GIRO)
+    // 4. RENDERIZAÇÃO: TOP 5 PRODUTOS MAIS VENDIDOS & RANKING DE GIRO
     // =========================================================================
     const renderBestSellers = (bestSellers) => {
         const container = document.getElementById('bestsellers-list');
@@ -247,7 +303,71 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const renderTurnoverRanking = (turnoverRanking) => {
+        const container = document.getElementById('turnover-list');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (!turnoverRanking || turnoverRanking.length === 0) {
+            container.innerHTML = `
+                <div class="p-6 text-center text-xs text-slate-400">
+                    <i class="bi bi-arrow-repeat text-2xl block mb-1"></i>
+                    Nenhum indicador de rotatividade disponível no momento.
+                </div>
+            `;
+            return;
+        }
+
+        turnoverRanking.forEach((item, idx) => {
+            let badgeClass = 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+            if (item.statusBadge === 'emerald') {
+                badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
+            } else if (item.statusBadge === 'amber') {
+                badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800';
+            }
+
+            const row = document.createElement('div');
+            row.className = 'p-3 rounded-xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-indigo-400/50 transition';
+
+            row.innerHTML = `
+                <div class="flex items-center gap-3 min-w-0">
+                    <span class="w-6 h-6 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-[11px] border border-indigo-200 dark:border-indigo-800">${idx + 1}º</span>
+                    <div class="min-w-0">
+                        <strong class="text-slate-800 dark:text-slate-100 font-bold block truncate">${item.name}</strong>
+                        <span class="text-[11px] text-slate-400 font-mono">SKU: ${item.sku} • Saldo: ${item.stock} un</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 shrink-0 sm:text-right">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">
+                        ${item.turnoverStatus}
+                    </span>
+                    <div class="text-right">
+                        <span class="font-extrabold text-slate-900 dark:text-white block text-sm">${item.turnoverRate}x</span>
+                        <span class="text-[10px] text-slate-400">${item.sold} un saídas</span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    };
+
     // =========================================================================
+    // 5. BANNER DE ALERTA DE BAIXO GIRO / DEAD STOCK
+    // =========================================================================
+    const renderDeadStockBanner = (summary) => {
+        if (!summary) return;
+        const countBadge = document.getElementById('dead-stock-count-badge');
+        const capitalEl = document.getElementById('dead-stock-capital');
+
+        if (countBadge) {
+            countBadge.innerText = `${summary.totalDeadStockCount || 0} SKUs Parados`;
+        }
+        if (capitalEl) {
+            capitalEl.innerText = formatCurrency(summary.totalCapitalImobilized);
+        }
+    };
     // 5. RENDERIZAÇÃO DO WIDGET EXECUTIVO ESG & SUSTENTABILIDADE
     // =========================================================================
     const renderEsgWidget = (esg) => {
@@ -353,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // =========================================================================
-    // 7. EVENTOS DE FILTRO DE ABAS DE ALERTAS
+    // 7. EVENTOS DE FILTRO DE ABAS DE ALERTAS & DEAD STOCK
     // =========================================================================
     document.querySelectorAll('[data-alert-filter]').forEach(button => {
         button.addEventListener('click', (e) => {
@@ -369,13 +489,49 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Botão de atalho rápido para filtrar Estoque Parado do banner
+    const btnFilterDeadStock = document.getElementById('btn-filter-dead-stock');
+    if (btnFilterDeadStock) {
+        btnFilterDeadStock.addEventListener('click', () => {
+            const targetFilterBtn = document.querySelector('[data-alert-filter="dead"]');
+            if (targetFilterBtn) {
+                targetFilterBtn.click();
+                targetFilterBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+
+    // =========================================================================
+    // 8. ABAS: MAIS VENDIDOS VS RANKING DE GIRO
+    // =========================================================================
+    const tabBtnBestSellers = document.getElementById('tab-btn-bestsellers');
+    const tabBtnTurnover = document.getElementById('tab-btn-turnover');
+    const bestSellersList = document.getElementById('bestsellers-list');
+    const turnoverList = document.getElementById('turnover-list');
+
+    if (tabBtnBestSellers && tabBtnTurnover && bestSellersList && turnoverList) {
+        tabBtnBestSellers.addEventListener('click', () => {
+            tabBtnBestSellers.className = 'px-3 py-1 rounded-lg font-bold bg-white dark:bg-slate-800 text-primary-600 dark:text-primary-400 shadow-sm transition';
+            tabBtnTurnover.className = 'px-3 py-1 rounded-lg font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
+            bestSellersList.classList.remove('hidden');
+            turnoverList.classList.add('hidden');
+        });
+
+        tabBtnTurnover.addEventListener('click', () => {
+            tabBtnTurnover.className = 'px-3 py-1 rounded-lg font-bold bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm transition';
+            tabBtnBestSellers.className = 'px-3 py-1 rounded-lg font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
+            turnoverList.classList.remove('hidden');
+            bestSellersList.classList.add('hidden');
+        });
+    }
+
     // Re-renderiza gráficos ao alternar tema (modo claro / escuro)
     const themeBtn = document.getElementById('theme-toggle');
     if (themeBtn) {
         themeBtn.addEventListener('click', () => {
             setTimeout(() => {
                 if (cachedAnalytics && cachedAnalytics.historyTimeline) {
-                    renderCharts(cachedAnalytics.historyTimeline);
+                    renderCharts(cachedAnalytics.historyTimeline, cachedAnalytics.categoryStats);
                 }
             }, 50);
         });

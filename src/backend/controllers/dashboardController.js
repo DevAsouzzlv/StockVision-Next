@@ -184,15 +184,82 @@ exports.getDashboardAnalytics = async (req, res) => {
         const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
         const baseRev = Math.max(totalRevenue, 1000);
         const baseCost = Math.max(totalCosts, 600);
+        const revArray = months.map((_, i) => Math.round(baseRev * (0.65 + i * 0.07)));
+        const costArray = months.map((_, i) => Math.round(baseCost * (0.58 + i * 0.05)));
+        const profitArray = revArray.map((rev, i) => rev - costArray[i]);
 
         const timeline = {
             months,
-            revenue: months.map((_, i) => Math.round(baseRev * (0.65 + i * 0.07))),
-            costs: months.map((_, i) => Math.round(baseCost * (0.58 + i * 0.05))),
+            revenue: revArray,
+            costs: costArray,
+            profit: profitArray,
             stockLevels: months.map((_, i) => Math.max(30, Math.round(totalItemsVolume * (0.85 + i * 0.03))))
         };
 
-        // 7. Retorno Unificado da API
+        // 7. Indicadores de Giro e Distribuição por Categoria
+        const categoryMap = {};
+        processedProducts.forEach(p => {
+            const cat = p.category || 'Geral';
+            if (!categoryMap[cat]) {
+                categoryMap[cat] = { category: cat, totalStock: 0, totalSold: 0, revenue: 0, productsCount: 0 };
+            }
+            categoryMap[cat].totalStock += p.quantityInStock;
+            categoryMap[cat].totalSold += p.totalSold;
+            categoryMap[cat].revenue += p.revenueGenerated;
+            categoryMap[cat].productsCount++;
+        });
+
+        const categoryStats = Object.values(categoryMap).map(c => ({
+            ...c,
+            turnoverRate: c.totalStock > 0 ? (c.totalSold / c.totalStock).toFixed(2) : '0.00'
+        }));
+
+        // Ranking de Giro de Estoque (Turnover Index)
+        const turnoverRanking = [...processedProducts]
+            .sort((a, b) => parseFloat(b.stockTurnoverRate) - parseFloat(a.stockTurnoverRate) || b.totalSold - a.totalSold)
+            .map((item, idx) => {
+                const rate = parseFloat(item.stockTurnoverRate);
+                let turnoverStatus = 'Baixo Giro';
+                let statusBadge = 'slate';
+                if (rate >= 1.0 || item.totalSold >= 40) {
+                    turnoverStatus = 'Alto Giro';
+                    statusBadge = 'emerald';
+                } else if (rate >= 0.3 || item.totalSold > 0) {
+                    turnoverStatus = 'Médio Giro';
+                    statusBadge = 'amber';
+                }
+
+                return {
+                    rank: idx + 1,
+                    id: item.id,
+                    name: item.name,
+                    sku: item.sku,
+                    category: item.category,
+                    stock: item.quantityInStock,
+                    sold: item.totalSold,
+                    turnoverRate: item.stockTurnoverRate,
+                    turnoverStatus,
+                    statusBadge,
+                    revenue: item.revenueGenerated
+                };
+            });
+
+        // 8. Seção de Alertas de Baixo Giro / Capital Imobilizado (Dead Stock)
+        let totalCapitalImmobilized = 0;
+        const lowTurnoverItems = deadStockList.map(item => {
+            const product = products.find(p => p._id.toString() === item.id.toString());
+            const cost = product ? product.acquisitionCost : 0;
+            const capital = cost * item.quantity;
+            totalCapitalImmobilized += capital;
+            return {
+                ...item,
+                cost,
+                capitalImmobilized: capital,
+                suggestedAction: capital > 1000 ? 'Liquidação Promocional Urgente' : 'Remanejamento de Estoque'
+            };
+        });
+
+        // 9. Retorno Unificado da API
         return res.status(200).json({
             financials: {
                 totalRevenue,
@@ -203,6 +270,13 @@ exports.getDashboardAnalytics = async (req, res) => {
                 totalProductsCount: products.length
             },
             bestSellers,
+            turnoverRanking: turnoverRanking.slice(0, 5),
+            categoryStats,
+            lowTurnoverSummary: {
+                totalDeadStockCount: deadStockList.length,
+                totalCapitalImmobilized,
+                items: lowTurnoverItems
+            },
             alerts: {
                 totalAlertsCount: deadStockList.length + excessStockList.length + lossAlertsList.length + ruptureList.length + lowStockList.length,
                 lossAlerts: lossAlertsList,
