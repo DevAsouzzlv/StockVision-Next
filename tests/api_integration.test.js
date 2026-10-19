@@ -7,7 +7,7 @@ test('Suíte de Testes de Integração da API StockVision', async (t) => {
     let authToken = '';
 
     await t.test('1. Autenticação e Login Corporativo', async () => {
-        const response = await fetch(`${BASE_URL}/auth/login`, {
+        let response = await fetch(`${BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -15,6 +15,40 @@ test('Suíte de Testes de Integração da API StockVision', async (t) => {
                 password: 'admin123'
             })
         });
+
+        // Caso o banco esteja no estado após troca de senha de uma execução prévia, restaura
+        if (response.status === 401) {
+            const tempLogin = await fetch(`${BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'admin@stockvision.com',
+                    password: 'novaSenhaSegura456'
+                })
+            });
+            if (tempLogin.status === 200) {
+                const tempData = await tempLogin.json();
+                await fetch(`${BASE_URL}/auth/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${tempData.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        currentPassword: 'novaSenhaSegura456',
+                        newPassword: 'admin123'
+                    })
+                });
+                response = await fetch(`${BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@stockvision.com',
+                        password: 'admin123'
+                    })
+                });
+            }
+        }
 
         assert.equal(response.status, 200);
         const data = await response.json();
@@ -105,7 +139,30 @@ test('Suíte de Testes de Integração da API StockVision', async (t) => {
         });
         assert.equal(loginNewPass.status, 200);
         const loginNewPassData = await loginNewPass.json();
-        authToken = loginNewPassData.token; // atualiza token para os próximos testes
+        authToken = loginNewPassData.token;
+
+        // Restaura de volta a senha original para manter o banco limpo
+        await fetch(`${BASE_URL}/auth/profile`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                currentPassword: 'novaSenhaSegura456',
+                newPassword: 'admin123'
+            })
+        });
+        const loginRestored = await fetch(`${BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: 'admin@stockvision.com',
+                password: 'admin123'
+            })
+        });
+        const restoredData = await loginRestored.json();
+        authToken = restoredData.token;
     });
 
     await t.test('4. Dashboard Analytics & Top 5 Mais Vendidos', async () => {
