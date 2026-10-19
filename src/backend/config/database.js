@@ -2,13 +2,16 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
-        // Liga ao MongoDB utilizando a URI armazenada nas variáveis de ambiente
-        const conn = await mongoose.connect(process.env.MONGO_URI);
-        console.log(`[MongoDB] Base de dados ligada com sucesso: ${conn.connection.host}`);
+        const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/stockvision';
+        const conn = await mongoose.connect(uri);
+        console.log(`[MongoDB] Base de dados conectada com sucesso: ${conn.connection.host}`);
     } catch (error) {
-        console.error(`[Erro MongoDB] Falha ao ligar ao banco: ${error.message}`);
-        // Encerra o processo com falha (1) caso a ligação falte
-        process.exit(1);
+        console.error(`[Erro MongoDB] Não foi possível conectar ao MongoDB: ${error.message}`);
+        if (process.env.NODE_ENV === 'production') {
+            process.exit(1);
+        } else {
+            console.warn('[MongoDB] Modo desenvolvimento: O servidor permanecerá ativo para servir a interface.');
+        }
     }
 };
 

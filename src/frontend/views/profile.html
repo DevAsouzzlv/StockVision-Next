@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockVision - Perfil do Usuário e Preferências</title>
+    <link rel="stylesheet" href="../assets/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="shortcut icon" href="../assets/icons/icon-stockVision.png" type="image/png">
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/authGuard.js"></script>
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
+
+    <!-- Sidebar de Navegação Lateral -->
+    <aside class="w-full md:w-64 bg-white dark:bg-slate-800/95 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700/80 p-5 flex flex-col justify-between shrink-0 shadow-sm">
+        <div>
+            <!-- Brand / Logo -->
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <img src="../assets/icons/icon-stockVision.png" alt="StockVision" class="w-10 h-10 object-contain drop-shadow">
+                <div>
+                    <span class="font-bold text-base tracking-tight text-slate-900 dark:text-white block">StockVision</span>
+                    <span class="text-[10px] uppercase font-semibold text-emerald-600 dark:text-emerald-400 tracking-wider">WMS & ESG 2.0</span>
+                </div>
+            </div>
+
+            <!-- Menu de Links -->
+            <nav class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-grid-1x2 text-base"></i>
+                    <span>Dashboard Executivo</span>
+                </a>
+                <a href="stock.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-box-seam text-base"></i>
+                    <span>Estoque & Insumos</span>
+                </a>
+                <a href="demand.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-graph-up-arrow text-base"></i>
+                    <span>Previsão de Demanda</span>
+                </a>
+                <a href="partners.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-truck text-base"></i>
+                    <span>Fornecedores & NF-e</span>
+                </a>
+                <a href="reverse.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-arrow-repeat text-base"></i>
+                    <span>Logística Reversa</span>
+                </a>
+                <a href="esg.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-recycle text-base"></i>
+                    <span>Sustentabilidade ESG</span>
+                </a>
+                <a href="auditoria.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-clipboard-check text-base"></i>
+                    <span>Auditoria WMS</span>
+                </a>
+                <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800/60 shadow-sm transition">
+                    <i class="bi bi-person-circle text-base"></i>
+                    <span>Meu Perfil & Ajustes</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Botão de Logout Seguro na Base da Sidebar -->
+        <div class="pt-6 border-t border-slate-200 dark:border-slate-700/80 mt-6">
+            <button type="button" onclick="handleUserLogout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                <i class="bi bi-box-arrow-right text-base"></i>
+                <span>Encerrar Sessão</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <div class="flex-1 flex flex-col min-w-0">
+        <!-- Topbar Superior -->
+        <header class="h-16 bg-white dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700/80 px-6 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-3">
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white">Perfil e Configurações</h2>
+                <span id="user-role-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300">
+                    Carregando...
+                </span>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button id="theme-toggle" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition" aria-label="Alternar tema">
+                    <i class="bi bi-moon-stars-fill"></i>
+                </button>
+                <div class="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700">
+                    <div id="topbar-avatar" class="w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-xs flex items-center justify-center shadow">
+                        SV
+                    </div>
+                    <span id="topbar-user-name" class="text-xs font-semibold text-slate-700 dark:text-slate-200 hidden sm:inline">
+                        Usuário
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Área de Conteúdo / Abas -->
+        <main class="flex-1 p-4 sm:p-8 max-w-5xl w-full mx-auto space-y-6">
+
+            <!-- Card de Cabeçalho do Usuário -->
+            <section class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700/80 flex flex-col sm:flex-row items-center gap-6">
+                <div class="relative">
+                    <div id="profile-avatar-large" class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-primary-600 to-primary-400 text-white text-2xl font-black flex items-center justify-center shadow-md">
+                        SV
+                    </div>
+                </div>
+                <div class="text-center sm:text-left flex-1">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                        <h1 id="profile-fullname-header" class="text-xl font-bold text-slate-900 dark:text-white">Carregando...</h1>
+                        <span id="profile-role-pill" class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                            Administrador
+                        </span>
+                    </div>
+                    <p id="profile-email-header" class="text-xs text-slate-500 dark:text-slate-400 mb-2">email@empresa.com</p>
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-600 dark:text-slate-300">
+                        <span class="flex items-center gap-1.5"><i class="bi bi-building text-primary-500"></i> <strong id="profile-company-header">Empresa</strong></span>
+                        <span class="flex items-center gap-1.5"><i class="bi bi-briefcase text-primary-500"></i> <span id="profile-jobtitle-header">Gestor de Armazém</span></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seletor de Abas -->
+            <div class="flex border-b border-slate-200 dark:border-slate-700 gap-2">
+                <button type="button" class="tab-btn active px-4 py-3 text-xs font-bold border-b-2 border-primary-600 text-primary-600 dark:text-primary-400 flex items-center gap-2" data-tab="tab-personal">
+                    <i class="bi bi-person"></i> Dados Pessoais
+                </button>
+                <button type="button" class="tab-btn px-4 py-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-2" data-tab="tab-company">
+                    <i class="bi bi-building"></i> Organização & Empresa
+                </button>
+                <button type="button" class="tab-btn px-4 py-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-2" data-tab="tab-preferences">
+                    <i class="bi bi-sliders"></i> Preferências do Sistema
+                </button>
+            </div>
+
+            <!-- Formulário Geral -->
+            <form id="profile-form">
+                <!-- Aba 1: Dados Pessoais -->
+                <div id="tab-personal" class="tab-pane space-y-4">
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700/80 space-y-4">
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3">Informações de Contato e Cargo</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="fullname" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nome Completo</label>
+                                <input type="text" id="fullname" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">E-mail Corporativo (Chave de Acesso)</label>
+                                <input type="email" id="email" disabled class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-500 text-sm cursor-not-allowed">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="phone" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Telefone / Ramal / Celular</label>
+                                <input type="text" id="phone" placeholder="(11) 98765-4321" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            </div>
+                            <div>
+                                <label for="jobTitle" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Cargo / Função no Armazém</label>
+                                <input type="text" id="jobTitle" placeholder="Ex: Supervisor de Logística Reversa" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="avatarUrl" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">URL da Foto de Perfil (Opcional)</label>
+                            <input type="url" id="avatarUrl" placeholder="https://exemplo.com/minha-foto.jpg" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aba 2: Organização & Empresa -->
+                <div id="tab-company" class="tab-pane hidden space-y-4">
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700/80 space-y-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Dados da Unidade Jurídica / Tenant</h3>
+                            <span id="company-edit-permission" class="text-[11px] font-semibold text-slate-500"></span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="companyName" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Razão Social / Nome Fantasia</label>
+                                <input type="text" id="companyName" disabled class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label for="cnpj" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">CNPJ</label>
+                                <input type="text" id="cnpj" placeholder="00.000.000/0001-00" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="segment" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Segmento Operacional</label>
+                                <select id="segment" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                    <option value="Logística e Armazenagem">Logística e Armazenagem (WMS Geral)</option>
+                                    <option value="Varejo e E-commerce">Varejo e E-commerce</option>
+                                    <option value="Indústria Química e Farmacêutica">Indústria Química e Farmacêutica</option>
+                                    <option value="Alimentos e Bebidas">Alimentos e Bebidas (Perecíveis)</option>
+                                    <option value="Construção Civil e Manufatura">Construção Civil e Manufatura</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="address" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Endereço do Centro de Distribuição (CD)</label>
+                                <input type="text" id="address" placeholder="Av. Logística, 1000 - Galpão 03" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aba 3: Preferências do Sistema -->
+                <div id="tab-preferences" class="tab-pane hidden space-y-4">
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700/80 space-y-5">
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">Personalização da Interface e Alertas</h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <!-- Tema Padrão -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Tema Visual Padrão</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40">
+                                        <input type="radio" name="pref-theme" value="light" class="text-primary-600 focus:ring-primary-500">
+                                        <span class="text-xs font-medium"><i class="bi bi-sun mr-1.5 text-amber-500"></i> Modo Claro</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40">
+                                        <input type="radio" name="pref-theme" value="dark" class="text-primary-600 focus:ring-primary-500">
+                                        <span class="text-xs font-medium"><i class="bi bi-moon-stars mr-1.5 text-indigo-400"></i> Modo Escuro (Dark Mode)</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40">
+                                        <input type="radio" name="pref-theme" value="system" class="text-primary-600 focus:ring-primary-500">
+                                        <span class="text-xs font-medium"><i class="bi bi-display mr-1.5 text-slate-400"></i> Automático (Conforme Sistema)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Notificações e Densidade -->
+                            <div class="space-y-3">
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Comportamento Operacional</label>
+
+                                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40">
+                                    <div>
+                                        <span class="text-xs font-semibold block text-slate-900 dark:text-white">Alertas Sonoros no Scanner</span>
+                                        <span class="text-[11px] text-slate-500">Bipe de confirmação ao ler código de barras</span>
+                                    </div>
+                                    <input type="checkbox" id="pref-sound" class="rounded text-primary-600 focus:ring-primary-500 w-4 h-4">
+                                </label>
+
+                                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40">
+                                    <div>
+                                        <span class="text-xs font-semibold block text-slate-900 dark:text-white">Alertas Críticos por E-mail</span>
+                                        <span class="text-[11px] text-slate-500">Receber avisos diários de validade próxima e ruptura</span>
+                                    </div>
+                                    <input type="checkbox" id="pref-email-alerts" class="rounded text-primary-600 focus:ring-primary-500 w-4 h-4">
+                                </label>
+
+                                <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                                    <span class="text-xs font-semibold block text-slate-900 dark:text-white mb-1">Densidade Visual das Tabelas</span>
+                                    <select id="pref-density" class="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs">
+                                        <option value="comfortable">Confortável (Espaçamento Padrão)</option>
+                                        <option value="compact">Compacto (Mais linhas por tela no armazém)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botão de Salvar Alterações -->
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="submit" id="save-profile-btn"
+                        class="px-6 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs shadow-md hover:shadow-lg transition flex items-center gap-2">
+                        <i class="bi bi-floppy"></i>
+                        <span>Salvar Modificações do Perfil</span>
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/core/uiFeedback.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Gerenciador de Abas
+            const tabs = document.querySelectorAll('.tab-btn');
+            const panes = document.querySelectorAll('.tab-pane');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.dataset.tab;
+
+                    tabs.forEach(t => {
+                        t.classList.remove('active', 'border-primary-600', 'text-primary-600', 'dark:text-primary-400');
+                        t.classList.add('border-transparent', 'text-slate-500');
+                    });
+                    tab.classList.add('active', 'border-primary-600', 'text-primary-600', 'dark:text-primary-400');
+                    tab.classList.remove('border-transparent', 'text-slate-500');
+
+                    panes.forEach(p => p.classList.add('hidden'));
+                    document.getElementById(target).classList.remove('hidden');
+                });
+            });
+
+            // Carregamento inicial do Perfil
+            let currentUser = null;
+            try {
+                currentUser = await AuthAPI.getProfile();
+                populateProfileUI(currentUser);
+            } catch (err) {
+                ui.toast('Falha ao carregar dados do perfil: ' + err.message, 'danger');
+            }
+
+            function populateProfileUI(user) {
+                if (!user) return;
+
+                // Header
+                const initials = user.fullname.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+                document.getElementById('profile-avatar-large').innerText = initials;
+                document.getElementById('topbar-avatar').innerText = initials;
+                document.getElementById('topbar-user-name').innerText = user.fullname;
+                document.getElementById('profile-fullname-header').innerText = user.fullname;
+                document.getElementById('profile-email-header').innerText = user.email;
+                document.getElementById('profile-company-header').innerText = user.company;
+                document.getElementById('profile-jobtitle-header').innerText = user.jobTitle || 'Colaborador';
+
+                const roleBadge = document.getElementById('user-role-badge');
+                const rolePill = document.getElementById('profile-role-pill');
+                if (user.isAdmin) {
+                    roleBadge.innerText = 'Administrador Geral';
+                    rolePill.innerText = 'Administrador Geral';
+                } else {
+                    roleBadge.innerText = 'Colaborador Operacional';
+                    rolePill.innerText = 'Colaborador Operacional';
+                    rolePill.className = 'inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600';
+                }
+
+                // Aba Dados Pessoais
+                document.getElementById('fullname').value = user.fullname || '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('jobTitle').value = user.jobTitle || '';
+                document.getElementById('avatarUrl').value = user.avatarUrl || '';
+
+                // Aba Organização
+                document.getElementById('companyName').value = user.company || '';
+                const cnpjInput = document.getElementById('cnpj');
+                const segmentSelect = document.getElementById('segment');
+                const addressInput = document.getElementById('address');
+                const permissionText = document.getElementById('company-edit-permission');
+
+                cnpjInput.value = user.companyDetails?.cnpj || '';
+                segmentSelect.value = user.companyDetails?.segment || 'Logística e Armazenagem';
+                addressInput.value = user.companyDetails?.address || '';
+
+                if (!user.isAdmin) {
+                    cnpjInput.disabled = true;
+                    segmentSelect.disabled = true;
+                    addressInput.disabled = true;
+                    permissionText.innerText = '(Somente o Administrador pode editar os dados da empresa)';
+                } else {
+                    permissionText.innerText = '(Você possui permissão total de administrador)';
+                }
+
+                // Aba Preferências
+                const themeVal = user.preferences?.theme || 'system';
+                const themeRadio = document.querySelector(`input[name="pref-theme"][value="${themeVal}"]`);
+                if (themeRadio) themeRadio.checked = true;
+
+                document.getElementById('pref-sound').checked = user.preferences?.soundAlerts !== false;
+                document.getElementById('pref-email-alerts').checked = user.preferences?.emailNotifications !== false;
+                document.getElementById('pref-density').value = user.preferences?.tableDensity || 'comfortable';
+            }
+
+            // Submissão do Formulário de Perfil
+            const form = document.getElementById('profile-form');
+            const saveBtn = document.getElementById('save-profile-btn');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const selectedTheme = document.querySelector('input[name="pref-theme"]:checked')?.value || 'system';
+
+                const payload = {
+                    fullname: document.getElementById('fullname').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    jobTitle: document.getElementById('jobTitle').value.trim(),
+                    avatarUrl: document.getElementById('avatarUrl').value.trim(),
+                    preferences: {
+                        theme: selectedTheme,
+                        soundAlerts: document.getElementById('pref-sound').checked,
+                        emailNotifications: document.getElementById('pref-email-alerts').checked,
+                        tableDensity: document.getElementById('pref-density').value
+                    }
+                };
+
+                if (currentUser && currentUser.isAdmin) {
+                    payload.companyDetails = {
+                        cnpj: document.getElementById('cnpj').value.trim(),
+                        segment: document.getElementById('segment').value,
+                        address: document.getElementById('address').value.trim()
+                    };
+                }
+
+                try {
+                    saveBtn.disabled = true;
+                    saveBtn.innerHTML = '<span class="inline-block animate-spin mr-2">⟳</span> Gravando...';
+
+                    const res = await AuthAPI.updateProfile(payload);
+                    ui.toast(res.message || 'Perfil atualizado com sucesso!', 'success');
+
+                    // Aplica tema se alterado
+                    if (selectedTheme === 'dark') {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('theme', 'dark');
+                    } else if (selectedTheme === 'light') {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('theme', 'light');
+                    }
+
+                    currentUser = res.user;
+                    populateProfileUI(currentUser);
+                } catch (err) {
+                    ui.toast(err.message || 'Erro ao salvar perfil.', 'danger');
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="bi bi-floppy"></i> <span>Salvar Modificações do Perfil</span>';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

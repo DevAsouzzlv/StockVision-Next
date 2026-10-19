@@ -8,6 +8,12 @@ const { protect, admin } = require('../middlewares/authMiddleware');
 // --- ROTAS PÚBLICAS ---
 router.post('/register', authController.register);
 router.post('/login', authController.login);
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password/:token', authController.resetPassword);
+
+// --- ROTAS PROTEGIDAS DO USUÁRIO LOGADO ---
+router.get('/profile', protect, authController.getProfile);
+router.put('/profile', protect, authController.updateProfile);
 
 // --- ROTAS PROTEGIDAS APENAS PARA ADMINISTRADORES (ADM) ---
 // O middleware 'protect' garante login ativo e o 'admin' garante o nível de crachá corporativo.

@@ -3,7 +3,7 @@
 * Executa imediatamente para bloquear acessos não autorizados e limpar cache de histórico.
 */
 (() => {
-    const publicPages = ['login.html', 'register.html', 'index.html'];
+    const publicPages = ['login.html', 'register.html', 'reset-password.html', 'index.html'];
     const currentPath = window.location.pathname.split('/').pop() || 'index.html';
     const hasSession = Boolean(localStorage.getItem('sv_token') && localStorage.getItem('sv_user'));
     const baseFolder = window.location.pathname.includes('/views/') ? '' : 'views/';

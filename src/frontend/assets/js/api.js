@@ -80,6 +80,74 @@ const AuthAPI = {
             if (!response.ok) throw new Error(data.message || 'Erro ao registrar funcionário.');
             return data;
         } catch (error) { throw error; }
+    },
+
+    forgotPassword: async (email) => {
+        try {
+            const response = await fetch(`${BASE_URL}/auth/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Falha ao solicitar recuperação de senha.');
+            return data;
+        } catch (error) { throw error; }
+    },
+
+    resetPassword: async (token, password) => {
+        try {
+            const response = await fetch(`${BASE_URL}/auth/reset-password/${token}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Falha ao redefinir senha.');
+            return data;
+        } catch (error) { throw error; }
+    },
+
+    getProfile: async () => {
+        try {
+            const token = TokenManager.getToken();
+            const response = await fetch(`${BASE_URL}/auth/profile`, {
+                method: 'GET',
+                headers: { 
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Erro ao obter dados do perfil.');
+            return data;
+        } catch (error) { throw error; }
+    },
+
+    updateProfile: async (profileData) => {
+        try {
+            const token = TokenManager.getToken();
+            const response = await fetch(`${BASE_URL}/auth/profile`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(profileData)
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Erro ao atualizar dados do perfil.');
+            if (data.user) {
+                // Atualiza o cache do usuário localmente
+                TokenManager.saveUser(data.user);
+            }
+            return data;
+        } catch (error) { throw error; }
+    },
+
+    logout: () => {
+        TokenManager.clearAll();
+        const baseFolder = window.location.pathname.includes('/views/') ? '' : 'views/';
+        window.location.replace(`${baseFolder}login.html`);
     }
 };
 

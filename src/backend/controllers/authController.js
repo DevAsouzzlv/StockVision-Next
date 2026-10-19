@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 // Função auxiliar para gerar o Token JWT
 const generateToken = (id) => {
@@ -10,6 +11,7 @@ const generateToken = (id) => {
 
 /**
  * LÓGICA DE CADASTRO (REGISTRO INICIAL DA EMPRESA)
+ * Blindagem Multitenancy: Impede que terceiros se vinculem a empresas existentes sem convite
  */
 exports.register = async (req, res) => {
     try {
@@ -24,9 +26,10 @@ exports.register = async (req, res) => {
             company: { $regex: new RegExp(`^${company.trim()}$`, 'i') } 
         });
 
-        let shouldBeAdmin = false;
-        if (!companyExists) {
-            shouldBeAdmin = true;
+        if (companyExists) {
+            return res.status(400).json({ 
+                message: 'Esta organização/empresa já possui cadastro ativo no StockVision. Para novos colaboradores, solicite acesso ao Administrador da sua empresa.' 
+            });
         }
 
         const newUser = await User.create({
@@ -34,7 +37,7 @@ exports.register = async (req, res) => {
             email,
             company: company.trim(),
             password,
-            isAdmin: shouldBeAdmin
+            isAdmin: true // O primeiro usuário a registrar a organização é sempre o Administrador
         });
 
         return res.status(201).json({
@@ -82,7 +85,12 @@ exports.login = async (req, res) => {
                 fullname: user.fullname,
                 email: user.email,
                 company: user.company,
-                isAdmin: user.isAdmin
+                isAdmin: user.isAdmin,
+                phone: user.phone || '',
+                jobTitle: user.jobTitle || '',
+                avatarUrl: user.avatarUrl || '',
+                preferences: user.preferences || { theme: 'system', soundAlerts: true, tableDensity: 'comfortable', emailNotifications: true },
+                companyDetails: user.companyDetails || { cnpj: '', segment: 'Logística e Armazenagem', address: '' }
             }
         });
     } catch (error) {
@@ -194,5 +202,170 @@ exports.updateEmployeeCredentials = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({ message: 'Erro ao gerenciar credenciais.', error: error.message });
+    }
+};
+
+/**
+ * SOLICITAR RECUPERAÇÃO DE SENHA (ESQUECI MINHA SENHA)
+ * POST -> /api/auth/forgot-password
+ */
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Por favor, informe seu e-mail cadastrado.' });
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase().trim() });
+        if (!user) {
+            // Mensagem genérica por boas práticas de segurança contra enumeração de e-mails
+            return res.status(200).json({
+                message: 'Se este e-mail estiver cadastrado no sistema, você receberá um link seguro para redefinição de senha.',
+                simulated: false
+            });
+        }
+
+        // Gera token criptográfico seguro
+        const rawToken = crypto.randomBytes(32).toString('hex');
+        const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+        // Define validade de 1 hora (3600000 ms)
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + 3600000;
+        await user.save();
+
+        const resetUrl = `/views/reset-password.html?token=${rawToken}`;
+
+        console.log(`[Segurança] Link de redefinição de senha gerado para ${user.email}: ${resetUrl}`);
+
+        return res.status(200).json({
+            message: 'Instruções para redefinição de senha geradas com sucesso. Verifique seu e-mail corporativo.',
+            resetUrl,
+            resetToken: rawToken,
+            expiresInMinutes: 60
+        });
+
+    } catch (error) {
+        console.error('[AuthController - Forgot Password Error]:', error.message);
+        return res.status(500).json({ message: 'Erro interno ao processar recuperação de senha.', error: error.message });
+    }
+};
+
+/**
+ * EFETUAR REDEFINIÇÃO DE SENHA VIA TOKEN
+ * POST -> /api/auth/reset-password/:token
+ */
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        if (!password || password.length < 6) {
+            return res.status(400).json({ message: 'A nova senha deve conter no mínimo 6 caracteres.' });
+        }
+
+        // Aplica o hash sha256 no token recebido para comparar com a base de dados
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Token de redefinição inválido, expirado ou já utilizado. Solicite um novo link.' });
+        }
+
+        // Atualiza a senha (o pre-save hook do Mongoose aplicará o hash bcrypt automaticamente)
+        user.password = password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        return res.status(200).json({
+            message: 'Senha redefinida com sucesso! Você já pode fazer login com suas novas credenciais.'
+        });
+
+    } catch (error) {
+        console.error('[AuthController - Reset Password Error]:', error.message);
+        return res.status(500).json({ message: 'Erro ao redefinir senha.', error: error.message });
+    }
+};
+
+/**
+ * OBTER PERFIL COMPLETO DO USUÁRIO LOGADO
+ * GET -> /api/auth/profile
+ */
+exports.getProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não localizado.' });
+        }
+
+        return res.status(200).json(user);
+    } catch (error) {
+        return res.status(500).json({ message: 'Erro ao carregar perfil.', error: error.message });
+    }
+};
+
+/**
+ * ATUALIZAR DADOS PESSOAIS, EMPRESA E PREFERÊNCIAS DO PERFIL
+ * PUT -> /api/auth/profile
+ */
+exports.updateProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não localizado.' });
+        }
+
+        const { fullname, phone, jobTitle, avatarUrl, preferences, companyDetails } = req.body;
+
+        if (fullname) user.fullname = fullname.trim();
+        if (typeof phone !== 'undefined') user.phone = phone.trim();
+        if (typeof jobTitle !== 'undefined') user.jobTitle = jobTitle.trim();
+        if (typeof avatarUrl !== 'undefined') user.avatarUrl = avatarUrl.trim();
+
+        if (preferences && typeof preferences === 'object') {
+            user.preferences = {
+                theme: preferences.theme || user.preferences?.theme || 'system',
+                soundAlerts: typeof preferences.soundAlerts !== 'undefined' ? preferences.soundAlerts : user.preferences?.soundAlerts,
+                tableDensity: preferences.tableDensity || user.preferences?.tableDensity || 'comfortable',
+                emailNotifications: typeof preferences.emailNotifications !== 'undefined' ? preferences.emailNotifications : user.preferences?.emailNotifications
+            };
+        }
+
+        // Apenas o Administrador pode atualizar dados fiscais e cadastrais da empresa
+        if (companyDetails && user.isAdmin) {
+            user.companyDetails = {
+                cnpj: companyDetails.cnpj || user.companyDetails?.cnpj || '',
+                segment: companyDetails.segment || user.companyDetails?.segment || 'Logística e Armazenagem',
+                address: companyDetails.address || user.companyDetails?.address || ''
+            };
+        }
+
+        await user.save();
+
+        return res.status(200).json({
+            message: 'Perfil e preferências atualizados com sucesso!',
+            user: {
+                id: user._id,
+                fullname: user.fullname,
+                email: user.email,
+                company: user.company,
+                isAdmin: user.isAdmin,
+                phone: user.phone,
+                jobTitle: user.jobTitle,
+                avatarUrl: user.avatarUrl,
+                preferences: user.preferences,
+                companyDetails: user.companyDetails
+            }
+        });
+
+    } catch (error) {
+        console.error('[AuthController - Update Profile Error]:', error.message);
+        return res.status(500).json({ message: 'Erro ao atualizar perfil.', error: error.message });
     }
 };

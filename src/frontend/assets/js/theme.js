@@ -1,29 +1,55 @@
-// Gerenciador de Tema (Claro / Escuro) persistido no LocalStorage
-document.addEventListener('DOMContentLoaded', () => {
-    const themeToggle = document.getElementById('theme-toggle');
-    const applyTheme = (theme) => {
-        const normalizedTheme = theme === 'dark' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', normalizedTheme);
-        document.documentElement.setAttribute('data-bs-theme', normalizedTheme);
-        localStorage.setItem('theme', normalizedTheme);
+/**
+ * STOCKVISION - GERENCIADOR DE TEMA LIGHT / DARK NATIVO PARA TAILWIND CSS
+ * Sincroniza a classe 'dark' no elemento raiz <html> e persiste em localStorage.
+ */
 
+(() => {
+    const getStoredTheme = () => {
+        const stored = localStorage.getItem('theme') || localStorage.getItem('sv_theme');
+        if (stored) return stored;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+
+    const applyTheme = (theme) => {
+        const isDark = theme === 'dark';
+        if (isDark) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-bs-theme', theme);
+        localStorage.setItem('theme', theme);
+        localStorage.setItem('sv_theme', theme);
+
+        const themeToggle = document.getElementById('theme-toggle');
         const icon = themeToggle ? themeToggle.querySelector('i') : null;
         if (icon) {
-            if (normalizedTheme === 'dark') {
-                icon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+            if (isDark) {
+                icon.className = 'bi bi-sun-fill text-amber-400 text-lg';
             } else {
-                icon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
+                icon.className = 'bi bi-moon-stars-fill text-slate-600 dark:text-slate-300 text-lg';
             }
         }
     };
 
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    applyTheme(currentTheme);
+    // Aplica imediatamente para evitar flash de cor branca (FOUC)
+    applyTheme(getStoredTheme());
 
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const nextTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            applyTheme(nextTheme);
-        });
-    }
-});
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            applyTheme(getStoredTheme());
+            themeToggle.addEventListener('click', () => {
+                const current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+                const next = current === 'dark' ? 'light' : 'dark';
+                applyTheme(next);
+            });
+        }
+    });
+
+    window.toggleStockVisionTheme = () => {
+        const current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+    };
+})();

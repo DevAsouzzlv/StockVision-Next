@@ -33,6 +33,49 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: true // Permite ao ADM bloquear ou desativar credenciais de funcionários
     },
+    phone: {
+        type: String,
+        default: ''
+    },
+    jobTitle: {
+        type: String,
+        default: ''
+    },
+    avatarUrl: {
+        type: String,
+        default: ''
+    },
+    preferences: {
+        theme: {
+            type: String,
+            enum: ['light', 'dark', 'system'],
+            default: 'system'
+        },
+        soundAlerts: {
+            type: Boolean,
+            default: true
+        },
+        tableDensity: {
+            type: String,
+            enum: ['comfortable', 'compact'],
+            default: 'comfortable'
+        },
+        emailNotifications: {
+            type: Boolean,
+            default: true
+        }
+    },
+    companyDetails: {
+        cnpj: { type: String, default: '' },
+        segment: { type: String, default: 'Logística e Armazenagem' },
+        address: { type: String, default: '' }
+    },
+    resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpires: {
+        type: Date
+    },
     createdAt: {
         type: Date,
         default: Date.now
