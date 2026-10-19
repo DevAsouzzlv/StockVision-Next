@@ -1,191 +1,310 @@
-<!doctype html>
-<html lang="pt-BR" data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StockVision - Logística Reversa & ESG</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../assets/css/modern.css" />
-        <link rel="shortcut icon" href="../assets/icons/icon-stockVision.png" type="image/png">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockVision - Logística Reversa & Economia Circular</title>
+    <link rel="stylesheet" href="../assets/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="shortcut icon" href="../assets/icons/icon-stockVision.png" type="image/png">
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/authGuard.js"></script>
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
 
-  </head>
-  <body>
-    <div class="app-shell d-flex flex-column flex-md-row">
-      <aside class="sidebar-panel offcanvas-md offcanvas-start d-flex flex-column p-3 p-md-4" id="sidebarMenu" tabindex="-1">
-        <div class="sidebar-brand p-3 mb-4 text-center">
-          <h2 class="fw-bold fs-4 mb-1 text-primary">StockVision</h2>
-          <p class="text-muted small mb-0">Gestão circular e sustentabilidade</p>
-        </div>
-        <ul class="sidebar-nav nav nav-pills flex-column gap-1 mb-auto">
-          <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-bar-chart-fill me-2"></i> Dashboard</a></li>
-          <li class="nav-item"><a href="stock.html" class="nav-link"><i class="bi bi-box-seam me-2"></i> Estoque</a></li>
-          <li class="nav-item"><a href="demand.html" class="nav-link"><i class="bi bi-graph-up-arrow me-2"></i> Previsão de Demanda</a></li>
-          <li class="nav-item"><a href="partners.html" class="nav-link"><i class="bi bi-people-fill me-2"></i> Pedidos & Fornecedores</a></li>
-          <li class="nav-item"><a href="reverse.html" class="nav-link active"><i class="bi bi-arrow-repeat me-2"></i> Logística Reversa</a></li>
-          <li class="nav-item"><a href="esg.html" class="nav-link"><i class="bi bi-tree-fill me-2"></i> Sustentabilidade (ESG)</a></li>
-          <li class="nav-item"><a href="auditoria.html" class="nav-link"><i class="bi bi-clipboard-check-fill me-2"></i> Auditoria de Estoque</a></li>
-        </ul>
-        <a href="#" onclick="handleUserLogout()" class="btn btn-outline-danger mt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
-      </aside>
-
-      <main class="flex-grow-1 p-3 p-md-4">
-        <header class="topbar rounded-4 p-3 p-md-4 mb-4 d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-outline-secondary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
-              <i class="bi bi-list"></i>
-            </button>
-            <div>
-              <h3 class="mb-0 fw-bold">♻️ Portal de Economia Circular</h3>
-              <p class="mb-0 text-muted small" id="company-name-display">Carregando governança ambiental...</p>
+    <!-- Sidebar de Navegação Lateral -->
+    <aside class="w-full md:w-64 bg-white dark:bg-slate-800/95 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700/80 p-5 flex flex-col justify-between shrink-0 shadow-sm">
+        <div>
+            <!-- Brand / Logo -->
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <img src="../assets/icons/icon-stockVision.png" alt="StockVision" class="w-10 h-10 object-contain drop-shadow">
+                <div>
+                    <span class="font-bold text-base tracking-tight text-slate-900 dark:text-white block">StockVision</span>
+                    <span class="text-[10px] uppercase font-semibold text-emerald-600 dark:text-emerald-400 tracking-wider">WMS & ESG 2.0</span>
+                </div>
             </div>
-          </div>
-          <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle" aria-label="Alternar tema"><i class="bi bi-moon-stars-fill"></i></button>
+
+            <!-- Menu de Links -->
+            <nav class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-grid-1x2 text-base"></i>
+                    <span>Dashboard Executivo</span>
+                </a>
+                <a href="stock.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-box-seam text-base"></i>
+                    <span>Estoque & Insumos</span>
+                </a>
+                <a href="demand.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-graph-up-arrow text-base"></i>
+                    <span>Previsão de Demanda</span>
+                </a>
+                <a href="partners.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-truck text-base"></i>
+                    <span>Fornecedores & NF-e</span>
+                </a>
+                <a href="reverse.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800/60 shadow-sm transition">
+                    <i class="bi bi-arrow-repeat text-base"></i>
+                    <span>Logística Reversa</span>
+                </a>
+                <a href="esg.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-recycle text-base"></i>
+                    <span>Sustentabilidade ESG</span>
+                </a>
+                <a href="auditoria.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-clipboard-check text-base"></i>
+                    <span>Auditoria WMS</span>
+                </a>
+                <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-person-circle text-base"></i>
+                    <span>Meu Perfil & Ajustes</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="pt-4 mt-6 border-t border-slate-200 dark:border-slate-700/60">
+            <button id="btn-sidebar-logout" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                <i class="bi bi-box-arrow-right text-base"></i>
+                <span>Encerrar Sessão</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+
+        <!-- Topbar -->
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>♻️ Portal de Economia Circular & Logística Reversa</span>
+                </h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="company-name-display">
+                    Carregando governança ambiental...
+                </p>
+            </div>
+
+            <button id="theme-toggle" class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition shadow-sm self-start sm:self-auto" title="Alternar Modo Claro/Escuro">
+                <i class="bi bi-moon-stars-fill"></i>
+            </button>
         </header>
 
-        <section class="row g-3 mb-4">
-          <div class="col-12 col-md-4"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body"><h6 class="text-muted text-uppercase fw-bold small mb-2">Volume Total Devolvido</h6><h3 class="fw-bold mb-0" id="total-items-rev">0 un</h3></div></div></div>
-          <div class="col-12 col-md-4"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body"><h6 class="text-muted text-uppercase fw-bold small mb-2">Massa Desviada de Aterros</h6><h3 class="fw-bold mb-0" id="total-weight-rev">0 kg</h3></div></div></div>
-          <div class="col-12 col-md-4"><div class="card border-0 shadow-sm rounded-4 h-100 border-success border-4 border-top-0"><div class="card-body"><h6 class="text-muted text-uppercase fw-bold small mb-2">CO₂ Mitigado (Crédito)</h6><h3 class="fw-bold mb-0 text-success" id="co2-rev">0.00 kg</h3></div></div></div>
+        <!-- KPI Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Volume Total Devolvido</span>
+                <div class="mt-2">
+                    <h3 id="total-items-rev" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">0 un</h3>
+                    <span class="text-[11px] text-slate-400">manifestos consolidados</span>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Massa Desviada de Aterros</span>
+                <div class="mt-2">
+                    <h3 id="total-weight-rev" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">0 kg</h3>
+                    <span class="text-[11px] text-slate-400">reciclagem e reuso</span>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-emerald-500/30 dark:border-emerald-700/40 shadow-sm flex flex-col justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">CO₂ Mitigado (Crédito Verde)</span>
+                <div class="mt-2">
+                    <h3 id="co2-rev" class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">0.00 kg</h3>
+                    <span class="text-[11px] text-emerald-500">evitação de novas emissões</span>
+                </div>
+            </div>
         </section>
 
-        <div class="row g-4">
-          <section class="col-12 col-xl-5">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-              <div class="card-body">
-                <h4 class="fw-bold mb-3">📥 Abertura de manifesto reverso</h4>
-                <form id="reverse-form">
-                  <div class="mb-3"><label class="form-label">Nome do Produto / Resíduo *</label><select id="productName" class="form-select" required></select></div>
-                  <div class="mb-3"><label class="form-label">Quantidade Volumétrica *</label><input type="number" id="quantity" class="form-control" required></div>
-                  <div class="mb-3"><label class="form-label">Motivo da Triagem Reversa *</label><select id="reason" class="form-select" required><option value="Vencimento Crítico (ESG)">Vencimento Crítico (ESG)</option><option value="Avaria / Defeito Técnico">Avaria / Defeito Técnico</option><option value="Reciclagem de Embalagem / Pallet">Reciclagem de Embalagem / Pallet</option></select></div>
-                  <div class="mb-3"><label class="form-label">Destinação Final Sustentável *</label><select id="destination" class="form-select" required><option value="Centro de Reciclagem Homologado">Centro de Reciclagem Homologado</option><option value="Doação / Banco de Alimentos">Doação / Banco de Alimentos</option><option value="Logística Reversa p/ Fabricante">Logística Reversa p/ Fabricante</option></select></div>
-                  <button type="submit" class="btn btn-success w-100">🌱 Consolidar Manifesto Ecológico</button>
+        <!-- Form e Tabela -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Formulário de Manifesto -->
+            <section class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h3 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="bi bi-file-earmark-plus text-emerald-500"></i>
+                    <span>Abertura de Manifesto Reverso</span>
+                </h3>
+
+                <form id="reverse-form" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Produto / Resíduo *</label>
+                        <select id="productName" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                            <option value="">Carregando produtos...</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Quantidade Volumétrica *</label>
+                        <input type="number" id="quantity" min="1" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Motivo da Triagem Reversa *</label>
+                        <select id="reason" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                            <option value="Vencimento Crítico (ESG)">Vencimento Crítico (ESG)</option>
+                            <option value="Avaria / Defeito Técnico">Avaria / Defeito Técnico</option>
+                            <option value="Reciclagem de Embalagem / Pallet">Reciclagem de Embalagem / Pallet</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Destinação Final Sustentável *</label>
+                        <select id="destination" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                            <option value="Centro de Reciclagem Homologado">Centro de Reciclagem Homologado</option>
+                            <option value="Doação / Banco de Alimentos">Doação / Banco de Alimentos</option>
+                            <option value="Logística Reversa p/ Fabricante">Logística Reversa p/ Fabricante</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full mt-4 px-4 py-2.5 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition shadow-sm flex items-center justify-center gap-2">
+                        <i class="bi bi-check2-circle"></i>
+                        <span>Consolidar Manifesto Ecológico</span>
+                    </button>
                 </form>
-              </div>
-            </div>
-          </section>
-          <section class="col-12 col-xl-7">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-              <div class="card-body">
-                <h4 class="fw-bold mb-3">📋 Custódia e rastreamento de resíduos</h4>
-                <div class="table-responsive">
-                  <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light"><tr><th>Código Reverso</th><th>Material / Item</th><th>Volume</th><th>Fluxo Causador</th><th>Destinação Aplicada</th><th>Data Triagem</th></tr></thead>
-                    <tbody id="reverse-table-body"><tr><td colspan="6" class="text-center text-muted py-4">Sincronizando livro verde NoSQL...</td></tr></tbody>
-                  </table>
+            </section>
+
+            <!-- Tabela de Rastreabilidade -->
+            <section class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                        <i class="bi bi-shield-check text-emerald-500"></i>
+                        <span>Custódia e Rastreamento de Resíduos</span>
+                    </h3>
+
+                    <div class="overflow-x-auto border border-slate-100 dark:border-slate-700 rounded-xl">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="bg-slate-50 dark:bg-slate-900/60 text-[10px] uppercase font-bold text-slate-400">
+                                <tr>
+                                    <th class="py-2.5 px-3">Código</th>
+                                    <th class="py-2.5 px-3">Material</th>
+                                    <th class="py-2.5 px-3">Volume</th>
+                                    <th class="py-2.5 px-3">Motivo</th>
+                                    <th class="py-2.5 px-3">Destinação</th>
+                                    <th class="py-2.5 px-3">Data</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reverse-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td colspan="6" class="text-center py-6 text-slate-400 text-xs">
+                                        Sincronizando livro verde NoSQL...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </section>
+
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 text-[11px] text-slate-400 mt-4 flex justify-between items-center">
+                    <span>Certificação e auditoria de circularidade</span>
+                    <a href="esg.html" class="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline">Ver Indicadores ESG</a>
+                </div>
+            </section>
         </div>
-      </main>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/authGuard.js"></script>
-    <script src="../assets/js/theme.js"></script>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../assets/js/core/uiFeedback.js"></script>
     <script src="../assets/js/api.js"></script>
-    <script src="../assets/js/main.js"></script>
     <script>
-      function handleUserLogout() {
-        if (confirm("Deseja realmente encerrar a sessão corporativa?")) {
-          localStorage.removeItem("sv_token");
-          localStorage.removeItem("sv_user");
-          window.location.href = "login.html";
-        }
-      }
-      document.addEventListener("DOMContentLoaded", async () => {
-        const form = document.getElementById("reverse-form");
-        const tableBody = document.getElementById("reverse-table-body");
-        const productSelect = document.getElementById("productName");
-
-        const activeUser = TokenManager.getUser();
-        if (activeUser) {
-          document.getElementById("company-name-display").innerText =
-            `Governança ESG: ${activeUser.company}`;
-        }
-
-        const loadProductOptions = async () => {
-          try {
-            if (!productSelect) return;
-            const products = await StockAPI.getInventory();
-            productSelect.innerHTML = '<option value="">Selecione um produto</option>';
-            if (!Array.isArray(products) || products.length === 0) {
-              productSelect.innerHTML = '<option value="">Nenhum produto cadastrado</option>';
-              return;
-            }
-            products.forEach((product) => {
-              const option = document.createElement('option');
-              option.value = product.name;
-              option.textContent = `${product.name} (${product.sku || 'N/A'})`;
-              productSelect.appendChild(option);
+        document.getElementById('btn-sidebar-logout')?.addEventListener('click', async () => {
+            const confirmed = await uiFeedback.confirm({
+                title: 'Encerrar Sessão Corporativa',
+                message: 'Deseja realmente sair do StockVision? Seus dados salvos permanecem seguros.',
+                confirmText: 'Sair Agora',
+                confirmClass: 'bg-rose-600 hover:bg-rose-700'
             });
-          } catch (error) {
-            if (productSelect) productSelect.innerHTML = '<option value="">Não foi possível carregar</option>';
-          }
-        };
-
-        const loadReverseData = async () => {
-          try {
-            const data = await StockAPI.getReverseAnalytics();
-
-            // Injeta os cards gerenciais ecológicos
-            document.getElementById("total-items-rev").innerText =
-              `${data.metrics.totalItemsProcessed} un`;
-            document.getElementById("total-weight-rev").innerText =
-              `${data.metrics.totalWeightRecycled} kg`;
-            document.getElementById("co2-rev").innerText =
-              `${data.metrics.co2Mitigated} kg`;
-
-            // Renderiza a tabela de rastreabilidade
-            tableBody.innerHTML = "";
-            if (data.items.length === 0) {
-              tableBody.innerHTML =
-                '<tr><td colspan="6" style="text-align: center;">Nenhum manifesto de resíduo aberto nesta organização.</td></tr>';
-              return;
+            if (confirmed) {
+                localStorage.removeItem('sv_token');
+                localStorage.removeItem('sv_user');
+                window.location.href = 'login.html';
             }
-
-            data.items.forEach((item) => {
-              const row = document.createElement("tr");
-              row.innerHTML = `
-                            <td style="font-family: monospace; font-size:0.85rem; font-weight:bold; color:var(--text-secondary);">${item._id}</td>
-                            <td><strong>${item.productName}</strong></td>
-                            <td>${item.quantity} un</td>
-                            <td><span class="status-badge red" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba;">${item.reason}</span></td>
-                            <td><span class="status-badge green">${item.destination}</span></td>
-                            <td style="font-size:0.85rem;">${item.processedAt}</td>
-                        `;
-              tableBody.appendChild(row);
-            });
-          } catch (e) {
-            tableBody.innerHTML =
-              '<tr><td colspan="6" style="text-align: center; color:var(--color-error)">Erro ao ler base de dados ESG.</td></tr>';
-          }
-        };
-
-        form.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const payload = {
-            productName: document.getElementById("productName").value.trim(),
-            quantity: document.getElementById("quantity").value,
-            reason: document.getElementById("reason").value,
-            destination: document.getElementById("destination").value,
-          };
-
-          try {
-            const result = await StockAPI.createReverseReturn(payload);
-            alert(result.message || "Manifesto consolidado!");
-            form.reset();
-            await loadProductOptions();
-            await loadReverseData();
-          } catch (error) {
-            alert(`Falha operacional: ${error.message}`);
-          }
         });
 
-        await loadProductOptions();
-        loadReverseData();
-      });
+        document.addEventListener("DOMContentLoaded", async () => {
+            const form = document.getElementById("reverse-form");
+            const tableBody = document.getElementById("reverse-table-body");
+            const productSelect = document.getElementById("productName");
+
+            const activeUser = TokenManager.getUser();
+            if (activeUser) {
+                document.getElementById("company-name-display").innerText =
+                    `Governança ESG: ${activeUser.company}`;
+            }
+
+            const loadProductOptions = async () => {
+                try {
+                    if (!productSelect) return;
+                    const products = await StockAPI.getInventory();
+                    productSelect.innerHTML = '<option value="">Selecione um produto</option>';
+                    if (!Array.isArray(products) || products.length === 0) {
+                        productSelect.innerHTML = '<option value="">Nenhum produto cadastrado</option>';
+                        return;
+                    }
+                    products.forEach((product) => {
+                        const option = document.createElement('option');
+                        option.value = product.name;
+                        option.textContent = `${product.name} (${product.sku || 'N/A'})`;
+                        productSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    if (productSelect) productSelect.innerHTML = '<option value="">Não foi possível carregar</option>';
+                }
+            };
+
+            const loadReverseData = async () => {
+                try {
+                    const data = await StockAPI.getReverseAnalytics();
+                    document.getElementById("total-items-rev").innerText = `${data.metrics.totalItemsProcessed || 0} un`;
+                    document.getElementById("total-weight-rev").innerText = `${data.metrics.totalWeightRecycled || 0} kg`;
+                    document.getElementById("co2-rev").innerText = `${data.metrics.co2Mitigated || '0.00'} kg`;
+
+                    tableBody.innerHTML = "";
+                    if (!data.items || data.items.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400 text-xs">Nenhum manifesto de resíduo aberto nesta organização.</td></tr>';
+                        return;
+                    }
+
+                    data.items.forEach((item) => {
+                        const row = document.createElement("tr");
+                        row.className = 'border-b border-slate-100 dark:border-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-800/50 transition';
+                        row.innerHTML = `
+                            <td class="py-2.5 px-3 font-mono font-bold text-slate-400 text-[11px]">${item._id.slice(-6).toUpperCase()}</td>
+                            <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-slate-100">${item.productName}</td>
+                            <td class="py-2.5 px-3 font-semibold text-slate-700 dark:text-slate-300">${item.quantity} un</td>
+                            <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">${item.reason}</span></td>
+                            <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">${item.destination}</span></td>
+                            <td class="py-2.5 px-3 text-slate-400 text-[11px]">${item.processedAt || '-'}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } catch (e) {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-rose-500 py-6 text-xs">Erro ao ler base de dados ESG.</td></tr>';
+                }
+            };
+
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const payload = {
+                    productName: document.getElementById("productName").value.trim(),
+                    quantity: document.getElementById("quantity").value,
+                    reason: document.getElementById("reason").value,
+                    destination: document.getElementById("destination").value,
+                };
+
+                try {
+                    const result = await StockAPI.createReverseReturn(payload);
+                    uiFeedback.toast(result.message || "Manifesto ecológico consolidado com sucesso!", "success");
+                    form.reset();
+                    await loadProductOptions();
+                    await loadReverseData();
+                } catch (error) {
+                    uiFeedback.toast(`Falha operacional: ${error.message}`, "error");
+                }
+            });
+
+            await loadProductOptions();
+            loadReverseData();
+        });
     </script>
-  </body>
+</body>
 </html>

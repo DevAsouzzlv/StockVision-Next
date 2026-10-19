@@ -1,346 +1,523 @@
-<!doctype html>
-<html lang="pt-BR" data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StockVision - Recebimento por Nota Fiscal (NF-e)</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../assets/css/modern.css" />
-        <link rel="shortcut icon" href="../assets/icons/icon-stockVision.png" type="image/png">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockVision - Fornecedores & Ingestão NF-e</title>
+    <link rel="stylesheet" href="../assets/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="shortcut icon" href="../assets/icons/icon-stockVision.png" type="image/png">
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/authGuard.js"></script>
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
 
-  </head>
-  <body>
-    <div class="app-shell d-flex flex-column flex-md-row">
-      <aside class="sidebar-panel offcanvas-md offcanvas-start d-flex flex-column p-3 p-md-4" id="sidebarMenu" tabindex="-1">
-        <div class="sidebar-brand p-3 mb-4 text-center">
-          <h2 class="fw-bold fs-4 mb-1 text-primary">StockVision</h2>
-          <p class="text-muted small mb-0">Operação com fornecedores e recebimento</p>
-        </div>
-        <ul class="sidebar-nav nav nav-pills flex-column gap-1 mb-auto">
-          <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-bar-chart-fill me-2"></i> Dashboard</a></li>
-          <li class="nav-item"><a href="stock.html" class="nav-link"><i class="bi bi-box-seam me-2"></i> Estoque</a></li>
-          <li class="nav-item"><a href="demand.html" class="nav-link"><i class="bi bi-graph-up-arrow me-2"></i> Previsão de Demanda</a></li>
-          <li class="nav-item"><a href="partners.html" class="nav-link active"><i class="bi bi-people-fill me-2"></i> Pedidos & Fornecedores</a></li>
-          <li class="nav-item"><a href="reverse.html" class="nav-link"><i class="bi bi-arrow-repeat me-2"></i> Logística Reversa</a></li>
-          <li class="nav-item"><a href="esg.html" class="nav-link"><i class="bi bi-tree-fill me-2"></i> Sustentabilidade (ESG)</a></li>
-          <li class="nav-item"><a href="auditoria.html" class="nav-link"><i class="bi bi-clipboard-check-fill me-2"></i> Auditoria de Estoque</a></li>
-        </ul>
-        <a href="#" onclick="handleUserLogout()" class="btn btn-outline-danger mt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
-      </aside>
-
-      <main class="flex-grow-1 p-3 p-md-4">
-        <header class="topbar rounded-4 p-3 p-md-4 mb-4 d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-outline-secondary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
-              <i class="bi bi-list"></i>
-            </button>
-            <div>
-              <h3 class="mb-0 fw-bold">🤝 Pedidos & Fornecedores</h3>
-              <p class="mb-0 text-muted small" id="company-name-display">Carregando almoxarifado corporativo...</p>
+    <!-- Sidebar de Navegação Lateral -->
+    <aside class="w-full md:w-64 bg-white dark:bg-slate-800/95 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700/80 p-5 flex flex-col justify-between shrink-0 shadow-sm">
+        <div>
+            <!-- Brand / Logo -->
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <img src="../assets/icons/icon-stockVision.png" alt="StockVision" class="w-10 h-10 object-contain drop-shadow">
+                <div>
+                    <span class="font-bold text-base tracking-tight text-slate-900 dark:text-white block">StockVision</span>
+                    <span class="text-[10px] uppercase font-semibold text-emerald-600 dark:text-emerald-400 tracking-wider">WMS & ESG 2.0</span>
+                </div>
             </div>
-          </div>
-          <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle" aria-label="Alternar tema"><i class="bi bi-moon-stars-fill"></i></button>
+
+            <!-- Menu de Links -->
+            <nav class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-grid-1x2 text-base"></i>
+                    <span>Dashboard Executivo</span>
+                </a>
+                <a href="stock.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-box-seam text-base"></i>
+                    <span>Estoque & Insumos</span>
+                </a>
+                <a href="demand.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-graph-up-arrow text-base"></i>
+                    <span>Previsão de Demanda</span>
+                </a>
+                <a href="partners.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800/60 shadow-sm transition">
+                    <i class="bi bi-truck text-base"></i>
+                    <span>Fornecedores & NF-e</span>
+                </a>
+                <a href="reverse.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-arrow-repeat text-base"></i>
+                    <span>Logística Reversa</span>
+                </a>
+                <a href="esg.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-recycle text-base"></i>
+                    <span>Sustentabilidade ESG</span>
+                </a>
+                <a href="auditoria.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-clipboard-check text-base"></i>
+                    <span>Auditoria WMS</span>
+                </a>
+                <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-person-circle text-base"></i>
+                    <span>Meu Perfil & Ajustes</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="pt-4 mt-6 border-t border-slate-200 dark:border-slate-700/60">
+            <button id="btn-sidebar-logout" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                <i class="bi bi-box-arrow-right text-base"></i>
+                <span>Encerrar Sessão</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+
+        <!-- Topbar -->
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>🤝 Pedidos, Fornecedores & Recebimento Fiscal</span>
+                </h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="company-name-display">
+                    Carregando gestão corporativa de fornecedores...
+                </p>
+            </div>
+
+            <button id="theme-toggle" class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition shadow-sm self-start sm:self-auto" title="Alternar Modo Claro/Escuro">
+                <i class="bi bi-moon-stars-fill"></i>
+            </button>
         </header>
 
-        <ul class="nav nav-tabs mb-4" id="operationsTabs" role="tablist">
-          <li class="nav-item" role="presentation"><button class="nav-link active" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders-pane" type="button" role="tab">📥 Pedidos</button></li>
-          <li class="nav-item" role="presentation"><button class="nav-link" id="suppliers-tab" data-bs-toggle="tab" data-bs-target="#suppliers-pane" type="button" role="tab">🤝 Fornecedores</button></li>
-        </ul>
-
-        <div class="tab-content">
-          <section class="tab-pane fade show active" id="orders-pane" role="tabpanel" aria-labelledby="orders-tab">
-            <div class="row g-4">
-              <div class="col-12 col-xl-6">
-                <div class="card border-0 shadow-sm rounded-4 h-100">
-                  <div class="card-body">
-                    <h4 class="fw-bold mb-3">📥 Ingestão de texto bruto de NF-e</h4>
-                    <p class="text-muted small">Cole o conteúdo estruturado das notas para processar automaticamente os itens recebidos.</p>
-                    <form id="xml-invoice-form">
-                      <textarea id="xml-input" rows="15" class="form-control font-monospace" placeholder="Cole as tags da nota fiscal aqui..." required></textarea>
-                      <button type="submit" class="btn btn-primary mt-3 w-100">⚙️ Processar Nota e Estocar Itens</button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-xl-6">
-                <div class="card border-0 shadow-sm rounded-4 h-100">
-                  <div class="card-body">
-                    <h4 class="fw-bold mb-3">📋 Relatório de auditoria de ingestão</h4>
-                    <div class="table-responsive">
-                      <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light"><tr><th>Material identificado</th><th>Ação operacional NoSQL</th></tr></thead>
-                        <tbody id="xml-report-body"><tr><td colspan="2" class="text-center text-muted py-4">Nenhuma nota fiscal na fila de processamento.</td></tr></tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="tab-pane fade" id="suppliers-pane" role="tabpanel" aria-labelledby="suppliers-tab">
-            <div class="card border-0 shadow-sm rounded-4">
-              <div class="card-body">
-                <h4 class="fw-bold mb-3">🤝 Cadastro de fornecedores</h4>
-                <div class="row g-4">
-                  <form id="partner-form" class="col-12 col-lg-5">
-                    <div class="mb-3"><label class="form-label">Nome da Empresa</label><input type="text" id="partner-companyName" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">E-mail</label><input type="email" id="partner-email" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">Telefone</label><input type="tel" id="partner-phone" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">Categoria Atendida</label><input type="text" id="partner-categorySupplied" class="form-control" placeholder="Ex: Mercearia, Bebidas" required></div>
-                    <div class="row g-3">
-                      <div class="col-12 col-md-6"><label class="form-label">Prazo de Entrega (dias)</label><input type="number" id="partner-deliveryDays" class="form-control" min="1" required></div>
-                      <div class="col-12 col-md-6"><label class="form-label">Faixa de Preço</label><select id="partner-priceTier" class="form-select" required><option value="">Selecione</option><option value="Baixo">Baixo</option><option value="Médio">Médio</option><option value="Alto">Alto</option></select></div>
-                    </div>
-                    <div class="mt-3 mb-3"><label class="form-label">Condição de Pagamento</label><select id="partner-paymentCondition" class="form-select" required><option value="">Selecione</option><option value="Pix">Pix</option><option value="Boleto">Boleto</option><option value="À Vista">À Vista</option><option value="Crédito">Crédito</option></select></div>
-                    <button type="submit" class="btn btn-primary">➕ Cadastrar Fornecedor</button>
-                  </form>
-                  <div class="col-12 col-lg-7">
-                    <h5 class="fw-bold mb-3">Fornecedores cadastrados</h5>
-                    <div class="table-responsive">
-                      <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light"><tr><th>Empresa</th><th>Categoria</th><th>Prazo</th><th>Preço</th><th>Ações</th></tr></thead>
-                        <tbody id="partner-table-body"><tr><td colspan="5" class="text-center text-muted py-4">Nenhum fornecedor carregado ainda.</td></tr></tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+        <!-- Abas de Navegação -->
+        <div class="flex border-b border-slate-200 dark:border-slate-700 mb-6">
+            <button id="tab-suppliers-btn" class="px-5 py-2.5 text-xs font-bold border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 transition flex items-center gap-2">
+                <i class="bi bi-people"></i>
+                <span>Fornecedores Homologados</span>
+            </button>
+            <button id="tab-orders-btn" class="px-5 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 dark:hover:text-slate-200 transition flex items-center gap-2">
+                <i class="bi bi-receipt"></i>
+                <span>Ingestão de NF-e (XML)</span>
+            </button>
         </div>
-      </main>
-    </div>
 
-    <div class="modal fade" id="edit-partner-modal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4">
-          <div class="modal-header border-0">
-            <h5 class="modal-title fw-bold">✏️ Editar fornecedor</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form id="edit-partner-form">
-              <input type="hidden" id="edit-partner-id">
-              <div class="mb-3"><label class="form-label">Nome da Empresa</label><input type="text" id="edit-partner-companyName" class="form-control" required></div>
-              <div class="mb-3"><label class="form-label">E-mail</label><input type="email" id="edit-partner-email" class="form-control" required></div>
-              <div class="mb-3"><label class="form-label">Telefone</label><input type="tel" id="edit-partner-phone" class="form-control" required></div>
-              <div class="mb-3"><label class="form-label">Categoria Atendida</label><input type="text" id="edit-partner-categorySupplied" class="form-control" required></div>
-              <div class="row g-3">
-                <div class="col-12 col-md-6"><label class="form-label">Prazo de Entrega (dias)</label><input type="number" id="edit-partner-deliveryDays" class="form-control" min="1" required></div>
-                <div class="col-12 col-md-6"><label class="form-label">Faixa de Preço</label><select id="edit-partner-priceTier" class="form-select" required><option value="">Selecione</option><option value="Baixo">Baixo</option><option value="Médio">Médio</option><option value="Alto">Alto</option></select></div>
-              </div>
-              <div class="mt-3"><label class="form-label">Condição de Pagamento</label><select id="edit-partner-paymentCondition" class="form-select" required><option value="">Selecione</option><option value="Pix">Pix</option><option value="Boleto">Boleto</option><option value="À Vista">À Vista</option><option value="Crédito">Crédito</option></select></div>
-              <button type="submit" class="btn btn-primary mt-4 w-100">💾 Salvar alterações</button>
+        <!-- Painel: Fornecedores -->
+        <div id="pane-suppliers" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Formulário Cadastro Fornecedor -->
+            <section class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h3 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="bi bi-person-plus text-primary-500"></i>
+                    <span>Cadastrar Novo Fornecedor</span>
+                </h3>
+
+                <form id="partner-form" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Razão Social / Nome Fantasia *</label>
+                        <input type="text" id="partner-companyName" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">E-mail Comercial *</label>
+                            <input type="email" id="partner-email" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Telefone *</label>
+                            <input type="tel" id="partner-phone" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Categoria de Fornecimento *</label>
+                        <input type="text" id="partner-categorySupplied" placeholder="Ex: Bebidas, Matéria-prima" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Prazo (Dias) *</label>
+                            <input type="number" id="partner-deliveryDays" min="1" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Faixa de Preço *</label>
+                            <select id="partner-priceTier" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                                <option value="">Selecione</option>
+                                <option value="Baixo">Baixo</option>
+                                <option value="Médio">Médio</option>
+                                <option value="Alto">Alto</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Pagamento *</label>
+                            <select id="partner-paymentCondition" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                                <option value="Pix">Pix</option>
+                                <option value="Boleto">Boleto</option>
+                                <option value="À Vista">À Vista</option>
+                                <option value="Crédito">Crédito</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full mt-4 px-4 py-2.5 rounded-xl font-bold text-white bg-primary-600 hover:bg-primary-700 transition shadow-sm flex items-center justify-center gap-2">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Homologar Fornecedor</span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Tabela de Fornecedores -->
+            <section class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                        <i class="bi bi-building-check text-primary-500"></i>
+                        <span>Base de Parceiros Cadastrados</span>
+                    </h3>
+
+                    <div class="overflow-x-auto border border-slate-100 dark:border-slate-700 rounded-xl">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="bg-slate-50 dark:bg-slate-900/60 text-[10px] uppercase font-bold text-slate-400">
+                                <tr>
+                                    <th class="py-2.5 px-3">Empresa</th>
+                                    <th class="py-2.5 px-3">Categoria</th>
+                                    <th class="py-2.5 px-3">Prazo</th>
+                                    <th class="py-2.5 px-3">Faixa Preço</th>
+                                    <th class="py-2.5 px-3 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="partner-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td colspan="5" class="text-center py-6 text-slate-400 text-xs">
+                                        Carregando lista de fornecedores...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 text-[11px] text-slate-400 mt-4">
+                    Governança e auditoria de contratos de compras.
+                </div>
+            </section>
+        </div>
+
+        <!-- Painel: Ingestão de NF-e -->
+        <div id="pane-orders" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <section class="lg:col-span-6 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h3 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                    <i class="bi bi-file-earmark-code text-indigo-500"></i>
+                    <span>Ingestão de Texto Bruto de NF-e (XML)</span>
+                </h3>
+                <p class="text-xs text-slate-400 mb-4">Cole a estrutura das tags da nota fiscal para atualização imediata dos itens no estoque.</p>
+
+                <form id="xml-invoice-form" class="space-y-3">
+                    <textarea id="xml-input" rows="12" class="w-full p-3 font-mono text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500" placeholder="Cole o conteúdo XML da NF-e aqui..." required></textarea>
+                    <button type="submit" class="w-full px-4 py-2.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-sm flex items-center justify-center gap-2 text-xs">
+                        <i class="bi bi-gear-wide-connected"></i>
+                        <span>Processar NF-e e Sincronizar Insumos</span>
+                    </button>
+                </form>
+            </section>
+
+            <section class="lg:col-span-6 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                        <i class="bi bi-clipboard-check text-indigo-500"></i>
+                        <span>Relatório de Ingestão e Conciliação</span>
+                    </h3>
+
+                    <div class="overflow-x-auto border border-slate-100 dark:border-slate-700 rounded-xl">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="bg-slate-50 dark:bg-slate-900/60 text-[10px] uppercase font-bold text-slate-400">
+                                <tr>
+                                    <th class="py-2.5 px-3">Material Identificado</th>
+                                    <th class="py-2.5 px-3">Ação Operacional NoSQL</th>
+                                </tr>
+                            </thead>
+                            <tbody id="xml-report-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td colspan="2" class="text-center py-6 text-slate-400 text-xs">
+                                        Nenhuma nota fiscal na fila de processamento.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 text-[11px] text-slate-400 mt-4">
+                    Importação direta com cálculo automático de custos e margens.
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Modal: Editar Fornecedor -->
+    <div id="edit-partner-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 my-8">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
+                <h3 class="font-bold text-sm md:text-base text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="bi bi-pencil-square text-primary-500"></i>
+                    <span>Atualizar Fornecedor</span>
+                </h3>
+                <button id="btn-close-edit-partner" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="bi bi-x-lg text-lg"></i>
+                </button>
+            </div>
+
+            <form id="edit-partner-form" class="space-y-3 text-xs">
+                <input type="hidden" id="edit-partner-id">
+                <div>
+                    <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Razão Social</label>
+                    <input type="text" id="edit-partner-companyName" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">E-mail</label>
+                        <input type="email" id="edit-partner-email" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Telefone</label>
+                        <input type="tel" id="edit-partner-phone" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Categoria</label>
+                    <input type="text" id="edit-partner-categorySupplied" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Prazo (Dias)</label>
+                        <input type="number" id="edit-partner-deliveryDays" min="1" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Faixa Preço</label>
+                        <select id="edit-partner-priceTier" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                            <option value="Baixo">Baixo</option>
+                            <option value="Médio">Médio</option>
+                            <option value="Alto">Alto</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Pagamento</label>
+                        <select id="edit-partner-paymentCondition" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                            <option value="Pix">Pix</option>
+                            <option value="Boleto">Boleto</option>
+                            <option value="À Vista">À Vista</option>
+                            <option value="Crédito">Crédito</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" id="btn-cancel-edit-partner" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-primary-600 hover:bg-primary-700 text-white transition shadow-sm">Salvar Alterações</button>
+                </div>
             </form>
-          </div>
         </div>
-      </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/authGuard.js"></script>
-    <script src="../assets/js/theme.js"></script>
+    <!-- Scripts -->
+    <script src="../assets/js/core/uiFeedback.js"></script>
     <script src="../assets/js/api.js"></script>
-    <script src="../assets/js/main.js"></script>
     <script>
-      function handleUserLogout() {
-        if (confirm("Deseja realmente encerrar a sessão corporativa?")) {
-          localStorage.removeItem("sv_token");
-          localStorage.removeItem("sv_user");
-          window.location.href = "login.html";
-        }
-      }
-      document.addEventListener("DOMContentLoaded", () => {
-        const form = document.getElementById("xml-invoice-form");
-        const reportBody = document.getElementById("xml-report-body");
-        const partnerForm = document.getElementById("partner-form");
-        const partnerTableBody = document.getElementById("partner-table-body");
-        const editPartnerModalElement = document.getElementById("edit-partner-modal");
-        const editPartnerModal = editPartnerModalElement ? new bootstrap.Modal(editPartnerModalElement) : null;
-        const editPartnerForm = document.getElementById("edit-partner-form");
-        let partnerEditingId = null;
-
-        const activeUser = TokenManager.getUser();
-        if (activeUser) {
-          document.getElementById("company-name-display").innerText =
-            `Central de Recebimento: ${activeUser.company}`;
-        }
-
-        const renderPartnerRows = (partners) => {
-          if (!partners || partners.length === 0) {
-            partnerTableBody.innerHTML =
-              '<tr><td colspan="5" style="text-align:center; color:var(--text-secondary);">Nenhum fornecedor cadastrado ainda.</td></tr>';
-            return;
-          }
-
-          partnerTableBody.innerHTML = '';
-          partners.forEach((partner) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${partner.companyName}</td>
-              <td>${partner.categorySupplied}</td>
-              <td>${partner.deliveryDays} dias</td>
-              <td>${partner.priceTier}</td>
-              <td>
-                <button class="btn btn-sm btn-outline-secondary me-1" type="button" onclick="openPartnerEditModal('${partner._id}')">✏️</button>
-                <button class="btn btn-sm btn-outline-danger" type="button" onclick="deletePartner('${partner._id}')">🗑️</button>
-              </td>
-            `;
-            partnerTableBody.appendChild(row);
-          });
-        };
-
-        const loadPartnerList = async () => {
-          try {
-            const partners = await PartnerAPI.getPartners();
-            window.__partnerCache = Array.isArray(partners) ? partners : [];
-            renderPartnerRows(window.__partnerCache);
-          } catch (error) {
-            partnerTableBody.innerHTML =
-              '<tr><td colspan="5" style="text-align:center; color:var(--color-rupture);">Falha ao carregar fornecedores.</td></tr>';
-            console.error('[Partners Page] Load Partners Error:', error.message);
-          }
-        };
-
-        window.openPartnerEditModal = (partnerId) => {
-          const partner = (window.__partnerCache || []).find((item) => item._id === partnerId);
-          if (!partner) return;
-          partnerEditingId = partnerId;
-          document.getElementById('edit-partner-id').value = partner._id;
-          document.getElementById('edit-partner-companyName').value = partner.companyName || '';
-          document.getElementById('edit-partner-email').value = partner.email || '';
-          document.getElementById('edit-partner-phone').value = partner.phone || '';
-          document.getElementById('edit-partner-categorySupplied').value = partner.categorySupplied || '';
-          document.getElementById('edit-partner-deliveryDays').value = partner.deliveryDays || '';
-          document.getElementById('edit-partner-priceTier').value = partner.priceTier || '';
-          document.getElementById('edit-partner-paymentCondition').value = partner.paymentCondition || '';
-          if (editPartnerModal) editPartnerModal.show();
-        };
-
-        window.deletePartner = async (partnerId) => {
-          const partner = (window.__partnerCache || []).find((item) => item._id === partnerId);
-          if (!partner) return;
-          if (!confirm(`Deseja realmente remover o fornecedor "${partner.companyName}" permanentemente?`)) {
-            return;
-          }
-
-          try {
-            const result = await PartnerAPI.deletePartner(partnerId);
-            alert(result.message || 'Fornecedor removido com sucesso!');
-            await loadPartnerList();
-          } catch (error) {
-            alert(`Falha ao excluir fornecedor: ${error.message}`);
-          }
-        };
-
-        partnerForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-
-          const partnerPayload = {
-            companyName: document.getElementById('partner-companyName').value.trim(),
-            email: document.getElementById('partner-email').value.trim(),
-            phone: document.getElementById('partner-phone').value.trim(),
-            categorySupplied: document.getElementById('partner-categorySupplied').value.trim(),
-            deliveryDays: Number(document.getElementById('partner-deliveryDays').value),
-            priceTier: document.getElementById('partner-priceTier').value,
-            paymentCondition: document.getElementById('partner-paymentCondition').value
-          };
-
-          try {
-            const submitBtn = partnerForm.querySelector('.btn');
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'Cadastrando...';
-
-            const result = await PartnerAPI.createPartner(partnerPayload);
-            alert(result.message || 'Fornecedor cadastrado com sucesso!');
-            partnerForm.reset();
-            await loadPartnerList();
-          } catch (error) {
-            alert(`Falha ao cadastrar fornecedor: ${error.message}`);
-          } finally {
-            const submitBtn = partnerForm.querySelector('.btn');
-            submitBtn.disabled = false;
-            submitBtn.innerText = '➕ Cadastrar Fornecedor';
-          }
-        });
-
-        editPartnerForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (!partnerEditingId) return;
-          const partnerPayload = {
-            companyName: document.getElementById('edit-partner-companyName').value.trim(),
-            email: document.getElementById('edit-partner-email').value.trim(),
-            phone: document.getElementById('edit-partner-phone').value.trim(),
-            categorySupplied: document.getElementById('edit-partner-categorySupplied').value.trim(),
-            deliveryDays: Number(document.getElementById('edit-partner-deliveryDays').value),
-            priceTier: document.getElementById('edit-partner-priceTier').value,
-            paymentCondition: document.getElementById('edit-partner-paymentCondition').value
-          };
-
-          try {
-            const result = await PartnerAPI.updatePartner(partnerEditingId, partnerPayload);
-            alert(result.message || 'Fornecedor atualizado com sucesso!');
-            if (editPartnerModal) editPartnerModal.hide();
-            await loadPartnerList();
-          } catch (error) {
-            alert(`Falha ao atualizar fornecedor: ${error.message}`);
-          }
-        });
-
-        form.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const xmlData = document.getElementById("xml-input").value;
-          const submitBtn = form.querySelector(".btn");
-
-          try {
-            submitBtn.innerText = "Lendo e Processando Lotes...";
-            submitBtn.disabled = true;
-
-            const result = await StockAPI.importInvoiceXml(xmlData);
-            alert(result.message || "Nota Fiscal estocada!");
-
-            // Renderiza o relatório reativo na tela para os alunos avaliarem o Bulk Operacional
-            reportBody.innerHTML = "";
-            
-            if (result.supplierRegistered) {
-              const supplierRow = document.createElement("tr");
-              supplierRow.innerHTML = `
-                <td><strong>🤝 ${result.supplierName}</strong></td>
-                <td><span class="status-badge green">Novo Fornecedor Cadastrado Automaticamente</span></td>
-              `;
-              reportBody.appendChild(supplierRow);
-              await loadPartnerList();
-            } else if (result.supplierName) {
-              const supplierRow = document.createElement("tr");
-              supplierRow.innerHTML = `
-                <td><strong>🤝 ${result.supplierName}</strong></td>
-                <td><span class="status-badge blue">Fornecedor Existente Vinculado</span></td>
-              `;
-              reportBody.appendChild(supplierRow);
+        document.getElementById('btn-sidebar-logout')?.addEventListener('click', async () => {
+            const confirmed = await uiFeedback.confirm({
+                title: 'Encerrar Sessão Corporativa',
+                message: 'Deseja realmente sair do StockVision? Seus dados salvos permanecem seguros.',
+                confirmText: 'Sair Agora',
+                confirmClass: 'bg-rose-600 hover:bg-rose-700'
+            });
+            if (confirmed) {
+                localStorage.removeItem('sv_token');
+                localStorage.removeItem('sv_user');
+                window.location.href = 'login.html';
             }
+        });
 
-            result.summary.forEach((item) => {
-              const row = document.createElement("tr");
-              row.innerHTML = `
-                            <td><strong>📦 ${item.name}</strong></td>
-                            <td><span class="status-badge ${item.action.includes("Incrementado") ? "orange" : "green"}">${item.action}</span></td>
-                        `;
-              reportBody.appendChild(row);
+        document.addEventListener("DOMContentLoaded", () => {
+            const tabSuppliersBtn = document.getElementById("tab-suppliers-btn");
+            const tabOrdersBtn = document.getElementById("tab-orders-btn");
+            const paneSuppliers = document.getElementById("pane-suppliers");
+            const paneOrders = document.getElementById("pane-orders");
+
+            tabSuppliersBtn?.addEventListener("click", () => {
+                tabSuppliersBtn.className = "px-5 py-2.5 text-xs font-bold border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 transition flex items-center gap-2";
+                tabOrdersBtn.className = "px-5 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 dark:hover:text-slate-200 transition flex items-center gap-2";
+                paneSuppliers.classList.remove("hidden");
+                paneOrders.classList.add("hidden");
             });
 
-            form.reset();
-          } catch (error) {
-            alert(`Falha no parse do XML: ${error.message}`);
-          } finally {
-            submitBtn.innerText = "⚙️ Processar Nota e Estocar Itens";
-            submitBtn.disabled = false;
-          }
-        });
+            tabOrdersBtn?.addEventListener("click", () => {
+                tabOrdersBtn.className = "px-5 py-2.5 text-xs font-bold border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 transition flex items-center gap-2";
+                tabSuppliersBtn.className = "px-5 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 dark:hover:text-slate-200 transition flex items-center gap-2";
+                paneOrders.classList.remove("hidden");
+                paneSuppliers.classList.add("hidden");
+            });
 
-        loadPartnerList();
-      });
+            const partnerForm = document.getElementById("partner-form");
+            const partnerTableBody = document.getElementById("partner-table-body");
+            const editPartnerModal = document.getElementById("edit-partner-modal");
+            const editPartnerForm = document.getElementById("edit-partner-form");
+            const btnCloseEditPartner = document.getElementById("btn-close-edit-partner");
+            const btnCancelEditPartner = document.getElementById("btn-cancel-edit-partner");
+
+            const activeUser = TokenManager.getUser();
+            if (activeUser) {
+                document.getElementById("company-name-display").innerText =
+                    `Central de Recebimento: ${activeUser.company}`;
+            }
+
+            const renderPartnerRows = (partners) => {
+                if (!partnerTableBody) return;
+                if (!partners || partners.length === 0) {
+                    partnerTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-400 text-xs">Nenhum fornecedor cadastrado ainda.</td></tr>';
+                    return;
+                }
+
+                partnerTableBody.innerHTML = '';
+                partners.forEach((partner) => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-slate-100 dark:border-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-800/50 transition';
+                    row.innerHTML = `
+                        <td class="py-2.5 px-3">
+                            <strong class="text-slate-800 dark:text-slate-100 block font-bold">${partner.companyName}</strong>
+                            <span class="text-[10px] text-slate-400">${partner.email} • ${partner.phone}</span>
+                        </td>
+                        <td class="py-2.5 px-3 text-slate-600 dark:text-slate-300">${partner.categorySupplied}</td>
+                        <td class="py-2.5 px-3 font-mono font-semibold">${partner.deliveryDays} dias</td>
+                        <td class="py-2.5 px-3">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                                ${partner.priceTier}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 text-center">
+                            <div class="flex items-center justify-center gap-1">
+                                <button class="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200" onclick="openPartnerEditModal('${partner._id}')" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="p-1 rounded-lg text-rose-500 hover:text-rose-700" onclick="deletePartner('${partner._id}')" title="Excluir">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    partnerTableBody.appendChild(row);
+                });
+            };
+
+            const loadPartnerList = async () => {
+                try {
+                    const partners = await PartnerAPI.getPartners();
+                    window.__partnerCache = Array.isArray(partners) ? partners : [];
+                    renderPartnerRows(window.__partnerCache);
+                } catch (error) {
+                    renderPartnerRows([]);
+                }
+            };
+
+            partnerForm?.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const payload = {
+                    companyName: document.getElementById("partner-companyName").value.trim(),
+                    email: document.getElementById("partner-email").value.trim(),
+                    phone: document.getElementById("partner-phone").value.trim(),
+                    categorySupplied: document.getElementById("partner-categorySupplied").value.trim(),
+                    deliveryDays: parseInt(document.getElementById("partner-deliveryDays").value, 10),
+                    priceTier: document.getElementById("partner-priceTier").value,
+                    paymentCondition: document.getElementById("partner-paymentCondition").value,
+                };
+
+                try {
+                    await PartnerAPI.createPartner(payload);
+                    uiFeedback.toast("Fornecedor homologado com sucesso!", "success");
+                    partnerForm.reset();
+                    await loadPartnerList();
+                } catch (error) {
+                    uiFeedback.toast(`Erro ao cadastrar fornecedor: ${error.message}`, "error");
+                }
+            });
+
+            window.openPartnerEditModal = (partnerId) => {
+                const partner = (window.__partnerCache || []).find((p) => p._id === partnerId);
+                if (!partner) return;
+
+                document.getElementById("edit-partner-id").value = partner._id;
+                document.getElementById("edit-partner-companyName").value = partner.companyName || '';
+                document.getElementById("edit-partner-email").value = partner.email || '';
+                document.getElementById("edit-partner-phone").value = partner.phone || '';
+                document.getElementById("edit-partner-categorySupplied").value = partner.categorySupplied || '';
+                document.getElementById("edit-partner-deliveryDays").value = partner.deliveryDays || 1;
+                document.getElementById("edit-partner-priceTier").value = partner.priceTier || 'Médio';
+                document.getElementById("edit-partner-paymentCondition").value = partner.paymentCondition || 'Boleto';
+
+                editPartnerModal.classList.remove("hidden");
+            };
+
+            const closeEditModal = () => editPartnerModal.classList.add("hidden");
+            btnCloseEditPartner?.addEventListener("click", closeEditModal);
+            btnCancelEditPartner?.addEventListener("click", closeEditModal);
+
+            editPartnerForm?.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const id = document.getElementById("edit-partner-id").value;
+                const payload = {
+                    companyName: document.getElementById("edit-partner-companyName").value.trim(),
+                    email: document.getElementById("edit-partner-email").value.trim(),
+                    phone: document.getElementById("edit-partner-phone").value.trim(),
+                    categorySupplied: document.getElementById("edit-partner-categorySupplied").value.trim(),
+                    deliveryDays: parseInt(document.getElementById("edit-partner-deliveryDays").value, 10),
+                    priceTier: document.getElementById("edit-partner-priceTier").value,
+                    paymentCondition: document.getElementById("edit-partner-paymentCondition").value,
+                };
+
+                try {
+                    await PartnerAPI.updatePartner(id, payload);
+                    uiFeedback.toast("Fornecedor atualizado com sucesso!", "success");
+                    closeEditModal();
+                    await loadPartnerList();
+                } catch (error) {
+                    uiFeedback.toast(`Erro ao atualizar fornecedor: ${error.message}`, "error");
+                }
+            });
+
+            window.deletePartner = async (partnerId) => {
+                const confirmed = await uiFeedback.confirm({
+                    title: "Excluir Fornecedor",
+                    message: "Deseja realmente remover este fornecedor homologado da sua base?",
+                    confirmText: "Sim, Excluir",
+                    confirmClass: "bg-rose-600 hover:bg-rose-700"
+                });
+                if (!confirmed) return;
+
+                try {
+                    await PartnerAPI.deletePartner(partnerId);
+                    uiFeedback.toast("Fornecedor removido com sucesso!", "success");
+                    await loadPartnerList();
+                } catch (error) {
+                    uiFeedback.toast(`Erro ao excluir fornecedor: ${error.message}`, "error");
+                }
+            };
+
+            // Ingestão de XML
+            const xmlForm = document.getElementById("xml-invoice-form");
+            const xmlReport = document.getElementById("xml-report-body");
+
+            xmlForm?.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const xmlData = document.getElementById("xml-input").value;
+                try {
+                    const result = await StockAPI.importInvoiceXml(xmlData);
+                    uiFeedback.toast(result.message || "Nota Fiscal processada com sucesso!", "success");
+                    xmlReport.innerHTML = `
+                        <tr>
+                            <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-slate-100">NF-e Processada</td>
+                            <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Estoque Atualizado</span></td>
+                        </tr>
+                    `;
+                    xmlForm.reset();
+                } catch (error) {
+                    uiFeedback.toast(`Erro na ingestão de XML: ${error.message}`, "error");
+                }
+            });
+
+            loadPartnerList();
+        });
     </script>
-  </body>
+</body>
 </html>

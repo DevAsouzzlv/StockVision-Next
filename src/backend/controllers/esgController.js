@@ -162,3 +162,38 @@ exports.getEsgMetricsAndInsights = async (req, res) => {
         return res.status(500).json({ message: 'Erro ao gerar painel ecológico ESG.', error: error.message });
     }
 };
+
+/**
+ * 🤖 TRIAGEM ECOLÓGICA EM TEMPO REAL VIA GOOGLE GEMINI
+ * POST -> /api/esg/gemini-triage/:id
+ */
+exports.generateGeminiEsgTriage = async (req, res) => {
+    try {
+        const item = await ReverseLogistics.findOne({ _id: req.params.id, company: req.user.company });
+        if (!item) {
+            return res.status(404).json({ message: 'Item de logística reversa não localizado.' });
+        }
+
+        const { analyzeEsgTriageWithGemini } = require('../services/geminiService');
+        const triageResult = await analyzeEsgTriageWithGemini({
+            productName: item.productName,
+            sku: item.sku,
+            issueType: item.issueType,
+            observations: item.observations,
+            quantity: item.quantity
+        });
+
+        return res.status(200).json({
+            message: 'Avaliação ecológica via Google Gemini concluída com sucesso!',
+            item: {
+                id: item._id,
+                productName: item.productName,
+                sku: item.sku
+            },
+            geminiTriage: triageResult
+        });
+    } catch (error) {
+        console.error('[Gemini ESG Triage Error]:', error);
+        return res.status(500).json({ message: 'Falha ao processar triagem com IA.', error: error.message });
+    }
+};

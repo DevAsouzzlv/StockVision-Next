@@ -1,207 +1,292 @@
-<!doctype html>
-<html lang="pt-BR" data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StockVision - Auditoria de Estoque</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../assets/css/modern.css" />
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockVision - Auditoria e Inventário Rotativo</title>
+    <link rel="stylesheet" href="../assets/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="shortcut icon" href="../assets/icons/icon-stockVision.png" type="image/png">
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/authGuard.js"></script>
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
 
-  </head>
-  <body>
-    <div class="app-shell d-flex flex-column flex-md-row">
-      <aside class="sidebar-panel offcanvas-md offcanvas-start d-flex flex-column p-3 p-md-4" id="sidebarMenu" tabindex="-1">
-        <div class="sidebar-brand p-3 mb-4 text-center">
-          <h2 class="fw-bold fs-4 mb-1 text-primary">StockVision</h2>
-          <p class="text-muted small mb-0">Auditoria e conciliação operacional</p>
-        </div>
-        <ul class="sidebar-nav nav nav-pills flex-column gap-1 mb-auto">
-          <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-bar-chart-fill me-2"></i> Dashboard</a></li>
-          <li class="nav-item"><a href="stock.html" class="nav-link"><i class="bi bi-box-seam me-2"></i> Estoque</a></li>
-          <li class="nav-item"><a href="demand.html" class="nav-link"><i class="bi bi-graph-up-arrow me-2"></i> Previsão de Demanda</a></li>
-          <li class="nav-item"><a href="partners.html" class="nav-link"><i class="bi bi-people-fill me-2"></i> Pedidos & Fornecedores</a></li>
-          <li class="nav-item"><a href="reverse.html" class="nav-link"><i class="bi bi-arrow-repeat me-2"></i> Logística Reversa</a></li>
-          <li class="nav-item"><a href="esg.html" class="nav-link"><i class="bi bi-tree-fill me-2"></i> Sustentabilidade (ESG)</a></li>
-          <li class="nav-item"><a href="auditoria.html" class="nav-link active"><i class="bi bi-clipboard-check-fill me-2"></i> Auditoria de Estoque</a></li>
-        </ul>
-        <a href="#" onclick="handleUserLogout()" class="btn btn-outline-danger mt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
-      </aside>
-
-      <main class="flex-grow-1 p-3 p-md-4">
-        <header class="topbar rounded-4 p-3 p-md-4 mb-4 d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-outline-secondary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
-              <i class="bi bi-list"></i>
-            </button>
-            <div>
-              <h3 class="mb-0 fw-bold">⚖️ Central de Auditoria de Estoque</h3>
-              <p class="mb-0 text-muted small" id="company-name-display">Carregando governança de auditoria...</p>
+    <!-- Sidebar de Navegação Lateral -->
+    <aside class="w-full md:w-64 bg-white dark:bg-slate-800/95 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700/80 p-5 flex flex-col justify-between shrink-0 shadow-sm">
+        <div>
+            <!-- Brand / Logo -->
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <img src="../assets/icons/icon-stockVision.png" alt="StockVision" class="w-10 h-10 object-contain drop-shadow">
+                <div>
+                    <span class="font-bold text-base tracking-tight text-slate-900 dark:text-white block">StockVision</span>
+                    <span class="text-[10px] uppercase font-semibold text-emerald-600 dark:text-emerald-400 tracking-wider">WMS & ESG 2.0</span>
+                </div>
             </div>
-          </div>
-          <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle" aria-label="Alternar tema"><i class="bi bi-moon-stars-fill"></i></button>
+
+            <!-- Menu de Links -->
+            <nav class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-grid-1x2 text-base"></i>
+                    <span>Dashboard Executivo</span>
+                </a>
+                <a href="stock.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-box-seam text-base"></i>
+                    <span>Estoque & Insumos</span>
+                </a>
+                <a href="demand.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-graph-up-arrow text-base"></i>
+                    <span>Previsão de Demanda</span>
+                </a>
+                <a href="partners.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-truck text-base"></i>
+                    <span>Fornecedores & NF-e</span>
+                </a>
+                <a href="reverse.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-arrow-repeat text-base"></i>
+                    <span>Logística Reversa</span>
+                </a>
+                <a href="esg.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-recycle text-base"></i>
+                    <span>Sustentabilidade ESG</span>
+                </a>
+                <a href="auditoria.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800/60 shadow-sm transition">
+                    <i class="bi bi-clipboard-check text-base"></i>
+                    <span>Auditoria WMS</span>
+                </a>
+                <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-person-circle text-base"></i>
+                    <span>Meu Perfil & Ajustes</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="pt-4 mt-6 border-t border-slate-200 dark:border-slate-700/60">
+            <button id="btn-sidebar-logout" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                <i class="bi bi-box-arrow-right text-base"></i>
+                <span>Encerrar Sessão</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+
+        <!-- Topbar -->
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>⚖️ Central de Auditoria de Estoque & Conciliação</span>
+                </h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="company-name-display">
+                    Carregando governança de auditoria...
+                </p>
+            </div>
+
+            <button id="theme-toggle" class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition shadow-sm self-start sm:self-auto" title="Alternar Modo Claro/Escuro">
+                <i class="bi bi-moon-stars-fill"></i>
+            </button>
         </header>
 
-        <section class="card border-0 shadow-sm rounded-4 mb-4">
-          <div class="card-body">
-            <div class="row g-3 align-items-end">
-              <div class="col-12 col-lg-8"><input type="text" id="filter-sector" class="form-control" placeholder="📍 Digite o setor para contagem (Ex: RECEBIMENTO, A, B)..."></div>
-              <div class="col-12 col-lg-4"><button class="btn btn-primary w-100" onclick="triggerRotativeSearch()">📋 Gerar Folha Cega</button></div>
+        <!-- Filtro para Gerar Folha Cega -->
+        <section class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm mb-6">
+            <div class="flex flex-col sm:flex-row gap-3 items-center">
+                <div class="relative flex-1 w-full">
+                    <i class="bi bi-geo-alt absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="filter-sector" placeholder="📍 Digite o setor para contagem cega (Ex: RECEBIMENTO, A, B)..." class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+                <button onclick="triggerRotativeSearch()" class="w-full sm:w-auto px-5 py-2 text-xs font-bold rounded-xl text-white bg-primary-600 hover:bg-primary-700 transition shadow-sm flex items-center justify-center gap-2 shrink-0">
+                    <i class="bi bi-file-earmark-spreadsheet"></i>
+                    <span>Gerar Folha Cega</span>
+                </button>
             </div>
-          </div>
         </section>
 
-        <div class="row g-4">
-          <section class="col-12 col-xl-7">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-              <div class="card-body">
-                <h4 class="fw-bold mb-3">📝 Folha de contagem de campo</h4>
-                <form id="audit-form">
-                  <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                      <thead class="table-light"><tr><th>Material / SKU</th><th>Endereço WMS</th><th>Qtd Física Contada</th></tr></thead>
-                      <tbody id="rotative-sheet-body"><tr><td colspan="3" class="text-center text-muted py-4">Gere a folha de contagem filtrada acima.</td></tr></tbody>
-                    </table>
-                  </div>
-                  <button type="submit" id="btn-submit-audit" class="btn btn-primary mt-3 w-100" style="display:none;">⚖️ Processar Auditoria e Conciliar Banco</button>
-                </form>
-              </div>
-            </div>
-          </section>
-          <section class="col-12 col-xl-5">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-              <div class="card-body">
-                <h4 class="fw-bold mb-3">📊 Resultado da apuração de divergências</h4>
-                <div class="table-responsive">
-                  <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light"><tr><th>Item</th><th>Desvio</th><th>Impacto Financeiro</th><th>Resultado</th></tr></thead>
-                    <tbody id="audit-report-body"><tr><td colspan="4" class="text-center text-muted py-4">Aguardando submissão física...</td></tr></tbody>
-                  </table>
+        <!-- Grade de Contagem e Apuração -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Folha de Contagem de Campo -->
+            <section class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                        <i class="bi bi-pencil-square text-primary-500"></i>
+                        <span>Folha de Contagem de Campo</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Insira as quantidades contadas fisicamente pelos operadores para reconciliação automática.</p>
+
+                    <form id="audit-form">
+                        <div class="overflow-x-auto border border-slate-100 dark:border-slate-700 rounded-xl mb-4">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead class="bg-slate-50 dark:bg-slate-900/60 text-[10px] uppercase font-bold text-slate-400">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Material / SKU</th>
+                                        <th class="py-2.5 px-3">Endereço WMS</th>
+                                        <th class="py-2.5 px-3 text-right">Qtd Física Contada</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rotative-sheet-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <tr>
+                                        <td colspan="3" class="text-center py-6 text-slate-400 text-xs">
+                                            Gere a folha de contagem filtrada acima para iniciar.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <button type="submit" id="btn-submit-audit" class="hidden w-full px-4 py-2.5 rounded-xl font-bold text-white bg-primary-600 hover:bg-primary-700 transition shadow-sm text-xs flex items-center justify-center gap-2">
+                            <i class="bi bi-check2-circle"></i>
+                            <span>Processar Auditoria e Conciliar Banco NoSQL</span>
+                        </button>
+                    </form>
                 </div>
-              </div>
-            </div>
-          </section>
+            </section>
+
+            <!-- Apuração de Divergências -->
+            <section class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                        <i class="bi bi-pie-chart text-primary-500"></i>
+                        <span>Resultado da Apuração</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Divergências identificadas entre estoque lógico e físico.</p>
+
+                    <div class="overflow-x-auto border border-slate-100 dark:border-slate-700 rounded-xl">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="bg-slate-50 dark:bg-slate-900/60 text-[10px] uppercase font-bold text-slate-400">
+                                <tr>
+                                    <th class="py-2.5 px-3">Item</th>
+                                    <th class="py-2.5 px-3">Desvio</th>
+                                    <th class="py-2.5 px-3">Impacto</th>
+                                    <th class="py-2.5 px-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-report-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td colspan="4" class="text-center py-6 text-slate-400 text-xs">
+                                        Aguardando submissão física...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 text-[11px] text-slate-400 mt-4">
+                    Auditoria física rotativa permanente.
+                </div>
+            </section>
         </div>
-      </main>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/authGuard.js"></script>
-    <script src="../assets/js/theme.js"></script>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../assets/js/core/uiFeedback.js"></script>
     <script src="../assets/js/api.js"></script>
-    <script src="../assets/js/main.js"></script>
     <script>
-      function handleUserLogout() {
-        if (confirm("Deseja realmente registrar saída da sessão corporativa?")) {
-          localStorage.removeItem("sv_token");
-          localStorage.removeItem("sv_user");
-          window.location.href = "login.html";
-        }
-      }
-      let currentSheetItems = [];
+        document.getElementById('btn-sidebar-logout')?.addEventListener('click', async () => {
+            const confirmed = await uiFeedback.confirm({
+                title: 'Encerrar Sessão Corporativa',
+                message: 'Deseja realmente sair do StockVision? Seus dados salvos permanecem seguros.',
+                confirmText: 'Sair Agora',
+                confirmClass: 'bg-rose-600 hover:bg-rose-700'
+            });
+            if (confirmed) {
+                localStorage.removeItem('sv_token');
+                localStorage.removeItem('sv_user');
+                window.location.href = 'login.html';
+            }
+        });
 
-      document.addEventListener("DOMContentLoaded", () => {
         const activeUser = TokenManager.getUser();
         if (activeUser) {
-          document.getElementById("company-name-display").innerText =
-            `Auditoria Interna: ${activeUser.company}`;
+            document.getElementById("company-name-display").innerText =
+                `Governança de Auditoria: ${activeUser.company}`;
         }
-      });
 
-      // Dispara a busca e monta a folha cega de contagem
-      const triggerRotativeSearch = async () => {
-        const sectorVal = document.getElementById("filter-sector").value.trim();
-        const sheetBody = document.getElementById("rotative-sheet-body");
-        const submitBtn = document.getElementById("btn-submit-audit");
+        const rotativeBody = document.getElementById("rotative-sheet-body");
+        const auditForm = document.getElementById("audit-form");
+        const btnSubmitAudit = document.getElementById("btn-submit-audit");
+        const auditReport = document.getElementById("audit-report-body");
 
-        try {
-          sheetBody.innerHTML =
-            '<tr><td colspan="3" style="text-align: center;">Mapeando endereços...</td></tr>';
-          const data = await StockAPI.getRotativeSheet("", sectorVal);
-          currentSheetItems = data;
+        window.triggerRotativeSearch = async () => {
+            const sector = document.getElementById("filter-sector").value.trim();
+            rotativeBody.innerHTML = '<tr><td colspan="3" class="text-center py-6 text-slate-400 text-xs">Gerando folha de contagem...</td></tr>';
 
-          sheetBody.innerHTML = "";
-          if (data.length === 0) {
-            sheetBody.innerHTML =
-              '<tr><td colspan="3" style="text-align: center;">Nenhum item localizado no setor informado.</td></tr>';
-            submitBtn.style.display = "none";
-            return;
-          }
+            try {
+                const sheet = await StockAPI.getRotativeSheet('', sector);
+                if (!sheet || sheet.length === 0) {
+                    rotativeBody.innerHTML = '<tr><td colspan="3" class="text-center py-6 text-slate-400 text-xs">Nenhum produto localizado para este setor.</td></tr>';
+                    btnSubmitAudit.classList.add("hidden");
+                    return;
+                }
 
-          data.forEach((item) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                        <td><strong>📦 ${item.name}</strong><br><small style="color:var(--text-secondary)">SKU: ${item.sku}</small></td>
-                        <td style="font-family:monospace; font-size:0.85rem;">${item.location}</td>
-                        <td>
-                            <input type="number" class="physical-input" data-id="${item._id}" required min="0" value="0" 
-                                   style="width:100%; padding:0.4rem; border-radius:4px; border:2px solid #cbd5e1; background:#ececec; color:#1e293b; font-weight:bold; text-align:center;">
+                rotativeBody.innerHTML = '';
+                sheet.forEach(item => {
+                    const row = document.createElement("tr");
+                    row.className = 'border-b border-slate-100 dark:border-slate-800 text-xs';
+                    const loc = item.location ? `${item.location.sector || '-'} / ${item.location.row || '-'} / ${item.location.building || '-'}` : 'Doca';
+
+                    row.innerHTML = `
+                        <td class="py-2.5 px-3">
+                            <strong class="text-slate-800 dark:text-slate-100 block font-bold">${item.name}</strong>
+                            <span class="text-[10px] text-slate-400 font-mono">SKU: ${item.sku || 'N/A'}</span>
+                        </td>
+                        <td class="py-2.5 px-3 font-mono text-slate-500 text-[11px]">${loc}</td>
+                        <td class="py-2.5 px-3 text-right">
+                            <input type="number" min="0" data-product-id="${item._id}" required class="audit-count-input w-24 px-2 py-1 text-right text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 font-bold" placeholder="0">
                         </td>
                     `;
-            sheetBody.appendChild(row);
-          });
+                    rotativeBody.appendChild(row);
+                });
 
-          submitBtn.style.display = "block";
-        } catch (e) {
-          sheetBody.innerHTML =
-            '<tr><td colspan="3" style="text-align: center; color:var(--color-error)">Erro ao ler dados de conferência.</td></tr>';
-        }
-      };
+                btnSubmitAudit.classList.remove("hidden");
+            } catch (error) {
+                uiFeedback.toast(`Falha ao gerar folha rotativa: ${error.message}`, "error");
+            }
+        };
 
-      // Envio do formulário de auditoria (Confronto e Balanço)
-      document
-        .getElementById("audit-form")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const inputs = document.querySelectorAll(".physical-input");
-          const countedItems = [];
-
-          inputs.forEach((input) => {
-            countedItems.push({
-              productId: input.getAttribute("data-id"),
-              physicalQty: input.value,
+        auditForm?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const inputs = document.querySelectorAll(".audit-count-input");
+            const countedItems = [];
+            inputs.forEach(input => {
+                countedItems.push({
+                    productId: input.getAttribute("data-product-id"),
+                    physicalCount: parseInt(input.value, 10) || 0
+                });
             });
-          });
 
-          try {
-            const result = await StockAPI.submitInventoryAudit(countedItems);
-            alert(result.message || "Auditoria processada!");
+            try {
+                const result = await StockAPI.submitInventoryAudit(countedItems);
+                uiFeedback.toast(result.message || "Auditoria conciliada com sucesso!", "success");
 
-            const reportBody = document.getElementById("audit-report-body");
-            reportBody.innerHTML = "";
+                auditReport.innerHTML = '';
+                const items = result.auditSummary || [];
+                if (items.length === 0) {
+                    auditReport.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-emerald-600 font-bold text-xs">Inventário 100% acurado! Nenhuma divergência detectada.</td></tr>';
+                    return;
+                }
 
-            result.report.forEach((item) => {
-              const row = document.createElement("tr");
-              const formatCurrency = (v) =>
-                new Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                }).format(v);
-
-              let badgeColor = "green";
-              if (item.divergenceQty < 0) badgeColor = "red";
-              if (item.divergenceQty > 0) badgeColor = "orange";
-
-              row.innerHTML = `
-                        <td><strong>${item.name}</strong></td>
-                        <td style="font-weight:bold; text-align:center;">${item.divergenceQty > 0 ? `+${item.divergenceQty}` : item.divergenceQty} un</td>
-                        <td style="font-family:monospace; font-weight:bold; color:${item.financialImpact < 0 ? "#dc3545" : "var(--color-esg)"}">
-                            ${formatCurrency(item.financialImpact)}
+                items.forEach(d => {
+                    const row = document.createElement("tr");
+                    row.className = 'border-b border-slate-100 dark:border-slate-800 text-xs';
+                    const isDiv = d.divergence !== 0;
+                    row.innerHTML = `
+                        <td class="py-2.5 px-3 font-bold">${d.name}</td>
+                        <td class="py-2.5 px-3 font-mono ${isDiv ? 'text-rose-600 font-bold' : 'text-slate-600'}">${d.divergence > 0 ? '+' : ''}${d.divergence} un</td>
+                        <td class="py-2.5 px-3 text-slate-500 font-mono">R$ ${(d.financialImpact || 0).toFixed(2)}</td>
+                        <td class="py-2.5 px-3">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isDiv ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'}">
+                                ${isDiv ? 'Ajustado' : 'Acurado'}
+                            </span>
                         </td>
-                        <td><span class="status-badge ${badgeColor}">${item.status}</span></td>
                     `;
-              reportBody.appendChild(row);
-            });
-
-            // Oculta o botão de envio e limpa a folha para nova rodada
-            document.getElementById("btn-submit-audit").style.display = "none";
-            document.getElementById("rotative-sheet-body").innerHTML =
-              '<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">Inventário processado com sucesso. Defina outro setor acima.</td></tr>';
-          } catch (error) {
-            alert(`Erro ao conciliar dados: ${error.message}`);
-          }
+                    auditReport.appendChild(row);
+                });
+            } catch (error) {
+                uiFeedback.toast(`Erro na apuração: ${error.message}`, "error");
+            }
         });
     </script>
-  </body>
+</body>
 </html>

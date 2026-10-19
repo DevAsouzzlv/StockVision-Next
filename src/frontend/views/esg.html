@@ -1,276 +1,340 @@
-<!doctype html>
-<html lang="pt-BR" data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StockVision - Sustentabilidade (ESG)</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../assets/css/modern.css" />
-        <link rel="shortcut icon" href="../assets/icons/icon-stockVision.png" type="image/png">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockVision - Sustentabilidade e Governança (ESG)</title>
+    <link rel="stylesheet" href="../assets/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="shortcut icon" href="../assets/icons/icon-stockVision.png" type="image/png">
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/authGuard.js"></script>
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
 
-    <style>
-      .esg-card-green {
-        border-top: 4px solid #22c55e;
-      }
-      .esg-card-teal {
-        border-top: 4px solid #14b8a6;
-      }
-      .esg-card-blue {
-        border-top: 4px solid #3b82f6;
-      }
-      .esg-card-amber {
-        border-top: 4px solid #f59e0b;
-      }
-      .ai-insight-badge {
-        font-size: 0.75rem;
-        padding: 0.3rem 0.7rem;
-        border-radius: 999px;
-        font-weight: 600;
-      }
-      .ai-insight-reciclagem { background: #dcfce7; color: #15803d; }
-      .ai-insight-reaproveitamento { background: #dbeafe; color: #1d4ed8; }
-      .ai-insight-descarte { background: #fef3c7; color: #92400e; }
-      .ai-insight-triagem { background: #f3e8ff; color: #6b21a8; }
-      .metric-hero {
-        background: linear-gradient(135deg, #052e16 0%, #14532d 50%, #166534 100%);
-        color: white;
-        border-radius: 1rem;
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="app-shell d-flex flex-column flex-md-row">
-      <aside class="sidebar-panel offcanvas-md offcanvas-start d-flex flex-column p-3 p-md-4" id="sidebarMenu" tabindex="-1">
-        <div class="sidebar-brand p-3 mb-4 text-center">
-          <h2 class="fw-bold fs-4 mb-1 text-primary">StockVision</h2>
-          <p class="text-muted small mb-0">Governança ambiental e social</p>
-        </div>
-        <ul class="sidebar-nav nav nav-pills flex-column gap-1 mb-auto">
-          <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-bar-chart-fill me-2"></i> Dashboard</a></li>
-          <li class="nav-item"><a href="stock.html" class="nav-link"><i class="bi bi-box-seam me-2"></i> Estoque</a></li>
-          <li class="nav-item"><a href="demand.html" class="nav-link"><i class="bi bi-graph-up-arrow me-2"></i> Previsão de Demanda</a></li>
-          <li class="nav-item"><a href="partners.html" class="nav-link"><i class="bi bi-people-fill me-2"></i> Pedidos &amp; Fornecedores</a></li>
-          <li class="nav-item"><a href="reverse.html" class="nav-link"><i class="bi bi-arrow-repeat me-2"></i> Logística Reversa</a></li>
-          <li class="nav-item"><a href="esg.html" class="nav-link active"><i class="bi bi-tree-fill me-2"></i> Sustentabilidade (ESG)</a></li>
-          <li class="nav-item"><a href="auditoria.html" class="nav-link"><i class="bi bi-clipboard-check-fill me-2"></i> Auditoria de Estoque</a></li>
-        </ul>
-        <a href="#" onclick="handleUserLogout()" class="btn btn-outline-danger mt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
-      </aside>
-
-      <main class="flex-grow-1 p-3 p-md-4">
-        <header class="topbar rounded-4 p-3 p-md-4 mb-4 d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-outline-secondary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
-              <i class="bi bi-list"></i>
-            </button>
-            <div>
-              <h3 class="mb-0 fw-bold">🌱 Painel de Sustentabilidade (ESG)</h3>
-              <p class="mb-0 text-muted small" id="company-name-display">Carregando métricas ambientais...</p>
+    <!-- Sidebar de Navegação Lateral -->
+    <aside class="w-full md:w-64 bg-white dark:bg-slate-800/95 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700/80 p-5 flex flex-col justify-between shrink-0 shadow-sm">
+        <div>
+            <!-- Brand / Logo -->
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <img src="../assets/icons/icon-stockVision.png" alt="StockVision" class="w-10 h-10 object-contain drop-shadow">
+                <div>
+                    <span class="font-bold text-base tracking-tight text-slate-900 dark:text-white block">StockVision</span>
+                    <span class="text-[10px] uppercase font-semibold text-emerald-600 dark:text-emerald-400 tracking-wider">WMS & ESG 2.0</span>
+                </div>
             </div>
-          </div>
-          <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle" aria-label="Alternar tema"><i class="bi bi-moon-stars-fill"></i></button>
+
+            <!-- Menu de Links -->
+            <nav class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-grid-1x2 text-base"></i>
+                    <span>Dashboard Executivo</span>
+                </a>
+                <a href="stock.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-box-seam text-base"></i>
+                    <span>Estoque & Insumos</span>
+                </a>
+                <a href="demand.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-graph-up-arrow text-base"></i>
+                    <span>Previsão de Demanda</span>
+                </a>
+                <a href="partners.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-truck text-base"></i>
+                    <span>Fornecedores & NF-e</span>
+                </a>
+                <a href="reverse.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-arrow-repeat text-base"></i>
+                    <span>Logística Reversa</span>
+                </a>
+                <a href="esg.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800/60 shadow-sm transition">
+                    <i class="bi bi-recycle text-base"></i>
+                    <span>Sustentabilidade ESG</span>
+                </a>
+                <a href="auditoria.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-clipboard-check text-base"></i>
+                    <span>Auditoria WMS</span>
+                </a>
+                <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition">
+                    <i class="bi bi-person-circle text-base"></i>
+                    <span>Meu Perfil & Ajustes</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="pt-4 mt-6 border-t border-slate-200 dark:border-slate-700/60">
+            <button id="btn-sidebar-logout" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                <i class="bi bi-box-arrow-right text-base"></i>
+                <span>Encerrar Sessão</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+
+        <!-- Topbar -->
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>🌱 Painel de Sustentabilidade (ESG)</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                        <i class="bi bi-leaf"></i> Governança Verde
+                    </span>
+                </h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="company-name-display">
+                    Carregando governança ambiental corporativa...
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="reverse.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition shadow-sm">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>Registrar Devolução / Avaria</span>
+                </a>
+                <button id="theme-toggle" class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition shadow-sm" title="Alternar Modo Claro/Escuro">
+                    <i class="bi bi-moon-stars-fill"></i>
+                </button>
+            </div>
         </header>
 
         <!-- Hero Banner ESG -->
-        <div class="metric-hero">
-          <div class="row align-items-center">
-            <div class="col-12 col-md-8">
-              <p class="text-uppercase small fw-semibold mb-1" style="color: #86efac;">Relatório Ambiental e Social</p>
-              <h2 class="fw-bold mb-2">Impacto Positivo no Planeta 🌍</h2>
-              <p class="mb-0" style="color: #d1fae5;">Acompanhe as métricas de desperdício, reciclagem e as recomendações da IA de triagem ecológica em tempo real.</p>
+        <section class="bg-gradient-to-r from-emerald-800 via-teal-800 to-green-900 rounded-2xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300 block mb-1">Impacto Ambiental Positivo</span>
+                    <h2 class="text-lg md:text-xl font-extrabold tracking-tight">Economia Circular & Gestão de Resíduos 🌍</h2>
+                    <p class="text-xs text-emerald-100 max-w-xl mt-1">
+                        Acompanhe em tempo real a redução da pegada de carbono, índices de reciclagem e as recomendações de triagem ecológica com Google Gemini.
+                    </p>
+                </div>
+                <div class="shrink-0 flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md text-white border border-white/20">
+                        <i class="bi bi-robot"></i> Motor IA Ecológico Ativo
+                    </span>
+                </div>
             </div>
-            <div class="col-12 col-md-4 text-md-end mt-3 mt-md-0">
-              <div class="badge px-3 py-2 rounded-pill fw-semibold" style="background: rgba(255,255,255,0.15); color: white; font-size: 0.9rem;">
-                <i class="bi bi-leaf-fill me-1"></i> Motor IA Ecológico Ativo
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- KPI Cards -->
-        <section class="row g-3 mb-4" id="esg-kpi-section">
-          <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100 esg-card-green">
-              <div class="card-body">
-                <h6 class="text-muted text-uppercase fw-bold small mb-2">Estoque Comercial</h6>
-                <h3 class="fw-bold mb-0 text-success" id="kpi-comercial">—</h3>
-                <small class="text-muted">unidades ativas</small>
-              </div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100 esg-card-amber">
-              <div class="card-body">
-                <h6 class="text-muted text-uppercase fw-bold small mb-2">Total em Perdas</h6>
-                <h3 class="fw-bold mb-0 text-warning" id="kpi-perdas">—</h3>
-                <small class="text-muted">unidades devolvidas</small>
-              </div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100 esg-card-blue">
-              <div class="card-body">
-                <h6 class="text-muted text-uppercase fw-bold small mb-2">Taxa de Desperdício</h6>
-                <h3 class="fw-bold mb-0 text-primary" id="kpi-desperdicio">—</h3>
-                <small class="text-muted">% do volume total</small>
-              </div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100 esg-card-teal">
-              <div class="card-body">
-                <h6 class="text-muted text-uppercase fw-bold small mb-2">Índice de Reciclagem</h6>
-                <h3 class="fw-bold mb-0" style="color: #14b8a6;" id="kpi-reciclagem">—</h3>
-                <small class="text-muted">% do resíduo reciclado</small>
-              </div>
-            </div>
-          </div>
         </section>
 
-        <!-- Volumes por Destino -->
-        <section class="row g-4 mb-4">
-          <div class="col-12 col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-              <div class="card-body">
-                <h5 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-success me-2"></i>Volumes por Destino</h5>
-                <div id="volumes-destino">
-                  <div class="text-center text-muted py-4">Carregando dados de destinação...</div>
+        <!-- KPI Cards Ambientais -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Estoque Comercial Ativo</span>
+                <div class="mt-2">
+                    <h3 id="kpi-comercial" class="text-xl md:text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">-</h3>
+                    <span class="text-[11px] text-slate-400">unidades em operação</span>
                 </div>
-              </div>
             </div>
-          </div>
 
-          <!-- Painel de IA Especialista -->
-          <div class="col-12 col-lg-7">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-              <div class="card-body">
-                <h5 class="fw-bold mb-3"><i class="bi bi-cpu-fill text-primary me-2"></i>Painel Especialista de IA — Triagem Ecológica</h5>
-                <p class="text-muted small mb-3">O motor de IA avalia cada item da logística reversa e recomenda o destino mais sustentável com base em regras de toxicidade e estado físico.</p>
-                <div class="table-responsive">
-                  <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                      <tr>
-                        <th>Produto</th>
-                        <th>Tipo</th>
-                        <th>Sugestão da IA</th>
-                        <th>Justificativa</th>
-                      </tr>
-                    </thead>
-                    <tbody id="ia-panel-body">
-                      <tr><td colspan="4" class="text-center text-muted py-4">Analisando resíduos com a IA ecológica...</td></tr>
-                    </tbody>
-                  </table>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Volume Total de Perdas</span>
+                <div class="mt-2">
+                    <h3 id="kpi-perdas" class="text-xl md:text-2xl font-bold tracking-tight text-rose-600 dark:text-rose-400">-</h3>
+                    <span class="text-[11px] text-slate-400">avarias e vencidos</span>
                 </div>
-              </div>
             </div>
-          </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Taxa de Desperdício</span>
+                <div class="mt-2">
+                    <h3 id="kpi-desperdicio" class="text-xl md:text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400">-</h3>
+                    <span class="text-[11px] text-slate-400">sobre volume operado</span>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Índice de Reciclagem</span>
+                <div class="mt-2">
+                    <h3 id="kpi-reciclagem" class="text-xl md:text-2xl font-bold tracking-tight text-teal-600 dark:text-teal-400">-</h3>
+                    <span class="text-[11px] text-slate-400">materiais reaproveitados</span>
+                </div>
+            </div>
         </section>
 
-      </main>
-    </div>
+        <!-- Grid: Destinações Físicas & Pareceres da IA -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-8">
+            <!-- Destinações de Resíduos -->
+            <div class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                        <i class="bi bi-pie-chart text-emerald-500"></i>
+                        <span>Destinação Final de Resíduos</span>
+                    </h4>
+                    <div id="volumes-destino" class="space-y-3">
+                        <div class="p-6 text-center text-xs text-slate-400">
+                            <div class="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin inline-block mr-2"></div>
+                            Calculando balanço de resíduos...
+                        </div>
+                    </div>
+                </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/authGuard.js"></script>
-    <script src="../assets/js/theme.js"></script>
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 text-[11px] text-slate-400 mt-4">
+                    Monitoramento contínuo em conformidade com a PNRS.
+                </div>
+            </div>
+
+            <!-- Painel Especialista IA -->
+            <div class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h4 class="font-bold text-xs md:text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                                <i class="bi bi-robot text-indigo-500"></i>
+                                <span>Recomendações Preditivas de Triagem Ecológica</span>
+                            </h4>
+                            <p class="text-[11px] text-slate-400">Análise de toxicidade e reciclabilidade orientada por IA</p>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-100 dark:border-slate-700 rounded-xl">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="bg-slate-50 dark:bg-slate-900/60 text-[10px] uppercase font-bold text-slate-400">
+                                <tr>
+                                    <th class="py-2.5 px-3">Material</th>
+                                    <th class="py-2.5 px-3">Ocorrência</th>
+                                    <th class="py-2.5 px-3">Sugestão Ecológica</th>
+                                    <th class="py-2.5 px-3">Justificativa / IA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ia-panel-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td colspan="4" class="text-center py-6 text-slate-400 text-xs">
+                                        <div class="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin inline-block mr-2"></div>
+                                        Sincronizando avaliações ecológicas...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs mt-4">
+                    <span class="text-slate-400">Auditoria ambiental e circularidade</span>
+                    <a href="reverse.html" class="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline inline-flex items-center gap-1">
+                        <span>Acessar Logística Reversa</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="../assets/js/core/uiFeedback.js"></script>
     <script src="../assets/js/api.js"></script>
-    <script src="../assets/js/main.js"></script>
     <script>
-      function handleUserLogout() {
-        if (confirm("Deseja realmente encerrar a sessão corporativa?")) {
-          localStorage.removeItem("sv_token");
-          localStorage.removeItem("sv_user");
-          window.location.href = "login.html";
-        }
-      }
-
-      // Mapeamento de tipo de problema para badge CSS
-      const getIssueBadgeClass = (issueType) => {
-        if (!issueType) return 'ai-insight-triagem';
-        const t = issueType.toLowerCase();
-        if (t.includes('recicl')) return 'ai-insight-reciclagem';
-        if (t.includes('reaprovei') || t.includes('recondici')) return 'ai-insight-reaproveitamento';
-        if (t.includes('descarte') || t.includes('especializ') || t.includes('inciner')) return 'ai-insight-descarte';
-        return 'ai-insight-triagem';
-      };
-
-      document.addEventListener("DOMContentLoaded", async () => {
-        const activeUser = TokenManager.getUser();
-        if (activeUser) {
-          document.getElementById("company-name-display").innerText =
-            `Governança Ambiental: ${activeUser.company}`;
-        }
-
-        try {
-          const data = await StockAPI.getEsgDashboard();
-
-          // Preenche os KPIs
-          const ov = data.esgOverview || {};
-          document.getElementById('kpi-comercial').textContent = (ov.totalEstoqueComercial ?? '—').toLocaleString('pt-BR');
-          document.getElementById('kpi-perdas').textContent = (ov.totalEstoquePerdas ?? '—').toLocaleString('pt-BR');
-          document.getElementById('kpi-desperdicio').textContent = ov.taxaDesperdicioGeral ?? '—%';
-          document.getElementById('kpi-reciclagem').textContent = ov.indiceReciclagemAtual ?? '—%';
-
-          // Preenche os volumes por destino
-          const vols = data.volumesPorDestino || {};
-          const volDestinoEl = document.getElementById('volumes-destino');
-          const destinos = [
-            { label: 'Reciclagem', key: 'Reciclagem', color: '#22c55e', icon: 'bi-recycle' },
-            { label: 'Reaproveitamento', key: 'Reaproveitamento', color: '#3b82f6', icon: 'bi-arrow-repeat' },
-            { label: 'Descarte Sustentável', key: 'DescarteSustentavel', color: '#f59e0b', icon: 'bi-trash3-fill' },
-            { label: 'Pendente', key: 'Pendente', color: '#94a3b8', icon: 'bi-hourglass-split' },
-          ];
-          const totalVol = destinos.reduce((acc, d) => acc + (vols[d.key] || 0), 0);
-
-          if (totalVol === 0) {
-            volDestinoEl.innerHTML = `<div class="text-center text-muted py-4">Nenhum item em logística reversa registrado ainda.<br><a href="reverse.html" class="btn btn-sm btn-outline-success mt-2">Registrar devolução</a></div>`;
-          } else {
-            volDestinoEl.innerHTML = destinos.map(d => {
-              const qty = vols[d.key] || 0;
-              const pct = totalVol > 0 ? Math.round((qty / totalVol) * 100) : 0;
-              return `
-                <div class="mb-3">
-                  <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="fw-semibold small"><i class="bi ${d.icon} me-1"></i>${d.label}</span>
-                    <span class="text-muted small">${qty} un (${pct}%)</span>
-                  </div>
-                  <div class="progress" style="height: 10px; border-radius: 999px;">
-                    <div class="progress-bar" role="progressbar" style="width: ${pct}%; background-color: ${d.color}; border-radius: 999px;" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </div>`;
-            }).join('');
-          }
-
-          // Preenche o painel de IA
-          const iaItems = data.painelEspecialistaIA || [];
-          const iaPanelBody = document.getElementById('ia-panel-body');
-
-          if (iaItems.length === 0) {
-            iaPanelBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Nenhum resíduo registrado para análise da IA ainda.<br><small>Registre devoluções na tela de Logística Reversa.</small></td></tr>`;
-          } else {
-            iaPanelBody.innerHTML = '';
-            iaItems.forEach(item => {
-              const ai = item.aiEvaluation || {};
-              const badgeClass = getIssueBadgeClass(ai.sugestaoDestino || '');
-              const row = document.createElement('tr');
-              row.innerHTML = `
-                <td><strong>${item.productName || 'N/D'}</strong><br><small class="text-muted">${item.sku || ''}</small></td>
-                <td><span class="badge bg-secondary-subtle text-secondary">${item.issueType || '—'}</span></td>
-                <td><span class="ai-insight-badge ${badgeClass}">${(ai.sugestaoDestino || '—').split('.')[0]}</span></td>
-                <td class="text-muted small" style="max-width:220px;">${ai.justificativaMecanica || '—'}</td>
-              `;
-              iaPanelBody.appendChild(row);
+        document.getElementById('btn-sidebar-logout')?.addEventListener('click', async () => {
+            const confirmed = await uiFeedback.confirm({
+                title: 'Encerrar Sessão Corporativa',
+                message: 'Deseja realmente sair do StockVision? Seus dados salvos permanecem seguros.',
+                confirmText: 'Sair Agora',
+                confirmClass: 'bg-rose-600 hover:bg-rose-700'
             });
-          }
+            if (confirmed) {
+                localStorage.removeItem('sv_token');
+                localStorage.removeItem('sv_user');
+                window.location.href = 'login.html';
+            }
+        });
 
-        } catch (error) {
-          console.error('[ESG Page] Erro:', error.message);
-          document.getElementById('ia-panel-body').innerHTML =
-            `<tr><td colspan="4" class="text-center text-danger py-4">Falha ao carregar painel ESG: ${error.message}</td></tr>`;
-        }
-      });
+        const getIssueBadge = (sugestao) => {
+            const s = (sugestao || '').toLowerCase();
+            if (s.includes('recicl')) {
+                return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"><i class="bi bi-recycle"></i> Reciclagem</span>';
+            }
+            if (s.includes('reaprovei') || s.includes('recondici')) {
+                return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800"><i class="bi bi-arrow-repeat"></i> Reaproveitamento</span>';
+            }
+            if (s.includes('descarte')) {
+                return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800"><i class="bi bi-trash3"></i> Descarte Sustentável</span>';
+            }
+            return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-200 dark:border-purple-800">Triagem Manual</span>';
+        };
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const activeUser = TokenManager.getUser();
+            if (activeUser) {
+                document.getElementById("company-name-display").innerText =
+                    `Governança Ambiental: ${activeUser.company}`;
+            }
+
+            try {
+                const data = await StockAPI.getEsgDashboard();
+                const ov = data.esgOverview || {};
+
+                document.getElementById('kpi-comercial').innerText = (ov.totalEstoqueComercial ?? 0).toLocaleString('pt-BR');
+                document.getElementById('kpi-perdas').innerText = (ov.totalEstoquePerdas ?? 0).toLocaleString('pt-BR');
+                document.getElementById('kpi-desperdicio').innerText = ov.taxaDesperdicioGeral ?? '0.0%';
+                document.getElementById('kpi-reciclagem').innerText = ov.indiceReciclagemAtual ?? '0.0%';
+
+                const vols = data.volumesPorDestino || {};
+                const volDestinoEl = document.getElementById('volumes-destino');
+                const destinos = [
+                    { label: 'Reciclagem', key: 'Reciclagem', color: 'bg-emerald-500', icon: 'bi-recycle' },
+                    { label: 'Reaproveitamento', key: 'Reaproveitamento', color: 'bg-blue-500', icon: 'bi-arrow-repeat' },
+                    { label: 'Descarte Sustentável', key: 'DescarteSustentavel', color: 'bg-amber-500', icon: 'bi-trash3' },
+                    { label: 'Pendente de Triagem', key: 'Pendente', color: 'bg-slate-400', icon: 'bi-hourglass-split' },
+                ];
+                const totalVol = destinos.reduce((acc, d) => acc + (vols[d.key] || 0), 0);
+
+                if (totalVol === 0) {
+                    volDestinoEl.innerHTML = `<div class="text-center text-slate-400 py-6 text-xs">Nenhum resíduo registrado na logística reversa.<br><a href="reverse.html" class="text-emerald-600 font-semibold hover:underline mt-2 inline-block">Registrar manifesto reverso</a></div>`;
+                } else {
+                    volDestinoEl.innerHTML = destinos.map(d => {
+                        const qty = vols[d.key] || 0;
+                        const pct = totalVol > 0 ? Math.round((qty / totalVol) * 100) : 0;
+                        return `
+                            <div>
+                                <div class="flex justify-between items-center text-xs mb-1">
+                                    <span class="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                        <i class="bi ${d.icon}"></i> ${d.label}
+                                    </span>
+                                    <span class="font-mono text-slate-500 dark:text-slate-400">${qty} un (${pct}%)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                                    <div class="${d.color} h-2 rounded-full" style="width: ${pct}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                const iaItems = data.painelEspecialistaIA || [];
+                const iaPanelBody = document.getElementById('ia-panel-body');
+
+                if (iaItems.length === 0) {
+                    iaPanelBody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-400 text-xs">Nenhum resíduo registrado para análise no momento.</td></tr>`;
+                } else {
+                    iaPanelBody.innerHTML = '';
+                    iaItems.forEach(item => {
+                        const ai = item.aiEvaluation || {};
+                        const row = document.createElement('tr');
+                        row.className = 'border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition';
+
+                        row.innerHTML = `
+                            <td class="py-2.5 px-3">
+                                <strong class="text-slate-900 dark:text-white block font-bold">${item.productName || 'N/D'}</strong>
+                                <span class="text-[10px] text-slate-400 font-mono">SKU: ${item.sku || 'N/A'}</span>
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-600 dark:text-slate-300">
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                                    ${item.issueType || 'Geral'}
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-3">
+                                ${getIssueBadge(ai.sugestaoDestino)}
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 text-[11px] leading-snug">
+                                ${ai.justificativaMecanica || 'Triagem padronizada.'}
+                            </td>
+                        `;
+                        iaPanelBody.appendChild(row);
+                    });
+                }
+            } catch (err) {
+                console.error('[ESG Error]:', err);
+            }
+        });
     </script>
-  </body>
+</body>
 </html>

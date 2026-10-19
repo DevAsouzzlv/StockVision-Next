@@ -283,6 +283,46 @@ const StockAPI = {
     },
 
     /**
+     * 🤖 GERAÇÃO DE INSIGHT COM GOOGLE GEMINI EM TEMPO REAL
+     * POST -> /api/demand/gemini-insight/:id
+     */
+    getGeminiDemandInsight: async (productId) => {
+        try {
+            const token = TokenManager.getToken();
+            const response = await fetch(`${BASE_URL}/demand/gemini-insight/${productId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Erro ao consultar Google Gemini.');
+            return data;
+        } catch (error) {
+            console.error('[API Gemini Demand Error]:', error.message);
+            throw error;
+        }
+    },
+
+    /**
+     * 🤖 TRIAGEM ECOLÓGICA ESG VIA GOOGLE GEMINI EM TEMPO REAL
+     * POST -> /api/esg/gemini-triage/:id
+     */
+    getGeminiEsgTriage: async (reverseItemId) => {
+        try {
+            const token = TokenManager.getToken();
+            const response = await fetch(`${BASE_URL}/esg/gemini-triage/${reverseItemId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Erro ao gerar triagem ecológica com Google Gemini.');
+            return data;
+        } catch (error) {
+            console.error('[API Gemini ESG Error]:', error.message);
+            throw error;
+        }
+    },
+
+    /**
      * 🧾 PROCESSAR INGESTÃO DE NOTA FISCAL VIA STRING XML
      * POST -> /api/stock/invoice/xml
      */
