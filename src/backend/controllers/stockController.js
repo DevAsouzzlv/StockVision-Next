@@ -70,7 +70,7 @@ exports.listProducts = async (req, res) => {
  */
 exports.createProduct = async (req, res) => {
     try {
-        const { name, category, acquisitionCost, sellingPrice, quantityInStock, minimumStock, maximumStock, isIndeterminateExpiration, expirationDate, location, barcode } = req.body;
+        const { name, category, acquisitionCost, sellingPrice, quantityInStock, minimumStock, maximumStock, isIndeterminateExpiration, expirationDate, location, barcode, supplier } = req.body;
 
         const costNum = parseFloat(acquisitionCost) || 0;
         const priceNum = parseFloat(sellingPrice) || 0;
@@ -89,20 +89,25 @@ exports.createProduct = async (req, res) => {
         // Geração de SKU incremental baseado em Timestamp para simulação de código de barras
         const generatedSku = `SKU-${Date.now()}`;
 
+        const parsedExpDate = (isIndeterminateExpiration || !expirationDate || expirationDate === '')
+            ? null 
+            : new Date(expirationDate);
+
         const newProduct = new Product({
             company: req.user.company, // Vincula à empresa do token logado
             sku: generatedSku,
             barcode: barcode || generatedSku,
             name,
-            category,
+            category: category || 'Geral',
             acquisitionCost: costNum,
             sellingPrice: priceNum,
             quantityInStock: qtyNum,
             minimumStock: minNum,
             maximumStock: maxNum,
-            isIndeterminateExpiration,
-            expirationDate: isIndeterminateExpiration ? null : expirationDate,
-            location
+            supplier: supplier || 'Não Definido',
+            isIndeterminateExpiration: Boolean(isIndeterminateExpiration),
+            expirationDate: parsedExpDate,
+            location: location || {}
         });
 
         await newProduct.save();
@@ -140,6 +145,10 @@ exports.updateProduct = async (req, res) => {
 
         if (newCost < 0 || newPrice < 0) {
             return res.status(400).json({ message: 'Custo de aquisição e preço de venda não podem ser negativos.' });
+        }
+
+        if (updates.isIndeterminateExpiration || !updates.expirationDate || updates.expirationDate === '') {
+            updates.expirationDate = null;
         }
 
         Object.assign(product, updates);

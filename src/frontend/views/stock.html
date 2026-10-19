@@ -237,6 +237,7 @@
         </section>
 
         <!-- Drawer Acessível de Detalhes WMS / Métricas do Insumo -->
+        <!-- Drawer Acessível de Detalhes WMS / Métricas do Insumo -->
         <div id="details-drawer" class="hidden bg-white dark:bg-slate-800 rounded-2xl border-2 border-primary-500/40 p-5 shadow-lg mb-6 transition-all duration-300">
             <div class="flex items-start justify-between border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
                 <div class="flex items-center gap-3">
@@ -244,8 +245,14 @@
                         <i class="bi bi-box-seam text-lg"></i>
                     </div>
                     <div>
-                        <h3 id="drawer-product-name" class="font-bold text-sm md:text-base text-slate-900 dark:text-white">Nome do Insumo</h3>
-                        <p class="text-[11px] text-slate-400">Detalhes WMS, parâmetros de giro e rentabilidade unitária</p>
+                        <h3 id="drawer-name" class="font-bold text-sm md:text-base text-slate-900 dark:text-white">Nome do Insumo</h3>
+                        <p class="text-[11px] text-slate-400 flex items-center gap-2">
+                            <span>SKU: <strong id="drawer-sku" class="font-mono text-slate-600 dark:text-slate-300">-</strong></span>
+                            <span>•</span>
+                            <span>EAN: <strong id="drawer-barcode" class="font-mono text-slate-600 dark:text-slate-300">-</strong></span>
+                            <span>•</span>
+                            <span>Categoria: <strong id="drawer-category" class="text-slate-600 dark:text-slate-300">-</strong></span>
+                        </p>
                     </div>
                 </div>
                 <button id="btn-close-drawer" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg transition" title="Fechar (ESC)">
@@ -254,7 +261,7 @@
             </div>
 
             <!-- Banner Alerta de Prejuízo (Condicional) -->
-            <div id="drawer-loss-warning" class="hidden mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 flex items-center gap-3 text-rose-700 dark:text-rose-300 text-xs">
+            <div id="drawer-loss-banner" class="hidden mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 flex items-center gap-3 text-rose-700 dark:text-rose-300 text-xs">
                 <i class="bi bi-exclamation-octagon-fill text-lg text-rose-600"></i>
                 <div>
                     <span class="font-bold block">Alerta Crítico: Produto em Prejuízo Operacional</span>
@@ -263,13 +270,25 @@
             </div>
 
             <!-- Grid de Informações Técnicas -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
                 <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
                     <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Endereço WMS</span>
-                    <p id="drawer-location" class="font-bold text-xs text-slate-800 dark:text-slate-100 mt-0.5">-</p>
+                    <p id="drawer-location" class="font-bold text-xs text-slate-800 dark:text-slate-100 mt-0.5 font-mono">-</p>
                 </div>
                 <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Faturamento Potencial</span>
+                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Saldo Físico</span>
+                    <p id="drawer-qty" class="font-bold text-xs text-slate-800 dark:text-slate-100 mt-0.5">-</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
+                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Custo Unitário</span>
+                    <p id="drawer-cost" class="font-bold text-xs text-slate-800 dark:text-slate-100 mt-0.5">-</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
+                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Preço Venda</span>
+                    <p id="drawer-price" class="font-bold text-xs text-slate-800 dark:text-slate-100 mt-0.5">-</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
+                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Faturamento Total</span>
                     <p id="drawer-turnover" class="font-bold text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">-</p>
                 </div>
                 <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
@@ -277,27 +296,27 @@
                     <p id="drawer-margin" class="font-bold text-xs text-slate-800 dark:text-slate-100 mt-0.5">-</p>
                 </div>
                 <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Status Logístico</span>
-                    <div id="drawer-status-tag" class="mt-0.5">-</div>
-                </div>
-                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Validade</span>
-                    <p id="drawer-expiration" class="font-medium text-xs text-slate-800 dark:text-slate-100 mt-0.5">-</p>
-                </div>
-                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Estoque Mín / Máx</span>
-                    <p id="drawer-limits" class="font-medium text-xs text-slate-800 dark:text-slate-100 mt-0.5">-</p>
+                    <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Lucro Estimado</span>
+                    <p id="drawer-profit" class="font-bold text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">-</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/60 text-xs">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/60 text-xs">
                 <div>
-                    <span class="text-slate-400 font-semibold">Categoria Mercadológica:</span>
-                    <span id="drawer-category" class="font-medium text-slate-700 dark:text-slate-200 ml-1">-</span>
+                    <span class="text-slate-400 font-semibold block text-[10px] uppercase">Status Logístico</span>
+                    <div id="drawer-status-tag" class="mt-0.5 font-bold">-</div>
                 </div>
                 <div>
-                    <span class="text-slate-400 font-semibold">Fornecedor Principal:</span>
-                    <span id="drawer-supplier" class="font-medium text-slate-700 dark:text-slate-200 ml-1">-</span>
+                    <span class="text-slate-400 font-semibold block text-[10px] uppercase">Validade</span>
+                    <p id="drawer-expiration" class="font-medium text-slate-700 dark:text-slate-200 mt-0.5">-</p>
+                </div>
+                <div>
+                    <span class="text-slate-400 font-semibold block text-[10px] uppercase">Estoque Mín / Máx</span>
+                    <p id="drawer-limits" class="font-medium text-slate-700 dark:text-slate-200 mt-0.5">-</p>
+                </div>
+                <div>
+                    <span class="text-slate-400 font-semibold block text-[10px] uppercase">Fornecedor Principal</span>
+                    <p id="drawer-supplier" class="font-medium text-slate-700 dark:text-slate-200 mt-0.5 truncate">-</p>
                 </div>
             </div>
         </div>
@@ -363,6 +382,11 @@
             </div>
 
             <form id="product-form" class="space-y-4">
+                <div id="create-loss-alert" class="hidden p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
+                    <i class="bi bi-exclamation-octagon-fill text-rose-600 text-base"></i>
+                    <span><strong>Aviso de Margem Negativa:</strong> O preço de venda está menor ou igual ao custo unitário de aquisição.</span>
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
                         <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Nome do Insumo *</label>
@@ -383,6 +407,10 @@
                     <div>
                         <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Código de Barras (EAN/UPC)</label>
                         <input type="text" id="barcode" placeholder="Opcional - Digite ou leia" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Fornecedor Principal</label>
+                        <input type="text" id="supplier" placeholder="Ex: Madeireira Nacional, Ambev..." class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Saldo Inicial Físico *</label>
@@ -459,6 +487,12 @@
 
             <form id="edit-product-form" class="space-y-4">
                 <input type="hidden" id="edit-id">
+
+                <div id="edit-loss-alert" class="hidden p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
+                    <i class="bi bi-exclamation-octagon-fill text-rose-600 text-base"></i>
+                    <span><strong>Aviso de Margem Negativa:</strong> O preço de venda está menor ou igual ao custo unitário de aquisição.</span>
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
                         <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Nome do Insumo *</label>
@@ -474,7 +508,7 @@
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Preço de Venda (R$) *</label>
-                        <input type="number" id="edit-price" step="0.01" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                        <input type="number" id="edit-sellingPrice" step="0.01" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Saldo Físico Atual *</label>
@@ -483,6 +517,10 @@
                     <div>
                         <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Código de Barras</label>
                         <input type="text" id="edit-barcode" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Fornecedor Principal</label>
+                        <input type="text" id="edit-supplier" placeholder="Ex: PetroTech, Gerdau..." class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary-500">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">Estoque Mínimo</label>

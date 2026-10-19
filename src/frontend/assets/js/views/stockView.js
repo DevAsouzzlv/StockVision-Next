@@ -1,17 +1,26 @@
 /**
  * STOCKVISION - CONTROLADOR DO MÓDULO DE ESTOQUE (TAILWIND CSS)
- * Gerencia renderização, alertas de prejuízo, drawer acessível, modais e scanner de código de barras.
+ * Gerencia renderização, alertas de criticidade, drawer acessível de detalhes WMS,
+ * cadastro e edição de insumos, ingestão de NF-e (XML) e leitor de código de barras.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     let localProductsCache = [];
+    let quickLossFilterActive = false;
+    let loadedNfeXmlData = null;
 
-    // Elementos DOM
+    // Elementos DOM Principais
     const inventoryTableBody = document.getElementById('inventory-table-body');
+    const cardsContainer = document.getElementById('inventory-cards-container');
+    const filteredCountBadge = document.getElementById('filtered-items-count');
+
+    // Filtros e Busca
     const searchNameInput = document.getElementById('search-name');
     const searchCategoryInput = document.getElementById('search-category');
     const searchStatusInput = document.getElementById('search-status');
     const searchMaxPriceInput = document.getElementById('search-max-price');
+
+    // Drawer de Detalhes
     const detailsDrawer = document.getElementById('details-drawer');
 
     // Modais Tailwind
@@ -20,14 +29,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const barcodeModal = document.getElementById('barcode-scanner-modal');
     const nfeModal = document.getElementById('nfe-modal');
 
+    // Funções utilitárias
     const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
 
-    const cardsContainer = document.getElementById('inventory-cards-container');
-    const filteredCountBadge = document.getElementById('filtered-items-count');
-    let quickLossFilterActive = false;
+    const toggleModal = (modalEl, show) => {
+        if (!modalEl) return;
+        if (show) {
+            modalEl.classList.remove('hidden');
+        } else {
+            modalEl.classList.add('hidden');
+        }
+    };
+
+    window.openCreateModal = () => toggleModal(createModal, true);
+    window.closeCreateModal = () => toggleModal(createModal, false);
+
+    window.openEditModalWindow = () => toggleModal(editModal, true);
+    window.closeEditModal = () => toggleModal(editModal, false);
+
+    window.openNfeModal = () => toggleModal(nfeModal, true);
+    window.closeNfeModal = () => {
+        toggleModal(nfeModal, false);
+        loadedNfeXmlData = null;
+    };
+
+    window.openBarcodeModal = () => {
+        toggleModal(barcodeModal, true);
+        const scannerDeviceInput = document.getElementById('scanner-device-input');
+        setTimeout(() => scannerDeviceInput?.focus(), 150);
+    };
+
+    window.closeBarcodeModal = () => {
+        toggleModal(barcodeModal, false);
+        if (typeof Quagga !== 'undefined') {
+            try { Quagga.stop(); } catch(e){}
+        }
+    };
 
     // =========================================================================
-    // 1. ATUALIZAÇÃO DOS CARDS DE CRITICIDADE (ALERTAS EM TEMPO REAL)
+    // 1. CONEXÃO DE EVENT LISTENERS DOS BOTÕES DE ABERTURA E FECHAMENTO
+    // =========================================================================
+    document.getElementById('open-create-btn')?.addEventListener('click', () => window.openCreateModal());
+    document.getElementById('open-nfe-modal-btn')?.addEventListener('click', () => window.openNfeModal());
+    document.getElementById('open-barcode-btn')?.addEventListener('click', () => window.openBarcodeModal());
+
+    document.getElementById('btn-close-create-modal')?.addEventListener('click', () => window.closeCreateModal());
+    document.getElementById('btn-cancel-create-modal')?.addEventListener('click', () => window.closeCreateModal());
+
+    document.getElementById('btn-close-edit-modal')?.addEventListener('click', () => window.closeEditModal());
+    document.getElementById('btn-cancel-edit-modal')?.addEventListener('click', () => window.closeEditModal());
+
+    document.getElementById('btn-close-nfe-modal')?.addEventListener('click', () => window.closeNfeModal());
+    document.getElementById('btn-cancel-nfe-modal')?.addEventListener('click', () => window.closeNfeModal());
+
+    document.getElementById('btn-close-barcode-modal')?.addEventListener('click', () => window.closeBarcodeModal());
+    document.getElementById('btn-close-barcode-modal-footer')?.addEventListener('click', () => window.closeBarcodeModal());
+
+    document.getElementById('btn-close-drawer')?.addEventListener('click', () => window.closeProductDetails());
+
+    // Fechar ao teclar ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            window.closeProductDetails();
+            window.closeCreateModal();
+            window.closeEditModal();
+            window.closeNfeModal();
+            window.closeBarcodeModal();
+        }
+    });
+
+    // =========================================================================
+    // 2. ATUALIZAÇÃO DOS CARDS DE CRITICIDADE (ALERTAS EM TEMPO REAL)
     // =========================================================================
     const updateCriticalityKPIs = (products) => {
         const ruptureEl = document.getElementById('stat-rupture-count');
@@ -56,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // =========================================================================
-    // 2. RENDERIZAÇÃO DA TABELA E DOS CARDS MÓVEIS COM SINALIZAÇÃO DESTACADA
+    // 3. RENDERIZAÇÃO DA TABELA E DOS CARDS MÓVEIS COM SINALIZAÇÃO DESTACADA
     // =========================================================================
     const renderTableRows = (products) => {
         if (filteredCountBadge) {
@@ -110,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 financialLossBadge = `
                     <div class="mt-1">
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-600 text-white critical-pulse shadow-sm" title="${p.statusVisual?.lossReason || 'Venda abaixo do custo'}">
-                            <i class="bi bi-exclamation-octagon-fill"></i> Prejuízo Estimado (${p.statusVisual?.unitMargin}%)
+                            <i class="bi bi-exclamation-octagon-fill"></i> Prejuízo Estimado (${p.statusVisual?.unitMargin || 0}%)
                         </span>
                     </div>
                 `;
@@ -220,9 +292,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const populateCategories = (products) => {
         if (!searchCategoryInput) return;
+        const currentSelected = searchCategoryInput.value;
         const categories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
         searchCategoryInput.innerHTML = '<option value="">Todas as Categorias</option>' + 
             categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        if (currentSelected && categories.includes(currentSelected)) {
+            searchCategoryInput.value = currentSelected;
+        }
     };
 
     const applyFilters = () => {
@@ -273,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadInventory = async () => {
         try {
-            if (inventoryTableBody) {
+            if (inventoryTableBody && localProductsCache.length === 0) {
                 inventoryTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400 text-xs"><span class="inline-block animate-spin mr-2">⟳</span> Sincronizando inventário NoSQL...</td></tr>';
             }
             const data = await StockAPI.getInventory();
@@ -290,109 +366,78 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // =========================================================================
-    // 2. DRAWER DE DETALHES (COM BOTÃO FECHAR E TECLA ESC)
+    // 4. DRAWER DE DETALHES WMS E RENTABILIDADE
     // =========================================================================
     window.viewProductDetails = (id) => {
         const product = localProductsCache.find(p => p._id === id);
         if (!product || !detailsDrawer) return;
 
-        document.getElementById('drawer-name').innerText = product.name;
-        document.getElementById('drawer-sku').innerText = product.sku || 'N/A';
-        document.getElementById('drawer-barcode').innerText = product.barcode || 'N/A';
-        document.getElementById('drawer-category').innerText = product.category || 'Geral';
-        document.getElementById('drawer-qty').innerText = `${(product.quantityInStock || 0).toLocaleString('pt-BR')} un`;
-        document.getElementById('drawer-limits').innerText = `Mín: ${product.minimumStock || 0} / Máx: ${product.maximumStock || 0}`;
-        document.getElementById('drawer-supplier').innerText = product.supplier || 'Não informado';
+        const setFieldText = (elemId, text) => {
+            const el = document.getElementById(elemId);
+            if (el) el.innerText = text;
+        };
+
+        setFieldText('drawer-name', product.name);
+        setFieldText('drawer-sku', product.sku || 'N/A');
+        setFieldText('drawer-barcode', product.barcode || 'N/A');
+        setFieldText('drawer-category', product.category || 'Geral');
+        setFieldText('drawer-qty', `${(product.quantityInStock || 0).toLocaleString('pt-BR')} un`);
+        setFieldText('drawer-limits', `Mín: ${product.minimumStock || 0} / Máx: ${product.maximumStock || 0}`);
+        setFieldText('drawer-supplier', product.supplier || 'Não informado');
 
         const loc = product.location || {};
-        document.getElementById('drawer-location').innerText = `${loc.sector || 'S/S'}-R${loc.row || '0'}-P${loc.building || '0'}-N${loc.floor || '0'}-V${loc.apartment || '0'}`;
+        setFieldText('drawer-location', `${loc.sector || 'S/S'}-R${loc.row || '0'}-P${loc.building || '0'}-N${loc.floor || '0'}-V${loc.apartment || '0'}`);
 
         const isExpIndet = product.isIndeterminateExpiration;
-        document.getElementById('drawer-expiration').innerText = isExpIndet 
-            ? 'Inperecível' 
-            : (product.expirationDate ? new Date(product.expirationDate).toLocaleDateString('pt-BR') : 'Não informada');
+        setFieldText('drawer-expiration', isExpIndet 
+            ? 'Imperecível' 
+            : (product.expirationDate ? new Date(product.expirationDate).toLocaleDateString('pt-BR') : 'Não informada'));
 
         // Métricas Financeiras
         const totalTurnover = (product.sellingPrice || 0) * (product.quantityInStock || 0);
         const totalCost = (product.acquisitionCost || 0) * (product.quantityInStock || 0);
         const totalProfit = totalTurnover - totalCost;
 
-        document.getElementById('drawer-cost').innerText = formatCurrency(product.acquisitionCost);
-        document.getElementById('drawer-price').innerText = formatCurrency(product.sellingPrice);
-        document.getElementById('drawer-turnover').innerText = formatCurrency(totalTurnover);
+        setFieldText('drawer-cost', formatCurrency(product.acquisitionCost));
+        setFieldText('drawer-price', formatCurrency(product.sellingPrice));
+        setFieldText('drawer-turnover', formatCurrency(totalTurnover));
 
         const marginEl = document.getElementById('drawer-margin');
         const profitEl = document.getElementById('drawer-profit');
         const marginVal = product.statusVisual?.unitMargin || 0;
 
-        marginEl.innerText = `${marginVal}%`;
-        profitEl.innerText = formatCurrency(totalProfit);
+        if (marginEl) marginEl.innerText = `${marginVal}%`;
+        if (profitEl) profitEl.innerText = formatCurrency(totalProfit);
 
-        if (product.statusVisual?.isLossAlert) {
-            marginEl.className = 'text-xs font-bold text-rose-600 dark:text-rose-400';
-            profitEl.className = 'text-xs font-bold text-rose-600 dark:text-rose-400';
-            document.getElementById('drawer-loss-banner').classList.remove('hidden');
-        } else {
-            marginEl.className = 'text-xs font-bold text-emerald-600 dark:text-emerald-400';
-            profitEl.className = 'text-xs font-bold text-emerald-600 dark:text-emerald-400';
-            document.getElementById('drawer-loss-banner').classList.add('hidden');
+        const statusTagEl = document.getElementById('drawer-status-tag');
+        if (statusTagEl) {
+            statusTagEl.innerText = product.statusVisual?.statusTag || 'Normal';
         }
 
-        detailsDrawer.classList.remove('translate-x-full');
+        const lossBanner = document.getElementById('drawer-loss-banner');
+        if (lossBanner) {
+            if (product.statusVisual?.isLossAlert) {
+                if (marginEl) marginEl.className = 'font-bold text-xs text-rose-600 dark:text-rose-400 mt-0.5';
+                if (profitEl) profitEl.className = 'font-bold text-xs text-rose-600 dark:text-rose-400 mt-0.5';
+                lossBanner.classList.remove('hidden');
+            } else {
+                if (marginEl) marginEl.className = 'font-bold text-xs text-slate-800 dark:text-slate-100 mt-0.5';
+                if (profitEl) profitEl.className = 'font-bold text-xs text-emerald-600 dark:text-emerald-400 mt-0.5';
+                lossBanner.classList.add('hidden');
+            }
+        }
+
+        detailsDrawer.classList.remove('hidden');
+        detailsDrawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     };
 
     window.closeProductDetails = () => {
-        if (detailsDrawer) detailsDrawer.classList.add('translate-x-full');
+        if (detailsDrawer) detailsDrawer.classList.add('hidden');
     };
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closeProductDetails();
-            toggleModal(createModal, false);
-            toggleModal(editModal, false);
-            toggleModal(nfeModal, false);
-            toggleModal(barcodeModal, false);
-        }
-    });
 
     // =========================================================================
-    // 3. MODAIS TAILWIND (CADASTRO, EDIÇÃO, SCANNER E NF-E)
+    // 5. FORMULÁRIO DE CADASTRO DE NOVO INSUMO
     // =========================================================================
-    const toggleModal = (modalEl, show) => {
-        if (!modalEl) return;
-        if (show) {
-            modalEl.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                modalEl.classList.remove('opacity-0');
-                modalEl.classList.add('opacity-100');
-                const inner = modalEl.querySelector('.modal-content-box') || modalEl.querySelector('div');
-                inner?.classList.remove('scale-95');
-                inner?.classList.add('scale-100');
-            });
-        } else {
-            modalEl.classList.remove('opacity-100');
-            modalEl.classList.add('opacity-0');
-            const inner = modalEl.querySelector('.modal-content-box') || modalEl.querySelector('div');
-            inner?.classList.remove('scale-100');
-            inner?.classList.add('scale-95');
-            setTimeout(() => modalEl.classList.add('hidden'), 200);
-        }
-    };
-
-    window.openCreateModal = () => toggleModal(createModal, true);
-    window.closeCreateModal = () => toggleModal(createModal, false);
-    window.closeEditModal = () => toggleModal(editModal, false);
-    window.openNfeModal = () => toggleModal(nfeModal, true);
-    window.closeNfeModal = () => toggleModal(nfeModal, false);
-    window.openBarcodeModal = () => toggleModal(barcodeModal, true);
-    window.closeBarcodeModal = () => {
-        toggleModal(barcodeModal, false);
-        if (typeof Quagga !== 'undefined') {
-            try { Quagga.stop(); } catch(e){}
-        }
-    };
-
-    // Validação reativa de Alerta de Prejuízo no formulário de Cadastro
     const createCostInput = document.getElementById('acquisitionCost');
     const createPriceInput = document.getElementById('sellingPrice');
     const createLossAlert = document.getElementById('create-loss-alert');
@@ -412,7 +457,72 @@ document.addEventListener('DOMContentLoaded', () => {
     createCostInput?.addEventListener('input', checkCreateMargin);
     createPriceInput?.addEventListener('input', checkCreateMargin);
 
-    // Validação reativa de Alerta de Prejuízo no formulário de Edição
+    const isIndetCheckbox = document.getElementById('isIndeterminateExpiration');
+    const expContainer = document.getElementById('expiration-container');
+    const expDateInput = document.getElementById('expirationDate');
+
+    isIndetCheckbox?.addEventListener('change', () => {
+        if (isIndetCheckbox.checked) {
+            expContainer?.classList.add('hidden');
+            if (expDateInput) expDateInput.value = '';
+        } else {
+            expContainer?.classList.remove('hidden');
+        }
+    });
+
+    const productForm = document.getElementById('product-form');
+    productForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const cost = parseFloat(createCostInput?.value || 0);
+        const price = parseFloat(createPriceInput?.value || 0);
+        const minStock = parseInt(document.getElementById('minimumStock')?.value, 10) || 0;
+        const maxStock = parseInt(document.getElementById('maximumStock')?.value, 10) || 0;
+
+        if (minStock > maxStock) {
+            ui.toast('Atenção: O estoque mínimo não pode ser maior que o estoque máximo!', 'warning');
+            return;
+        }
+
+        const expVal = expDateInput?.value?.trim();
+        const expirationDate = (isIndetCheckbox?.checked || !expVal) ? null : expVal;
+
+        const payload = {
+            name: document.getElementById('name')?.value?.trim() || '',
+            category: document.getElementById('category')?.value?.trim() || 'Geral',
+            barcode: document.getElementById('barcode')?.value?.trim() || '',
+            supplier: document.getElementById('supplier')?.value?.trim() || 'Não Definido',
+            acquisitionCost: cost,
+            sellingPrice: price,
+            quantityInStock: parseInt(document.getElementById('quantityInStock')?.value, 10) || 0,
+            minimumStock: minStock,
+            maximumStock: maxStock,
+            isIndeterminateExpiration: Boolean(isIndetCheckbox?.checked),
+            expirationDate: expirationDate,
+            location: {
+                sector: document.getElementById('sector')?.value?.trim().toUpperCase() || 'A',
+                row: document.getElementById('row')?.value?.trim() || '01',
+                building: document.getElementById('building')?.value?.trim() || '01',
+                floor: document.getElementById('floor')?.value?.trim() || '01',
+                apartment: document.getElementById('apartment')?.value?.trim() || 'A'
+            }
+        };
+
+        try {
+            const res = await StockAPI.createProduct(payload);
+            ui.toast(res.message || 'Insumo cadastrado com sucesso!', 'success');
+            window.closeCreateModal();
+            productForm.reset();
+            if (createLossAlert) createLossAlert.classList.add('hidden');
+            await loadInventory();
+        } catch (err) {
+            ui.toast(err.message || 'Erro ao cadastrar material.', 'danger');
+        }
+    });
+
+    // =========================================================================
+    // 6. FORMULÁRIO DE EDIÇÃO DE INSUMO
+    // =========================================================================
     const editCostInput = document.getElementById('edit-acquisitionCost');
     const editPriceInput = document.getElementById('edit-sellingPrice');
     const editLossAlert = document.getElementById('edit-loss-alert');
@@ -432,154 +542,112 @@ document.addEventListener('DOMContentLoaded', () => {
     editCostInput?.addEventListener('input', checkEditMargin);
     editPriceInput?.addEventListener('input', checkEditMargin);
 
-    // Toggle Validade no Cadastro
-    const isIndetCheckbox = document.getElementById('isIndeterminateExpiration');
-    const expContainer = document.getElementById('expiration-container');
-    const expDateInput = document.getElementById('expirationDate');
+    const editIndetCheckbox = document.getElementById('edit-isIndeterminateExpiration');
+    const editExpContainer = document.getElementById('edit-expiration-container');
+    const editExpDateInput = document.getElementById('edit-expirationDate');
 
-    isIndetCheckbox?.addEventListener('change', () => {
-        if (isIndetCheckbox.checked) {
-            expContainer.classList.add('hidden');
-            if (expDateInput) expDateInput.value = '';
+    editIndetCheckbox?.addEventListener('change', () => {
+        if (editIndetCheckbox.checked) {
+            editExpContainer?.classList.add('hidden');
+            if (editExpDateInput) editExpDateInput.value = '';
         } else {
-            expContainer.classList.remove('hidden');
+            editExpContainer?.classList.remove('hidden');
         }
     });
 
-    // Submissão do Cadastro de Produto
-    const productForm = document.getElementById('product-form');
-    productForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const cost = parseFloat(createCostInput.value);
-        const price = parseFloat(createPriceInput.value);
-        const minStock = parseInt(document.getElementById('minimumStock').value, 10);
-        const maxStock = parseInt(document.getElementById('maximumStock').value, 10);
-
-        if (minStock > maxStock) {
-            ui.toast('Atenção: O estoque mínimo não pode ser maior que o estoque máximo!', 'warning');
-            return;
-        }
-
-        const payload = {
-            name: document.getElementById('name').value.trim(),
-            category: document.getElementById('category').value.trim(),
-            barcode: document.getElementById('barcode').value.trim(),
-            acquisitionCost: cost,
-            sellingPrice: price,
-            quantityInStock: parseInt(document.getElementById('quantityInStock').value, 10),
-            minimumStock: minStock,
-            maximumStock: maxStock,
-            isIndeterminateExpiration: isIndetCheckbox.checked,
-            expirationDate: isIndetCheckbox.checked ? null : expDateInput.value,
-            location: {
-                sector: document.getElementById('sector').value.trim().toUpperCase(),
-                row: document.getElementById('row').value.trim(),
-                building: document.getElementById('building').value.trim(),
-                floor: document.getElementById('floor').value.trim(),
-                apartment: document.getElementById('apartment').value.trim()
-            }
-        };
-
-        try {
-            const res = await StockAPI.createProduct(payload);
-            ui.toast(res.message || 'Insumo cadastrado com sucesso!', 'success');
-            toggleModal(createModal, false);
-            productForm.reset();
-            loadInventory();
-        } catch (err) {
-            ui.toast(err.message || 'Erro ao cadastrar material.', 'danger');
-        }
-    });
-
-    // Abrir Modal de Edição
     window.openEditModal = (id) => {
         const prod = localProductsCache.find(p => p._id === id);
         if (!prod) return;
 
-        document.getElementById('edit-id').value = prod._id;
-        document.getElementById('edit-name').value = prod.name;
-        document.getElementById('edit-category').value = prod.category || '';
-        document.getElementById('edit-acquisitionCost').value = prod.acquisitionCost ?? 0;
-        document.getElementById('edit-sellingPrice').value = prod.sellingPrice ?? 0;
-        document.getElementById('edit-quantity').value = prod.quantityInStock ?? 0;
-        document.getElementById('edit-minimumStock').value = prod.minimumStock ?? 0;
-        document.getElementById('edit-maximumStock').value = prod.maximumStock ?? 0;
-        document.getElementById('edit-supplier').value = prod.supplier || '';
-        document.getElementById('edit-barcode').value = prod.barcode || '';
+        const setVal = (elemId, val) => {
+            const el = document.getElementById(elemId);
+            if (el) el.value = val ?? '';
+        };
 
-        const editIndet = document.getElementById('edit-isIndeterminateExpiration');
-        const editExpContainer = document.getElementById('edit-expiration-container');
-        const editExpDate = document.getElementById('edit-expirationDate');
+        setVal('edit-id', prod._id);
+        setVal('edit-name', prod.name);
+        setVal('edit-category', prod.category || '');
+        setVal('edit-acquisitionCost', prod.acquisitionCost ?? 0);
+        setVal('edit-sellingPrice', prod.sellingPrice ?? 0);
+        setVal('edit-quantity', prod.quantityInStock ?? 0);
+        setVal('edit-minimumStock', prod.minimumStock ?? 0);
+        setVal('edit-maximumStock', prod.maximumStock ?? 0);
+        setVal('edit-supplier', prod.supplier || '');
+        setVal('edit-barcode', prod.barcode || '');
 
-        editIndet.checked = Boolean(prod.isIndeterminateExpiration);
-        if (editIndet.checked) {
-            editExpContainer.classList.add('hidden');
-            editExpDate.value = '';
-        } else {
-            editExpContainer.classList.remove('hidden');
-            editExpDate.value = prod.expirationDate ? new Date(prod.expirationDate).toISOString().slice(0, 10) : '';
+        if (editIndetCheckbox) {
+            editIndetCheckbox.checked = Boolean(prod.isIndeterminateExpiration);
+            if (editIndetCheckbox.checked) {
+                editExpContainer?.classList.add('hidden');
+                if (editExpDateInput) editExpDateInput.value = '';
+            } else {
+                editExpContainer?.classList.remove('hidden');
+                if (editExpDateInput) {
+                    editExpDateInput.value = prod.expirationDate ? new Date(prod.expirationDate).toISOString().slice(0, 10) : '';
+                }
+            }
         }
 
         const loc = prod.location || {};
-        document.getElementById('edit-sector').value = loc.sector || '';
-        document.getElementById('edit-row').value = loc.row || '';
-        document.getElementById('edit-building').value = loc.building || '';
-        document.getElementById('edit-floor').value = loc.floor || '';
-        document.getElementById('edit-apartment').value = loc.apartment || '';
+        setVal('edit-sector', loc.sector || '');
+        setVal('edit-row', loc.row || '');
+        setVal('edit-building', loc.building || '');
+        setVal('edit-floor', loc.floor || '');
+        setVal('edit-apartment', loc.apartment || '');
 
         checkEditMargin();
-        toggleModal(editModal, true);
+        window.openEditModalWindow();
     };
 
-    // Submissão da Edição de Produto
     const editForm = document.getElementById('edit-product-form');
     editForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const id = document.getElementById('edit-id').value;
-        const minStock = parseInt(document.getElementById('edit-minimumStock').value, 10);
-        const maxStock = parseInt(document.getElementById('edit-maximumStock').value, 10);
+        const id = document.getElementById('edit-id')?.value;
+        const minStock = parseInt(document.getElementById('edit-minimumStock')?.value, 10) || 0;
+        const maxStock = parseInt(document.getElementById('edit-maximumStock')?.value, 10) || 0;
 
         if (minStock > maxStock) {
             ui.toast('Atenção: O estoque mínimo não pode ser maior que o estoque máximo!', 'warning');
             return;
         }
 
-        const editIndet = document.getElementById('edit-isIndeterminateExpiration');
-        const editExpDate = document.getElementById('edit-expirationDate');
+        const editExpVal = editExpDateInput?.value?.trim();
+        const expirationDate = (editIndetCheckbox?.checked || !editExpVal) ? null : editExpVal;
 
         const payload = {
-            name: document.getElementById('edit-name').value.trim(),
-            category: document.getElementById('edit-category').value.trim(),
-            acquisitionCost: parseFloat(document.getElementById('edit-acquisitionCost').value),
-            sellingPrice: parseFloat(document.getElementById('edit-sellingPrice').value),
-            quantityInStock: parseInt(document.getElementById('edit-quantity').value, 10),
+            name: document.getElementById('edit-name')?.value?.trim() || '',
+            category: document.getElementById('edit-category')?.value?.trim() || 'Geral',
+            acquisitionCost: parseFloat(document.getElementById('edit-acquisitionCost')?.value || 0),
+            sellingPrice: parseFloat(document.getElementById('edit-sellingPrice')?.value || 0),
+            quantityInStock: parseInt(document.getElementById('edit-quantity')?.value, 10) || 0,
             minimumStock: minStock,
             maximumStock: maxStock,
-            supplier: document.getElementById('edit-supplier').value.trim(),
-            barcode: document.getElementById('edit-barcode').value.trim(),
-            isIndeterminateExpiration: editIndet.checked,
-            expirationDate: editIndet.checked ? null : editExpDate.value,
+            supplier: document.getElementById('edit-supplier')?.value?.trim() || 'Não Definido',
+            barcode: document.getElementById('edit-barcode')?.value?.trim() || '',
+            isIndeterminateExpiration: Boolean(editIndetCheckbox?.checked),
+            expirationDate: expirationDate,
             location: {
-                sector: document.getElementById('edit-sector').value.trim().toUpperCase(),
-                row: document.getElementById('edit-row').value.trim(),
-                building: document.getElementById('edit-building').value.trim(),
-                floor: document.getElementById('edit-floor').value.trim(),
-                apartment: document.getElementById('edit-apartment').value.trim()
+                sector: document.getElementById('edit-sector')?.value?.trim().toUpperCase() || 'A',
+                row: document.getElementById('edit-row')?.value?.trim() || '01',
+                building: document.getElementById('edit-building')?.value?.trim() || '01',
+                floor: document.getElementById('edit-floor')?.value?.trim() || '01',
+                apartment: document.getElementById('edit-apartment')?.value?.trim() || 'A'
             }
         };
 
         try {
             const res = await StockAPI.updateProduct(id, payload);
             ui.toast(res.message || 'Insumo atualizado com sucesso!', 'success');
-            toggleModal(editModal, false);
-            loadInventory();
+            window.closeEditModal();
+            await loadInventory();
         } catch (err) {
             ui.toast(err.message || 'Erro ao atualizar insumo.', 'danger');
         }
     });
 
-    // Exclusão Segura de Produto com Modal Moderno
+    // =========================================================================
+    // 7. EXCLUSÃO SEGURA DE INSUMO
+    // =========================================================================
     window.deleteProduct = async (id, name) => {
         const confirmed = await ui.confirm({
             title: 'Excluir Insumo',
@@ -593,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 await StockAPI.deleteProduct(id);
                 ui.toast(`Material "${name}" removido com sucesso.`, 'success');
-                loadInventory();
+                await loadInventory();
             } catch (err) {
                 ui.toast(err.message || 'Falha ao remover material.', 'danger');
             }
@@ -601,78 +669,220 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // =========================================================================
-    // 4. INGESTÃO DE NF-E (XML DRAG & DROP E FILE INPUT)
+    // 8. INGESTÃO DE NF-E (XML DRAG & DROP E FILE INPUT)
     // =========================================================================
-    const xmlFileInput = document.getElementById('xml-file-input');
-    const xmlDropZone = document.getElementById('xml-drop-zone');
-    const xmlContentArea = document.getElementById('xml-content-area');
-    const nfeForm = document.getElementById('nfe-form');
+    const nfeDropzone = document.getElementById('nfe-dropzone');
+    const nfeFileInput = document.getElementById('nfe-file-input');
+    const nfePreviewContainer = document.getElementById('nfe-preview-table-container');
+    const nfeItemsCountBadge = document.getElementById('nfe-items-count');
+    const nfePreviewTbody = document.getElementById('nfe-preview-tbody');
+    const btnConfirmNfe = document.getElementById('btn-confirm-nfe-import');
 
-    const handleXmlFile = (file) => {
-        if (!file || !file.name.endsWith('.xml')) {
-            ui.toast('Por favor, selecione um arquivo válido com extensão .xml (NF-e).', 'warning');
+    const processNfeFile = (file) => {
+        if (!file || !file.name.toLowerCase().endsWith('.xml')) {
+            ui.toast('Por favor, selecione um arquivo XML válido da NF-e.', 'warning');
             return;
         }
 
         const reader = new FileReader();
         reader.onload = (e) => {
-            if (xmlContentArea) {
-                xmlContentArea.value = e.target.result;
-                ui.toast(`Arquivo "${file.name}" carregado com sucesso (${(file.size / 1024).toFixed(1)} KB).`, 'info');
+            const xmlText = e.target.result;
+            loadedNfeXmlData = xmlText;
+
+            try {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                const detElements = xmlDoc.getElementsByTagName('det');
+                
+                if (detElements.length === 0) {
+                    ui.toast('Nenhum item localizado na estrutura do XML da NF-e.', 'warning');
+                    return;
+                }
+
+                if (nfePreviewTbody) nfePreviewTbody.innerHTML = '';
+                let totalItemsCount = 0;
+
+                Array.from(detElements).forEach(det => {
+                    const prod = det.getElementsByTagName('prod')[0];
+                    if (!prod) return;
+                    totalItemsCount++;
+
+                    const xProd = prod.getElementsByTagName('xProd')[0]?.textContent || 'Item sem descrição';
+                    const qCom = parseFloat(prod.getElementsByTagName('qCom')[0]?.textContent || '0');
+                    const vUnCom = parseFloat(prod.getElementsByTagName('vUnCom')[0]?.textContent || '0');
+                    const vProd = parseFloat(prod.getElementsByTagName('vProd')[0]?.textContent || '0');
+
+                    if (nfePreviewTbody) {
+                        const tr = document.createElement('tr');
+                        tr.className = 'border-b border-slate-100 dark:border-slate-800 text-[11px]';
+                        tr.innerHTML = `
+                            <td class="p-2 font-medium text-slate-800 dark:text-slate-200">${xProd}</td>
+                            <td class="p-2 font-bold">${qCom} un</td>
+                            <td class="p-2">${formatCurrency(vUnCom)}</td>
+                            <td class="p-2 font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(vProd)}</td>
+                        `;
+                        nfePreviewTbody.appendChild(tr);
+                    }
+                });
+
+                if (nfeItemsCountBadge) nfeItemsCountBadge.innerText = `${totalItemsCount} itens localizados`;
+                if (nfePreviewContainer) nfePreviewContainer.classList.remove('hidden');
+                if (btnConfirmNfe) btnConfirmNfe.disabled = false;
+
+                ui.toast(`XML "${file.name}" carregado com sucesso (${totalItemsCount} materiais detectados).`, 'info');
+            } catch (err) {
+                ui.toast('Erro ao analisar arquivo XML: ' + err.message, 'danger');
             }
         };
         reader.readAsText(file);
     };
 
-    xmlFileInput?.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) handleXmlFile(e.target.files[0]);
-    });
+    if (nfeDropzone && nfeFileInput) {
+        nfeDropzone.addEventListener('click', () => nfeFileInput.click());
 
-    if (xmlDropZone) {
         ['dragenter', 'dragover'].forEach(evt => {
-            xmlDropZone.addEventListener(evt, (e) => {
+            nfeDropzone.addEventListener(evt, (e) => {
                 e.preventDefault();
-                xmlDropZone.classList.add('border-primary-500', 'bg-primary-50/50');
+                nfeDropzone.classList.add('border-primary-500', 'bg-indigo-50/80');
             });
         });
+
         ['dragleave', 'drop'].forEach(evt => {
-            xmlDropZone.addEventListener(evt, (e) => {
+            nfeDropzone.addEventListener(evt, (e) => {
                 e.preventDefault();
-                xmlDropZone.classList.remove('border-primary-500', 'bg-primary-50/50');
+                nfeDropzone.classList.remove('border-primary-500', 'bg-indigo-50/80');
             });
         });
-        xmlDropZone.addEventListener('drop', (e) => {
-            if (e.dataTransfer.files.length > 0) handleXmlFile(e.dataTransfer.files[0]);
+
+        nfeDropzone.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                processNfeFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        nfeFileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                processNfeFile(e.target.files[0]);
+            }
         });
     }
 
-    nfeForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const xmlData = xmlContentArea?.value.trim();
-        if (!xmlData) {
-            ui.toast('O conteúdo do arquivo XML não pode estar vazio.', 'warning');
+    btnConfirmNfe?.addEventListener('click', async () => {
+        if (!loadedNfeXmlData) {
+            ui.toast('Nenhum arquivo XML carregado para importação.', 'warning');
             return;
         }
 
         try {
-            const submitBtn = document.getElementById('nfe-submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="inline-block animate-spin mr-2">⟳</span> Processando NF-e...';
+            btnConfirmNfe.disabled = true;
+            btnConfirmNfe.innerHTML = '<span class="inline-block animate-spin mr-2">⟳</span> Importando...';
 
-            const res = await StockAPI.importInvoiceXml(xmlData);
-            ui.toast(res.message || 'Nota Fiscal processada com sucesso!', 'success', 6000);
-            toggleModal(nfeModal, false);
-            if (xmlContentArea) xmlContentArea.value = '';
-            loadInventory();
+            const res = await StockAPI.importInvoiceXml(loadedNfeXmlData);
+            ui.toast(res.message || 'Lotes importados para o estoque com sucesso!', 'success');
+            window.closeNfeModal();
+            loadedNfeXmlData = null;
+            if (nfePreviewContainer) nfePreviewContainer.classList.add('hidden');
+            if (nfePreviewTbody) nfePreviewTbody.innerHTML = '';
+            if (nfeFileInput) nfeFileInput.value = '';
+            await loadInventory();
         } catch (err) {
-            ui.toast(err.message || 'Falha ao processar arquivo XML da NF-e.', 'danger');
+            ui.toast(err.message || 'Falha ao importar insumos via NF-e.', 'danger');
         } finally {
-            const submitBtn = document.getElementById('nfe-submit-btn');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span>Processar Ingestão de Lotes</span>';
+            if (btnConfirmNfe) {
+                btnConfirmNfe.disabled = false;
+                btnConfirmNfe.innerHTML = 'Importar Itens para Estoque';
+            }
         }
     });
 
-    // Inicia carregamento dos produtos
+    // =========================================================================
+    // 9. LEITOR DE CÓDIGO DE BARRAS (WEBCAM & SCANNER FÍSICO)
+    // =========================================================================
+    const cameraTab = document.getElementById('camera-tab');
+    const deviceTab = document.getElementById('device-tab');
+    const cameraPane = document.getElementById('camera-pane');
+    const devicePane = document.getElementById('device-pane');
+    const cameraStatus = document.getElementById('camera-status');
+    const scannerDeviceInput = document.getElementById('scanner-device-input');
+
+    const handleScannedBarcode = (code) => {
+        window.closeBarcodeModal();
+        const found = localProductsCache.find(p => p.barcode === code || p.sku === code);
+        if (found) {
+            ui.toast(`Insumo "${found.name}" localizado pelo código de barras!`, 'success');
+            window.viewProductDetails(found._id);
+        } else {
+            ui.toast(`Código de barras "${code}" não associado a nenhum insumo cadastrado.`, 'warning');
+            if (searchNameInput) {
+                searchNameInput.value = code;
+                applyFilters();
+            }
+        }
+    };
+
+    const startCameraScanner = () => {
+        if (typeof Quagga === 'undefined') {
+            if (cameraStatus) cameraStatus.innerText = 'Biblioteca Quagga indisponível. Utilize a aba "Scanner Físico".';
+            return;
+        }
+
+        Quagga.init({
+            inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: document.querySelector('#interactive')
+            },
+            decoder: {
+                readers: ["ean_reader", "ean_8_reader", "code_128_reader"]
+            }
+        }, (err) => {
+            if (err) {
+                if (cameraStatus) cameraStatus.innerText = 'Câmera não autorizada ou indisponível. Use a aba "Scanner Físico".';
+                return;
+            }
+            if (cameraStatus) cameraStatus.innerText = 'Câmera ativa. Aponte para o código de barras...';
+            Quagga.start();
+        });
+
+        Quagga.onDetected((result) => {
+            const code = result?.codeResult?.code;
+            if (code) {
+                Quagga.stop();
+                handleScannedBarcode(code);
+            }
+        });
+    };
+
+    cameraTab?.addEventListener('click', () => {
+        cameraTab.className = 'px-4 py-2 text-xs font-bold border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 transition';
+        deviceTab.className = 'px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 transition';
+        cameraPane?.classList.remove('hidden');
+        devicePane?.classList.add('hidden');
+        startCameraScanner();
+    });
+
+    deviceTab?.addEventListener('click', () => {
+        deviceTab.className = 'px-4 py-2 text-xs font-bold border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 transition';
+        cameraTab.className = 'px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 transition';
+        devicePane?.classList.remove('hidden');
+        cameraPane?.classList.add('hidden');
+        if (typeof Quagga !== 'undefined') {
+            try { Quagga.stop(); } catch (e) {}
+        }
+        setTimeout(() => scannerDeviceInput?.focus(), 100);
+    });
+
+    scannerDeviceInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const code = scannerDeviceInput.value.trim();
+            if (code) {
+                handleScannedBarcode(code);
+                scannerDeviceInput.value = '';
+            }
+        }
+    });
+
+    // Inicia carregamento do inventário
     loadInventory();
 });
