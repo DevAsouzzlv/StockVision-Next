@@ -113,11 +113,15 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button id="theme-toggle" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition" aria-label="Alternar tema">
+                <button id="theme-toggle" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shadow-sm" aria-label="Alternar tema">
                     <i class="bi bi-moon-stars-fill"></i>
                 </button>
+                <button id="btn-header-logout" class="btn-logout inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-900/60 transition shadow-sm" title="Encerrar Sessão">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="hidden sm:inline">Sair</span>
+                </button>
                 <div class="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700">
-                    <div id="topbar-avatar" class="w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-xs flex items-center justify-center shadow">
+                    <div id="topbar-avatar" class="w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-xs flex items-center justify-center shadow overflow-hidden">
                         SV
                     </div>
                     <span id="topbar-user-name" class="text-xs font-semibold text-slate-700 dark:text-slate-200 hidden sm:inline">
@@ -133,7 +137,7 @@
             <!-- Card de Cabeçalho do Usuário -->
             <section class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700/80 flex flex-col sm:flex-row items-center gap-6">
                 <div class="relative">
-                    <div id="profile-avatar-large" class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-primary-600 to-primary-400 text-white text-2xl font-black flex items-center justify-center shadow-md">
+                    <div id="profile-avatar-large" class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-primary-600 to-primary-400 text-white text-2xl font-black flex items-center justify-center shadow-md overflow-hidden">
                         SV
                     </div>
                 </div>
@@ -155,7 +159,7 @@
             <!-- Seletor de Abas -->
             <div class="flex border-b border-slate-200 dark:border-slate-700 gap-2">
                 <button type="button" class="tab-btn active px-4 py-3 text-xs font-bold border-b-2 border-primary-600 text-primary-600 dark:text-primary-400 flex items-center gap-2" data-tab="tab-personal">
-                    <i class="bi bi-person"></i> Dados Pessoais
+                    <i class="bi bi-person"></i> Dados Pessoais & Senha
                 </button>
                 <button type="button" class="tab-btn px-4 py-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-2" data-tab="tab-company">
                     <i class="bi bi-building"></i> Organização & Empresa
@@ -167,10 +171,10 @@
 
             <!-- Formulário Geral -->
             <form id="profile-form">
-                <!-- Aba 1: Dados Pessoais -->
+                <!-- Aba 1: Dados Pessoais & Senha -->
                 <div id="tab-personal" class="tab-pane space-y-4">
-                    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700/80 space-y-4">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3">Informações de Contato e Cargo</h3>
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700/80 space-y-5">
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Informações de Contato e Cargo</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label for="fullname" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nome Completo</label>
@@ -178,7 +182,10 @@
                             </div>
                             <div>
                                 <label for="email" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">E-mail Corporativo (Chave de Acesso)</label>
-                                <input type="email" id="email" disabled class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-500 text-sm cursor-not-allowed">
+                                <div class="relative">
+                                    <input type="email" id="email" disabled class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-500 text-sm cursor-not-allowed">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">Verificado</span>
+                                </div>
                             </div>
                         </div>
 
@@ -194,8 +201,54 @@
                         </div>
 
                         <div>
-                            <label for="avatarUrl" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">URL da Foto de Perfil (Opcional)</label>
-                            <input type="url" id="avatarUrl" placeholder="https://exemplo.com/minha-foto.jpg" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <label for="avatarUrl" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Foto de Perfil (URL da Imagem)</label>
+                            <div class="flex gap-2">
+                                <input type="url" id="avatarUrl" placeholder="https://exemplo.com/minha-foto.jpg" class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                <button type="button" id="btn-preview-avatar" class="px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold transition" title="Testar visualização da foto">
+                                    <i class="bi bi-image"></i> Prévia
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Seção de Segurança: Alteração de Senha -->
+                        <div class="mt-6 pt-5 border-t border-slate-100 dark:border-slate-700/60">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <i class="bi bi-shield-lock-fill text-primary-500"></i>
+                                <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Segurança e Alteração de Senha</h4>
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-4">
+                                Para alterar sua senha de acesso, informe a senha atual e a nova combinação desejada. Caso queira manter a senha inalterada, deixe estes campos vazios.
+                            </p>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="currentPassword" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Senha Atual</label>
+                                    <div class="relative">
+                                        <input type="password" id="currentPassword" placeholder="Sua senha atual" class="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                        <button type="button" class="btn-toggle-pass absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" data-target="currentPassword">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="newPassword" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nova Senha</label>
+                                    <div class="relative">
+                                        <input type="password" id="newPassword" minlength="6" placeholder="Mínimo 6 dígitos" class="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                        <button type="button" class="btn-toggle-pass absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" data-target="newPassword">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="confirmPassword" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Confirmar Nova Senha</label>
+                                    <div class="relative">
+                                        <input type="password" id="confirmPassword" minlength="6" placeholder="Repita a nova senha" class="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                        <button type="button" class="btn-toggle-pass absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" data-target="confirmPassword">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -342,17 +395,27 @@
                 ui.toast('Falha ao carregar dados do perfil: ' + err.message, 'danger');
             }
 
+            function setAvatarDisplay(el, url, initials) {
+                if (!el) return;
+                if (url && url.trim() !== '') {
+                    el.innerHTML = `<img src="${url}" alt="Foto de Perfil" class="w-full h-full object-cover rounded-2xl" onerror="this.parentElement.innerText='${initials}'">`;
+                } else {
+                    el.innerText = initials;
+                }
+            }
+
             function populateProfileUI(user) {
                 if (!user) return;
 
                 // Header
-                const initials = user.fullname.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-                document.getElementById('profile-avatar-large').innerText = initials;
-                document.getElementById('topbar-avatar').innerText = initials;
-                document.getElementById('topbar-user-name').innerText = user.fullname;
-                document.getElementById('profile-fullname-header').innerText = user.fullname;
-                document.getElementById('profile-email-header').innerText = user.email;
-                document.getElementById('profile-company-header').innerText = user.company;
+                const initials = (user.fullname || 'SV').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+                setAvatarDisplay(document.getElementById('profile-avatar-large'), user.avatarUrl, initials);
+                setAvatarDisplay(document.getElementById('topbar-avatar'), user.avatarUrl, initials);
+
+                document.getElementById('topbar-user-name').innerText = user.fullname || 'Usuário';
+                document.getElementById('profile-fullname-header').innerText = user.fullname || 'Usuário';
+                document.getElementById('profile-email-header').innerText = user.email || '';
+                document.getElementById('profile-company-header').innerText = user.company || 'Empresa';
                 document.getElementById('profile-jobtitle-header').innerText = user.jobTitle || 'Colaborador';
 
                 const roleBadge = document.getElementById('user-role-badge');
@@ -403,6 +466,31 @@
                 document.getElementById('pref-density').value = user.preferences?.tableDensity || 'comfortable';
             }
 
+            // Preview dinâmico da Foto de Perfil
+            const avatarUrlInput = document.getElementById('avatarUrl');
+            const previewBtn = document.getElementById('btn-preview-avatar');
+
+            const updatePhotoPreview = () => {
+                const url = avatarUrlInput.value.trim();
+                const initials = (document.getElementById('fullname').value || 'SV').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+                setAvatarDisplay(document.getElementById('profile-avatar-large'), url, initials);
+            };
+
+            if (previewBtn) previewBtn.addEventListener('click', updatePhotoPreview);
+            if (avatarUrlInput) avatarUrlInput.addEventListener('blur', updatePhotoPreview);
+
+            // Toggle de visualização de senhas (mostrar / ocultar)
+            document.querySelectorAll('.btn-toggle-pass').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if (!input) return;
+                    const isPassword = input.type === 'password';
+                    input.type = isPassword ? 'text' : 'password';
+                    btn.innerHTML = isPassword ? '<i class="bi bi-eye-slash text-primary-500"></i>' : '<i class="bi bi-eye"></i>';
+                });
+            });
+
             // Submissão do Formulário de Perfil
             const form = document.getElementById('profile-form');
             const saveBtn = document.getElementById('save-profile-btn');
@@ -411,6 +499,28 @@
                 e.preventDefault();
 
                 const selectedTheme = document.querySelector('input[name="pref-theme"]:checked')?.value || 'system';
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                // Validações de Troca de Senha
+                if (newPassword || currentPassword || confirmPassword) {
+                    if (!currentPassword) {
+                        ui.toast('Para alterar a senha, digite sua senha atual.', 'warning');
+                        document.getElementById('currentPassword').focus();
+                        return;
+                    }
+                    if (newPassword.length < 6) {
+                        ui.toast('A nova senha deve ter no mínimo 6 caracteres.', 'warning');
+                        document.getElementById('newPassword').focus();
+                        return;
+                    }
+                    if (newPassword !== confirmPassword) {
+                        ui.toast('A confirmação da nova senha não confere.', 'warning');
+                        document.getElementById('confirmPassword').focus();
+                        return;
+                    }
+                }
 
                 const payload = {
                     fullname: document.getElementById('fullname').value.trim(),
@@ -424,6 +534,11 @@
                         tableDensity: document.getElementById('pref-density').value
                     }
                 };
+
+                if (newPassword) {
+                    payload.currentPassword = currentPassword;
+                    payload.newPassword = newPassword;
+                }
 
                 if (currentUser && currentUser.isAdmin) {
                     payload.companyDetails = {
@@ -440,6 +555,11 @@
                     const res = await AuthAPI.updateProfile(payload);
                     ui.toast(res.message || 'Perfil atualizado com sucesso!', 'success');
 
+                    // Limpa os campos de senha
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+
                     // Aplica tema se alterado
                     if (selectedTheme === 'dark') {
                         document.documentElement.classList.add('dark');
@@ -451,6 +571,9 @@
 
                     currentUser = res.user;
                     populateProfileUI(currentUser);
+                    if (window.SidebarManager && window.SidebarManager.refreshProfile) {
+                        window.SidebarManager.refreshProfile();
+                    }
                 } catch (err) {
                     ui.toast(err.message || 'Erro ao salvar perfil.', 'danger');
                 } finally {

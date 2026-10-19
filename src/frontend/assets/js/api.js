@@ -10,6 +10,9 @@ const BASE_URL = window.location.protocol === 'file:' ? FALLBACK_BASE_URL : `${w
 // const BASE_URL = 'http://localhost:3000/api';
 
 const safeJsonResponse = async (response) => {
+    if (response.status === 401) {
+        window.dispatchEvent(new CustomEvent('sv:unauthorized'));
+    }
     const text = await response.text();
     return text ? JSON.parse(text) : {};
 };

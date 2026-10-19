@@ -65,6 +65,47 @@ test('Suíte de Testes de Integração da API StockVision', async (t) => {
         assert.equal(updateRes.status, 200);
         const updated = await updateRes.json();
         assert.equal(updated.user.jobTitle, 'Arquiteto Chefe de Supply Chain');
+
+        // Validação de alteração de senha: senha atual incorreta deve falhar
+        const wrongPassRes = await fetch(`${BASE_URL}/auth/profile`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                currentPassword: 'senha-errada-123',
+                newPassword: 'novaSenhaSegura456'
+            })
+        });
+        assert.equal(wrongPassRes.status, 400);
+
+        // Alteração com senha atual correta
+        const changePassRes = await fetch(`${BASE_URL}/auth/profile`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                currentPassword: 'admin123',
+                newPassword: 'novaSenhaSegura456'
+            })
+        });
+        assert.equal(changePassRes.status, 200);
+
+        // Login com a nova senha deve funcionar
+        const loginNewPass = await fetch(`${BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: 'admin@stockvision.com',
+                password: 'novaSenhaSegura456'
+            })
+        });
+        assert.equal(loginNewPass.status, 200);
+        const loginNewPassData = await loginNewPass.json();
+        authToken = loginNewPassData.token; // atualiza token para os próximos testes
     });
 
     await t.test('4. Dashboard Analytics & Top 5 Mais Vendidos', async () => {

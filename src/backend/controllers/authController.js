@@ -325,12 +325,27 @@ exports.updateProfile = async (req, res) => {
             return res.status(404).json({ message: 'Usuário não localizado.' });
         }
 
-        const { fullname, phone, jobTitle, avatarUrl, preferences, companyDetails } = req.body;
+        const { fullname, phone, jobTitle, avatarUrl, preferences, companyDetails, currentPassword, newPassword } = req.body;
 
         if (fullname) user.fullname = fullname.trim();
         if (typeof phone !== 'undefined') user.phone = phone.trim();
         if (typeof jobTitle !== 'undefined') user.jobTitle = jobTitle.trim();
         if (typeof avatarUrl !== 'undefined') user.avatarUrl = avatarUrl.trim();
+
+        // Alteração segura de senha pelo próprio usuário
+        if (newPassword) {
+            if (!currentPassword) {
+                return res.status(400).json({ message: 'Para alterar a senha, informe sua senha atual.' });
+            }
+            const isMatch = await user.comparePassword(currentPassword);
+            if (!isMatch) {
+                return res.status(400).json({ message: 'A senha atual informada está incorreta.' });
+            }
+            if (newPassword.length < 6) {
+                return res.status(400).json({ message: 'A nova senha deve conter no mínimo 6 caracteres.' });
+            }
+            user.password = newPassword;
+        }
 
         if (preferences && typeof preferences === 'object') {
             user.preferences = {
