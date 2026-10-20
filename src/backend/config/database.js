@@ -100,7 +100,7 @@ const seedInitialData = async () => {
  * CONECTOR MONGODB HÍBRIDO (LOCAL / ATLAS / IN-MEMORY AUTO-START)
  */
 const connectDB = async () => {
-    const configuredUri = process.env.MONGO_URI;
+    const configuredUri = process.env.MONGO_URI || process.env.MONGODB_URI;
     const isCustomRemote = configuredUri && !configuredUri.includes('127.0.0.1') && !configuredUri.includes('localhost');
 
     // 1. Tenta conectar em banco remoto (Atlas), se configurado
