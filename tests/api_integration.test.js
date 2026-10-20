@@ -1,7 +1,8 @@
+require('dotenv').config();
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = `http://localhost:${process.env.PORT || 3000}/api`;
 
 test('Suíte de Testes de Integração da API StockVision', async (t) => {
     let authToken = '';
